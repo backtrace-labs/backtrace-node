@@ -26,3 +26,8 @@ to process error report and schedule sending the report to Backtrace.
 
 Defaults to `false`. Set to `true` to cause process to wait for the report to
 Backtrace to complete before exiting.
+
+#### `allowMultipleUncaughtExceptionListeners`
+
+Defaults to `false`. Set to `true` to not crash when another `uncaughtException`
+listener is detected.
