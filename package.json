@@ -1,0 +1,9 @@
+{
+  "name": "backtrace.io",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Backtrace error reporting tool",
+  "main": "index.js",
+  "author": "Andrew Kelley <superjoe30@gmail.com>",
+  "license": "MIT"
+}
