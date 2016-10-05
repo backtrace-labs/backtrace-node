@@ -7,6 +7,7 @@
   "author": "Andrew Kelley <superjoe30@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "pend": "^1.2.0",
     "streamsink": "~1.2.0"
   }
 }

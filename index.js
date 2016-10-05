@@ -7,31 +7,45 @@ exports.initialize = initialize;
 function initialize(options) {
   options = options || {};
   var allowMultipleUncaughtExceptionListeners = !!options.allowMultipleUncaughtExceptionListeners;
-  var debugBacktrace = !!options.debugBacktrace;
 
   if (!allowMultipleUncaughtExceptionListeners &&
       process.listenerCount('uncaughtException') !== 0)
   {
-    throw new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
+    abortDueToMultipleListeners();
   }
+
+  var debugBacktrace = !!options.debugBacktrace;
+  var timeout = options.timeout || 1000;
+  var tabWidth = options.tabWidth || 8;
+  var endpoint = options.endpoint;
+  var token = options.token;
+
+  if (!endpoint) throw new Error("Backtrace: missing 'endpoint' option.");
+  if (!token) throw new Error("Backtrace: missing 'token' option.");
+
   process.on('uncaughtException', onUncaughtException);
   if (!allowMultipleUncaughtExceptionListeners) {
     process.on('newListener', onNewProcessListener);
   }
   
   function onUncaughtException(err) {
-    // TODO parse err.stack
-    var report = {
-      uuid: makeUuid(),
-      timestamp: (new Date()).getTime(),
-      lang: "nodejs",
-      langVersion: process.version,
-      uptime: process.uptime(),
-      env: process.env,
-      os: process.platform,
-      memoryUsage: process.memoryUsage(),
-      errorName: err.name,
-      errorMessage: err.message,
+    var payload = {
+      report: {
+        uuid: makeUuid(),
+        timestamp: (new Date()).getTime(),
+        lang: "nodejs",
+        langVersion: process.version,
+        uptime: process.uptime(),
+        env: process.env,
+        os: process.platform,
+        memoryUsage: process.memoryUsage(),
+        errorName: err.name,
+        errorMessage: err.message,
+      },
+      stack: err.stack,
+      tabWidth: tabWidth,
+      endpoint: endpoint,
+      token: token,
     };
 
     var syncReportJs = path.join(__dirname, "sync_report.js"); 
@@ -40,11 +54,11 @@ function initialize(options) {
       args.push("--debug");
     }
     var stdioValue = debugBacktrace ? 'inherit' : 'ignore';
-    var reportString = JSON.stringify(report);
+    var payloadString = JSON.stringify(payload);
 
     spawnSync(process.execPath, args, {
-      input: reportString,
-      timeout: options.timeout || 1000,
+      input: payloadString,
+      timeout: timeout,
       stdio: [null, 'inherit', 'inherit'],
       encoding: 'utf8'
     });
@@ -54,11 +68,17 @@ function initialize(options) {
 
   function onNewProcessListener(eventName, listener) {
     if (eventName === 'uncaughtException') {
-      throw new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
+      abortDueToMultipleListeners();
     }
   }
 }
 
 function makeUuid() {
   return crypto.pseudoRandomBytes(16).toString('base64');
+}
+
+function abortDueToMultipleListeners() {
+  var err = new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
+  console.error(err.stack);
+  process.exit(1);
 }

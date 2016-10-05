@@ -15,7 +15,29 @@ bt.initialize();
 bt.initialize([options]);
 ```
 
+This is intended to be one of the first things your application does during
+initialization. It registers a handler for `uncaughtException` which will
+spawn a detached child process to perform the error report and then crash
+in the same way that your application would have crashed without the handler.
+
 ### Options
+
+#### `endpoint`
+
+Required.
+
+Example: `https://backtrace.example.com:1234`.
+
+Sets the HTTP/HTTPS endpoint that error reports will be sent to.
+
+#### `token`
+
+Required.
+
+Example: `51cc8e69c5b62fa8c72dc963e730f1e8eacbd243aeafc35d08d05ded9a024121`.
+
+Sets the token that will be used for authentication when sending an error
+report.
 
 #### `timeout`
 
@@ -31,3 +53,18 @@ Backtrace to complete before exiting.
 
 Defaults to `false`. Set to `true` to not crash when another `uncaughtException`
 listener is detected.
+
+#### `contextLineCount`
+
+Defaults to `20`. When an error is reported, this many lines above and below
+each stack function are included in the report.
+
+NOTE: this option is not yet implemented as currently all source code for files
+in the stack trace are sent in the report.
+
+#### `tabWidth`
+
+Defaults to `8`. If there are any hard tabs in the source code, it is unclear
+how many spaces they should be indented to correctly display the source code.
+Therefore the error report can override this number to specify how many spaces
+a hard tab should be represented by when viewing source code.
