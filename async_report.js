@@ -6,14 +6,18 @@ var https = require('https');
 var url = require('url');
 
 var stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
+var whichHttpLib = {
+  'http:': http,
+  'https:': https,
+};
 
 // This process must collect stdin and then close stdin as fast as possible,
 // but then is free to take as long as it needs to perform the error reporting,
 // since no user process is waiting on it.
 
-main();
+main(throwIfErr);
 
-function main() {
+function main(cb) {
   var sink = new StreamSink();
   sink.on('finish', gotAllStdin);
   process.stdin.pipe(sink);
@@ -24,17 +28,39 @@ function main() {
     var report = info.report;
 
     parseStack(info, finishedParsingStack);
-  }
 
+    function finishedParsingStack(err) {
+      if (err) return cb(err);
+      sendReport(report, info.endpoint, info.token, cb);
+    }
+  }
 }
 
-  function finishedParsingStack(err, report) {
-    if (err) throw err;
+function sendReport(report, endpoint, token, cb) {
+  var parsedEndpoint = url.parse(endpoint);
+  var httpLib = whichHttpLib[parsedEndpoint.protocol];
+  if (!httpLib) return cb(new Error("Invalid URL"));
 
-    console.log("TODO write this to coronerd: (begin)");
-    console.log(JSON.stringify(report, null, 2));
-    console.log("(end)");
+  var postString = JSON.stringify(report);
+  var postData = Buffer.from(postString, 'utf8');
+
+  parsedEndpoint.path = "/post";
+  parsedEndpoint.method = "POST";
+  parsedEndpoint.headers = {
+    'Content-Type': 'application/json',
+    'Content-Length': postData.length,
+  };
+  var req = httpLib.request(parsedEndpoint, onResponse);
+  req.on('error', cb);
+  req.write(postData);
+  req.end();
+
+  function onResponse(resp) {
+    if (resp.statusCode == 200) return cb();
+    var err = new Error("HTTP " + resp.statusCode);
+    cb(err);
   }
+}
 
 http://127.0.0.1:6097/post?token=51cc8e69c5b62fa8c72dc963e730f1e8eacbd243aeafc35d08d05ded9a024121&format=json
 
@@ -85,7 +111,7 @@ function parseStack(info, cb) {
       }
     }
 
-    cb(null, report);
+    cb();
   }
 }
 
@@ -127,3 +153,8 @@ function resolveSourceCode(report, tabWidth, wantedSourceCode, cb) {
     }
   }
 }
+
+function throwIfErr(err) {
+  if (err) throw err;
+}
+
