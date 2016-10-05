@@ -4,6 +4,7 @@ var Pend = require('pend');
 var http = require('http');
 var https = require('https');
 var url = require('url');
+var querystring = require('querystring');
 
 var stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
 var whichHttpLib = {
@@ -44,7 +45,12 @@ function sendReport(report, endpoint, token, cb) {
   var postString = JSON.stringify(report);
   var postData = Buffer.from(postString, 'utf8');
 
-  parsedEndpoint.path = "/post";
+  var query = querystring.stringify({
+    token: token,
+    format: "json",
+  });
+
+  parsedEndpoint.path = "/post?" + query;
   parsedEndpoint.method = "POST";
   parsedEndpoint.headers = {
     'Content-Type': 'application/json',
@@ -61,8 +67,6 @@ function sendReport(report, endpoint, token, cb) {
     cb(err);
   }
 }
-
-http://127.0.0.1:6097/post?token=51cc8e69c5b62fa8c72dc963e730f1e8eacbd243aeafc35d08d05ded9a024121&format=json
 
 function parseStack(info, cb) {
   var stack = info.stack;
