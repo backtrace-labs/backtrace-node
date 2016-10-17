@@ -102,6 +102,7 @@ function parseStack(info, cb) {
       stack: stackArray,
     },
   };
+  report.mainThread = "main";
   resolveSourceCode(report, tabWidth, wantedSourceCode, onResolvedSourceCode);
 
   function onResolvedSourceCode(err) {
