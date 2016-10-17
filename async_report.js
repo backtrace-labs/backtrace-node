@@ -80,7 +80,7 @@ function parseStack(info, cb) {
     var match = line.match(stackLineRe);
     if (!match) continue;
 
-    var procName = match[1];
+    var funcName = match[1];
     var sourceCodePath = match[2];
     var line = match[3];
     var column = match[4];
@@ -88,7 +88,7 @@ function parseStack(info, cb) {
     wantedSourceCode[sourceCodePath].push({line: line, column: column});
 
     var frame = {
-      procName: procName,
+      funcName: funcName,
       line: line,
       column: column,
       sourceCode: sourceCodePath,

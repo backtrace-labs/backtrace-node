@@ -29,18 +29,24 @@ function initialize(options) {
   }
   
   function onUncaughtException(err) {
+    var mem = process.memoryUsage();
     var payload = {
       report: {
         uuid: makeUuid(),
         timestamp: (new Date()).getTime(),
         lang: "nodejs",
         langVersion: process.version,
-        uptime: process.uptime(),
+        attributes: {
+          "process.age": Math.floor(process.uptime() * 1000),
+          "uname.machine": process.arch,
+          "uname.sysname": process.platform,
+          "error.name": err.name,
+          "error.message": err.message,
+          "mem.rss": mem.rss,
+          "mem.heap.total": mem.heapTotal,
+          "mem.heap.used": mem.heapUsed,
+        },
         env: process.env,
-        os: process.platform,
-        memoryUsage: process.memoryUsage(),
-        errorName: err.name,
-        errorMessage: err.message,
       },
       stack: err.stack,
       tabWidth: tabWidth,
