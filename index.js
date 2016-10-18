@@ -27,7 +27,7 @@ function initialize(options) {
   if (!allowMultipleUncaughtExceptionListeners) {
     process.on('newListener', onNewProcessListener);
   }
-  
+
   function onUncaughtException(err) {
     var mem = process.memoryUsage();
     var payload = {
@@ -54,7 +54,7 @@ function initialize(options) {
       token: token,
     };
 
-    var syncReportJs = path.join(__dirname, "sync_report.js"); 
+    var syncReportJs = path.join(__dirname, "sync_report.js");
     var args = [syncReportJs];
     if (debugBacktrace) {
       args.push("--debug");
@@ -80,7 +80,16 @@ function initialize(options) {
 }
 
 function makeUuid() {
-  return crypto.pseudoRandomBytes(16).toString('base64');
+  var bytes = crypto.pseudoRandomBytes(16);
+  return bytes.slice(0, 4).toString('hex') +
+    '-' +
+    bytes.slice(4, 6).toString('hex') +
+    '-' +
+    bytes.slice(6, 8).toString('hex') +
+    '-' +
+    bytes.slice(8, 10).toString('hex') +
+    '-' +
+    bytes.slice(10, 16).toString('hex');
 }
 
 function abortDueToMultipleListeners() {
