@@ -33,18 +33,18 @@ function initialize(options) {
     var payload = {
       report: {
         uuid: makeUuid(),
-        timestamp: (new Date()).getTime(),
+        timestamp: (new Date()).getTime() / 1000,
         lang: "nodejs",
         langVersion: process.version,
         attributes: {
           "process.age": Math.floor(process.uptime() * 1000),
           "uname.machine": process.arch,
           "uname.sysname": process.platform,
-          "error.name": err.name,
+          "classifiers": err.name,
           "error.message": err.message,
-          "mem.rss": mem.rss,
-          "mem.heap.total": mem.heapTotal,
-          "mem.heap.used": mem.heapUsed,
+          "vm.rss.size": mem.rss / 1024,
+          "gc.heap.total": mem.heapTotal,
+          "gc.heap.used": mem.heapUsed
         },
         env: process.env,
       },
