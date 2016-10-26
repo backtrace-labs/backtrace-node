@@ -4,6 +4,7 @@ var spawnSync = child_process.spawnSync;
 var spawn = child_process.spawn;
 var path = require('path');
 var os = require('os');
+var fs = require('fs');
 
 exports.initialize = initialize;
 exports.report = reportAsync;
@@ -13,6 +14,19 @@ var timeout;
 var tabWidth;
 var endpoint;
 var token;
+
+var procSelfStatusData = [
+  {
+    re: /^nonvoluntary_ctxt_switches:\s+(\d+)$/m,
+    parse: parseInt,
+    attr: "sched.cs.involuntary",
+  },
+  {
+    re: /^voluntary_ctxt_switches:\s+(\d+)$/m,
+    parse: parseInt,
+    attr: "sched.cs.voluntary",
+  },
+];
 
 function initialize(options) {
   options = options || {};
@@ -77,7 +91,7 @@ function abortDueToMultipleListeners() {
 
 function createReportObj(err) {
   var mem = process.memoryUsage();
-  return {
+  var payload = {
     report: {
       uuid: makeUuid(),
       timestamp: (new Date()).getTime(),
@@ -101,6 +115,8 @@ function createReportObj(err) {
     endpoint: endpoint,
     token: token,
   };
+  obtainProcSelfStatus(payload.report);
+  return payload;
 }
 
 function reportAsync(err) {
@@ -136,4 +152,35 @@ function reportSync(err) {
     stdio: [null, stdioValue, stdioValue],
     encoding: 'utf8',
   });
+}
+
+function obtainProcSelfStatus(report) {
+  // Justification for doing this synchronously:
+  // * We need to collect this information in the process uncaughtException handler, in which the
+  //   event loop is not safe to use.
+  // * We are collecting a snapshot of virtual memory used. If this is done asynchronously, then
+  //   we may pick up virtual memory information for a time different than the moment we are
+  //   interested in.
+  // * procfs is a virtual filesystem; there is no disk I/O to block on. It's synchronous anyway.
+  var contents;
+  try {
+    contents = fs.readFileSync("/proc/self/status", {encoding: 'utf8'});
+  } catch (err) {
+    errorIfDebug("Unable to read /proc/self/status: " + err.message);
+    return;
+  }
+  for (var i = 0; i < procSelfStatusData.length; i += 1) {
+    var item = procSelfStatusData[i];
+    var match = contents.match(item.re);
+    if (!match) {
+      errorIfDebug("Unable to extract " + item.attr);
+      continue;
+    }
+    report.attributes[item.attr] = item.parse(match[1]);
+  }
+}
+
+function errorIfDebug(line) {
+  if (!debugBacktrace) return;
+  console.error(line);
 }
