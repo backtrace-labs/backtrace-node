@@ -3,6 +3,7 @@ var child_process = require('child_process');
 var spawnSync = child_process.spawnSync;
 var spawn = child_process.spawn;
 var path = require('path');
+var os = require('os');
 
 exports.initialize = initialize;
 exports.report = reportAsync;
@@ -85,6 +86,7 @@ function createReportObj(err) {
         "vm.rss.size": mem.rss,
         "gc.heap.total": mem.heapTotal,
         "gc.heap.used": mem.heapUsed,
+        "hostname": os.hostname(),
       },
       env: process.env,
     },
