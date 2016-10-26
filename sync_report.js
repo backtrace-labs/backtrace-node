@@ -14,7 +14,7 @@ function main() {
   var isDebug = false;
   for (var i = 2; i < process.argv.length; i += 1) {
     var arg = process.argv[i];
-    if (arg == "--debug") {
+    if (arg === "--debug") {
       isDebug = true;
     } else {
       console.error("Invalid argument: " + arg + "\n");
@@ -42,7 +42,9 @@ function collectStdin(isDebug) {
     var asyncReportJs = path.join(__dirname, "async_report.js"); 
     var stdioAction = isDebug ? 'inherit' : 'ignore';
     var isDetached = !isDebug;
-    var child = spawn(process.execPath, [asyncReportJs], {
+    var args = [asyncReportJs];
+    if (isDebug) args.push("--debug");
+    var child = spawn(process.execPath, args, {
       detached: isDetached,
       stdio: ['pipe', stdioAction, stdioAction],
     });

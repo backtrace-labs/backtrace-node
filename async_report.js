@@ -12,13 +12,52 @@ var whichHttpLib = {
   'https:': https,
 };
 
+var memInfoRe = /^(.+):\s+(\d+)\s*(.+)?$/;
+var memInfoToAttr = {
+  "MemTotal": "system.memory.total",
+  "MemFree": "system.memory.free",
+  "MemAvailable": "system.memory.available",
+  "Buffers": "system.memory.buffers",
+  "Cached": "system.memory.cached",
+  "SwapCached": "system.memory.swap.cached",
+  "Active": "system.memory.active",
+  "Inactive": "system.memory.inactive",
+  "SwapTotal": "system.memory.swap.total",
+  "SwapFree": "system.memory.swap.free",
+  "Dirty": "system.memory.dirty",
+  "Writeback": "system.memory.writeback",
+  "Slab": "system.memory.slab",
+  "VmallocTotal": "system.memory.vmalloc.total",
+  "VmallocUsed": "system.memory.vmalloc.used",
+  "VmallocChunk": "system.memory.vmalloc.chunk",
+};
+
 // This process must collect stdin and then close stdin as fast as possible,
 // but then is free to take as long as it needs to perform the error reporting,
 // since no user process is waiting on it.
 
 main(throwIfErr);
 
+function usage() {
+  console.error(
+    "Usage: " + process.argv[0] + " " + process.argv[1] + " [options]\n" +
+    "Options:\n" +
+    "  --debug      Show debug output from reporting");
+  process.exit(1);
+}
+
 function main(cb) {
+  var isDebug = false;
+  for (var i = 2; i < process.argv.length; i += 1) {
+    var arg = process.argv[i];
+    if (arg === "--debug") {
+      isDebug = true;
+    } else {
+      console.error("Invalid argument: " + arg + "\n");
+      usage();
+    }
+  }
+
   var sink = new StreamSink();
   sink.on('finish', gotAllStdin);
   process.stdin.pipe(sink);
@@ -28,10 +67,20 @@ function main(cb) {
     var info = JSON.parse(payload);
     var report = info.report;
 
-    parseStack(info, finishedParsingStack);
+    var pend = new Pend();
+    pend.go(function(cb) {
+      parseStack(info, cb);
+    });
+    pend.go(function(cb) {
+      obtainMemInfo(info, cb);
+    });
+    pend.wait(gotAllInfo);
 
-    function finishedParsingStack(err) {
+    function gotAllInfo(err) {
       if (err) return cb(err);
+      if (isDebug) {
+        console.error(JSON.stringify(report, null, 2));
+      }
       sendReport(report, info.endpoint, info.token, cb);
     }
   }
@@ -62,7 +111,7 @@ function sendReport(report, endpoint, token, cb) {
   req.end();
 
   function onResponse(resp) {
-    if (resp.statusCode == 200) return cb();
+    if (resp.statusCode === 200) return cb();
     var err = new Error("HTTP " + resp.statusCode);
     cb(err);
   }
@@ -76,14 +125,14 @@ function parseStack(info, cb) {
   var stackArray = [];
   var wantedSourceCode = {};
   for (var i = 0; i < lines.length; i += 1) {
-    var line = lines[i];
-    var match = line.match(stackLineRe);
+    var rawLine = lines[i];
+    var match = rawLine.match(stackLineRe);
     if (!match) continue;
 
     var funcName = match[1];
     var sourceCodePath = match[2];
-    var line = match[3];
-    var column = match[4];
+    var line = parseInt(match[3], 10);
+    var column = parseInt(match[4], 10);
     wantedSourceCode[sourceCodePath] = wantedSourceCode[sourceCodePath] || [];
     wantedSourceCode[sourceCodePath].push({line: line, column: column});
 
@@ -163,3 +212,44 @@ function throwIfErr(err) {
   if (err) throw err;
 }
 
+function obtainMemInfo(info, cb) {
+  fs.readFile("/proc/meminfo", {encoding: 'utf8'}, onReadFinished);
+
+  function onReadFinished(err, contents) {
+    if (err) {
+      console.error("Unable to read /proc/meminfo: " + err.message);
+      // Don't report an error here. We can allow obtaining meminfo to fail
+      // and still have a useful report.
+      cb();
+      return;
+    }
+
+    var lines = contents.split("\n");
+    for (var i = 0; i < lines.length; i += 1) {
+      var line = lines[i];
+      if (!line) continue;
+      var match = line.match(memInfoRe);
+      if (!match) {
+        console.error("unrecognized line in /proc/meminfo: '" + line + "'");
+        continue;
+      }
+      var name = match[1];
+      var number = parseInt(match[2], 10);
+      var units = match[3];
+      var attrName = memInfoToAttr[name];
+      if (!attrName) continue;
+      if (number === 0) units = "B";
+      if (units === "B" || units === "bytes") {
+        number *= 1;
+      } else if (units === "kB") {
+        number *= 1024;
+      } else {
+        console.error("unrecognized units in /proc/meminfo: '" + units + "'");
+        continue;
+      }
+      info.report.attributes[attrName] = number;
+    }
+
+    cb();
+  }
+}
