@@ -27,6 +27,66 @@ var procSelfStatusData = [
     parse: parseInt,
     attr: "sched.cs.voluntary",
   },
+  {
+    re: /^FDSize:\s+(\d+)$/m,
+    parse: parseInt,
+    attr: "descriptor.count",
+  },
+  {
+    re: /^FDSize:\s+(\d+)$/m,
+    parse: parseInt,
+    attr: "descriptor.count",
+  },
+  {
+    re: /^VmData:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.data.size",
+  },
+  {
+    re: /^VmLck:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.locked.size",
+  },
+  {
+    re: /^VmPTE:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.pte.size",
+  },
+  {
+    re: /^VmHWM:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.rss.peak",
+  },
+  {
+    re: /^VmRSS:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.rss.size",
+  },
+  {
+    re: /^VmLib:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.shared.size",
+  },
+  {
+    re: /^VmStk:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.stack.size",
+  },
+  {
+    re: /^VmSwap:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.swap.size",
+  },
+  {
+    re: /^VmPeak:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.vma.peak",
+  },
+  {
+    re: /^VmSize:\s+(\d+)\s+kB$/m,
+    parse: parseKb,
+    attr: "vm.vma.size",
+  },
 ];
 
 var rootPackageJson = getRootPackageJson();
@@ -223,4 +283,8 @@ function getRootPackageJson() {
     }
     return packageJson;
   }
+}
+
+function parseKb(str) {
+  return parseInt(str) * 1024;
 }
