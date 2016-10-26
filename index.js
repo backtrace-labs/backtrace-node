@@ -16,13 +16,6 @@ var token;
 
 function initialize(options) {
   options = options || {};
-  var allowMultipleUncaughtExceptionListeners = !!options.allowMultipleUncaughtExceptionListeners;
-
-  if (!allowMultipleUncaughtExceptionListeners &&
-      process.listenerCount('uncaughtException') !== 0)
-  {
-    abortDueToMultipleListeners();
-  }
 
   debugBacktrace = !!options.debugBacktrace;
   timeout = options.timeout || 1000;
@@ -30,9 +23,22 @@ function initialize(options) {
   endpoint = options.endpoint;
   token = options.token;
 
+  var disableGlobalHandler = !!options.disableGlobalHandler;
+
   if (!endpoint) throw new Error("Backtrace: missing 'endpoint' option.");
   if (!token) throw new Error("Backtrace: missing 'token' option.");
 
+  if (!disableGlobalHandler) {
+    registerGlobalHandler(!!options.allowMultipleUncaughtExceptionListeners);
+  }
+}
+
+function registerGlobalHandler(allowMultipleUncaughtExceptionListeners) {
+  if (!allowMultipleUncaughtExceptionListeners &&
+      process.listenerCount('uncaughtException') !== 0)
+  {
+    abortDueToMultipleListeners();
+  }
   process.on('uncaughtException', onUncaughtException);
   if (!allowMultipleUncaughtExceptionListeners) {
     process.on('newListener', onNewProcessListener);

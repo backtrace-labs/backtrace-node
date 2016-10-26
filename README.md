@@ -73,6 +73,15 @@ Backtrace to complete before exiting.
 Defaults to `false`. Set to `true` to not crash when another `uncaughtException`
 listener is detected.
 
+##### `disableGlobalHandler`
+
+Defaults to `false`. If this is `false`, this module will attach an
+`uncaughtException` handler and report those errors automatically before
+re-throwing the exception.
+
+Set to `true` to disable this. Note that in this case the only way errors
+will be reported is if you call `bt.report(error)`.
+
 ##### `contextLineCount`
 
 Defaults to `20`. When an error is reported, this many lines above and below
