@@ -5,6 +5,7 @@ var http = require('http');
 var https = require('https');
 var url = require('url');
 var querystring = require('querystring');
+var spawn = require('child_process').spawn;
 
 var stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
 var whichHttpLib = {
@@ -73,6 +74,9 @@ function main(cb) {
     });
     pend.go(function(cb) {
       obtainMemInfo(info, cb);
+    });
+    pend.go(function(cb) {
+      obtainUnameInfo(info, cb);
     });
     pend.wait(gotAllInfo);
 
@@ -252,4 +256,53 @@ function obtainMemInfo(info, cb) {
 
     cb();
   }
+}
+
+function obtainUnameInfo(info, cb) {
+  var pend = new Pend();
+  pend.go(makeCollectUnameFn(info, "--machine", "uname.machine"));
+  pend.go(makeCollectUnameFn(info, "--kernel-release", "uname.release"));
+  pend.go(makeCollectUnameFn(info, "--kernel-name", "uname.sysname"));
+  pend.go(makeCollectUnameFn(info, "--kernel-version", "uname.version"));
+  pend.wait(cb);
+}
+
+function makeCollectUnameFn(info, unameArg, attrName, cb) {
+  return function(cb) {
+    collectStdout("uname", [unameArg], function(err, stdout) {
+      if (err) {
+        console.error("Unable to exec uname " + unameArg + ": " + err.message);
+        // Don't report an error here. We can allow obtaining uname info to fail
+        // and still have a useful report.
+        cb();
+        return;
+      }
+      info.report.attributes[attrName] = stdout.trim();
+      cb();
+    });
+  };
+}
+
+function collectStdout(cmd, args, cb) {
+  var child = spawn(cmd, args, {
+    timeout: 1000,
+    stdio: ['ignore', 'pipe', 'inherit'],
+    encoding: 'utf8',
+  });
+  var stdout = "";
+  child.on('error', cb);
+  child.stdout.on('data', function(data) {
+    stdout += data;
+  });
+  child.on('close', function(code, signal) {
+    if (code) {
+      cb(new Error(cmd + " exited with code " + code));
+      return;
+    }
+    if (signal) {
+      cb(new Error(cmd + " exited with signal " + signal));
+      return;
+    }
+    cb(null, stdout);
+  });
 }

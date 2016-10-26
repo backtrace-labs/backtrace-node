@@ -105,7 +105,7 @@ function reportAsync(err) {
 
   var child = spawn(process.execPath, args, {
     timeout: timeout,
-    stdio: [null, stdioValue, stdioValue],
+    stdio: ['pipe', stdioValue, stdioValue],
     encoding: 'utf8',
     detached: !debugBacktrace,
   });
