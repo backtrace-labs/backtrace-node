@@ -14,6 +14,7 @@ var timeout;
 var tabWidth;
 var endpoint;
 var token;
+var userAttributes;
 
 var procSelfStatusData = [
   {
@@ -28,6 +29,8 @@ var procSelfStatusData = [
   },
 ];
 
+var rootPackageJson = getRootPackageJson();
+
 function initialize(options) {
   options = options || {};
 
@@ -36,6 +39,7 @@ function initialize(options) {
   tabWidth = options.tabWidth || 8;
   endpoint = options.endpoint;
   token = options.token;
+  userAttributes = extend({}, options.attributes || {});
 
   var disableGlobalHandler = !!options.disableGlobalHandler;
 
@@ -97,7 +101,7 @@ function createReportObj(err) {
       timestamp: (new Date()).getTime(),
       lang: "nodejs",
       langVersion: process.version,
-      attributes: {
+      attributes: extend({
         "process.age": Math.floor(process.uptime() * 1000),
         "uname.machine": process.arch,
         "uname.sysname": process.platform,
@@ -107,7 +111,7 @@ function createReportObj(err) {
         "gc.heap.total": mem.heapTotal,
         "gc.heap.used": mem.heapUsed,
         "hostname": os.hostname(),
-      },
+      }, userAttributes),
       env: process.env,
     },
     stack: err.stack,
@@ -115,6 +119,9 @@ function createReportObj(err) {
     endpoint: endpoint,
     token: token,
   };
+  if (rootPackageJson && !payload.report.attributes.application) {
+    payload.report.attributes.application = rootPackageJson.name;
+  }
   obtainProcSelfStatus(payload.report);
   return payload;
 }
@@ -183,4 +190,37 @@ function obtainProcSelfStatus(report) {
 function errorIfDebug(line) {
   if (!debugBacktrace) return;
   console.error(line);
+}
+
+function extend(o, src) {
+  for (var key in src) o[key] = src[key];
+  return o;
+}
+
+function getRootPackageJson() {
+  var rootFilename = require.main.filename;
+  var searchDir = path.dirname(rootFilename);
+
+  // Traverse upwards until we find package.json.
+  while (true) {
+    var searchFilename = path.join(searchDir, "package.json");
+    var packageJson;
+    try {
+      packageJson = require(searchFilename);
+    } catch (err) {
+      if (err.code === 'MODULE_NOT_FOUND') {
+        var prevSearchDir = searchDir;
+        searchDir = path.dirname(searchDir);
+        if (searchDir === prevSearchDir) {
+          errorIfDebug("No root package.json found");
+          return null;
+        }
+        continue;
+      } else {
+        errorIfDebug("Unable to obtain root package.json: " + err.message);
+        return null;
+      }
+    }
+    return packageJson;
+  }
 }
