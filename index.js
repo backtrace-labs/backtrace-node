@@ -158,7 +158,7 @@ function createReportObj(err) {
   var payload = {
     report: {
       uuid: makeUuid(),
-      timestamp: (new Date()).getTime(),
+      timestamp: (new Date()).getTime() / 1000,
       lang: "nodejs",
       langVersion: process.version,
       attributes: extend({
