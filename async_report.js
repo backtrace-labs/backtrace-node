@@ -110,13 +110,22 @@ function sendReport(report, endpoint, token, cb) {
     'Content-Length': postData.length,
   };
   var req = httpLib.request(parsedEndpoint, onResponse);
-  req.on('error', cb);
+  req.on('error', onError);
   req.write(postData);
   req.end();
 
   function onResponse(resp) {
     if (resp.statusCode === 200) return cb();
     var err = new Error("HTTP " + resp.statusCode);
+    cb(err);
+  }
+
+  function onError(err) {
+    if (err.code === 'ECONNRESET') {
+      console.error("Unable to send report: " + endpoint + " reset the connection.");
+      process.exit(1);
+      return;
+    }
     cb(err);
   }
 }
