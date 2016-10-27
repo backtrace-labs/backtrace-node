@@ -1,6 +1,6 @@
-# node-backtrace.io
+# backtrace-node
 
-[Backtrace](http://backtrace.io/) error reporting tool.
+[Backtrace](http://backtrace.io/) error reporting tool for Node.js.
 
 ## Usage
 
