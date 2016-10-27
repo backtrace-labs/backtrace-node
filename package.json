@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Andrew Kelley <akelley@backtrace.io>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:backtrace-labs/backtrace-node.git"
+  },
   "dependencies": {
     "pend": "~1.2.0",
     "streamsink": "~1.2.0"
