@@ -1,6 +1,6 @@
 {
   "name": "backtrace-node",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Backtrace error reporting tool",
   "main": "index.js",
   "author": "Andrew Kelley <akelley@backtrace.io>",
