@@ -186,7 +186,7 @@ function createReportObj(err) {
   return payload;
 }
 
-function reportAsync(err) {
+function reportAsync(err, callback) {
   var payload = createReportObj(err);
   var asyncReportJs = path.join(__dirname, "async_report.js");
   var args = [asyncReportJs];
@@ -200,9 +200,36 @@ function reportAsync(err) {
     encoding: 'utf8',
     detached: !debugBacktrace,
   });
+  child.on('error', onChildError);
+  child.on('close', onChildClose);
   child.stdin.write(payloadString);
   child.stdin.end();
   if (!debugBacktrace) child.unref();
+
+  function onChildError(err) {
+    if (callback) {
+      callback(err);
+    } else if (debugBacktrace) {
+      console.error("Unable to spawn report process:");
+      console.error(err.stack);
+    }
+  }
+
+  function onChildClose(code, signal) {
+    var err;
+    if (code !== 0) {
+      err = new Error("report process exited with code " + code);
+    } else if (signal) {
+      err = new Error("report process exited with signal " + signal);
+    } else {
+      err = null;
+    }
+    if (callback) {
+      callback(err);
+    } else if (err && debugBacktrace) {
+      console.error(err.stack);
+    }
+  }
 }
 
 function reportSync(err) {

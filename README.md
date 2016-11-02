@@ -97,8 +97,9 @@ how many spaces they should be indented to correctly display the source code.
 Therefore the error report can override this number to specify how many spaces
 a hard tab should be represented by when viewing source code.
 
-### bt.report(error)
+### bt.report(error, [callback])
 
 Send an error report to Backtrace.
 
-`error` should be an `Error` object created with `new Error("message")`.
+ * `error` - should be an `Error` object created with `new Error("message")`.
+ * `callback(err)` - optional. Called when the report is finished sending.

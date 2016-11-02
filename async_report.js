@@ -96,7 +96,7 @@ function sendReport(report, endpoint, token, cb) {
   if (!httpLib) return cb(new Error("Invalid URL"));
 
   var postString = JSON.stringify(report);
-  var postData = Buffer.from(postString, 'utf8');
+  var postData = new Buffer(postString, 'utf8');
 
   var query = querystring.stringify({
     token: token,
