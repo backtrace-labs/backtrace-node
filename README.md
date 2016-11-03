@@ -102,4 +102,6 @@ a hard tab should be represented by when viewing source code.
 Send an error report to Backtrace.
 
  * `error` - should be an `Error` object created with `new Error("message")`.
+   If this parameter is not an instance of `Error` then backtrace-node will
+   print a warning message to stderr.
  * `callback(err)` - optional. Called when the report is finished sending.

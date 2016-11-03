@@ -187,6 +187,7 @@ function createReportObj(err) {
 }
 
 function reportAsync(err, callback) {
+  if (!validateErrorObject(err)) return;
   var payload = createReportObj(err);
   var asyncReportJs = path.join(__dirname, "async_report.js");
   var args = [asyncReportJs];
@@ -233,6 +234,7 @@ function reportAsync(err, callback) {
 }
 
 function reportSync(err) {
+  if (!validateErrorObject(err)) return;
   var payload = createReportObj(err);
   var syncReportJs = path.join(__dirname, "sync_report.js");
   var args = [syncReportJs];
@@ -314,4 +316,10 @@ function getRootPackageJson() {
 
 function parseKb(str) {
   return parseInt(str) * 1024;
+}
+
+function validateErrorObject(err) {
+  if (err instanceof Error) return true;
+  console.error(new Error("Attempted to report error with non Error type").stack);
+  return false;
 }
