@@ -44,10 +44,22 @@ Example: `51cc8e69c5b62fa8c72dc963e730f1e8eacbd243aeafc35d08d05ded9a024121`.
 Sets the token that will be used for authentication when sending an error
 report.
 
+##### `handlePromises`
+
+Optional. Set to `true` to listen to the `unhandledRejection` global event and
+report those errors in addition to `uncaughtException` events.
+
+Defaults to `false` because an application can technically add a promise
+rejection handler after an event loop iteration, which would cause the
+`unhandledRejection` event to fire, followed by the `rejectionHandled` event
+when the handler was added later. This would make the error report a false
+positive. However, most applications will add rejection handlers before an
+event loop iteration, in which case `handlePromises` should be set to `true`.
+
 ##### `attributes`
 
-Optional. Object that contains additional attributes to be sent along with the
-error report.
+Optional. Object that contains additional attributes to be sent along with
+every error report.
 
 Example:
 

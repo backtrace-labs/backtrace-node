@@ -102,12 +102,16 @@ function initialize(options) {
   userAttributes = extend({}, options.attributes || {});
 
   var disableGlobalHandler = !!options.disableGlobalHandler;
+  var handlePromises = !!options.handlePromises;
 
   if (!endpoint) throw new Error("Backtrace: missing 'endpoint' option.");
   if (!token) throw new Error("Backtrace: missing 'token' option.");
 
   if (!disableGlobalHandler) {
     registerGlobalHandler(!!options.allowMultipleUncaughtExceptionListeners);
+  }
+  if (handlePromises) {
+    registerPromiseHandler();
   }
 }
 
@@ -133,6 +137,15 @@ function registerGlobalHandler(allowMultipleUncaughtExceptionListeners) {
     }
   }
 }
+
+function registerPromiseHandler() {
+  process.on('unhandledRejection', function(err) {
+    var callback = debugBacktrace ? null : noop;
+    reportAsync(err, callback);
+  });
+}
+
+function noop() {}
 
 function makeUuid() {
   var bytes = crypto.pseudoRandomBytes(16);

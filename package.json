@@ -12,5 +12,8 @@
   "dependencies": {
     "pend": "~1.2.0",
     "streamsink": "~1.2.0"
+  },
+  "scripts": {
+    "test": "node test/test.js"
   }
 }
