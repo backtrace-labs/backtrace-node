@@ -16,6 +16,8 @@ bt.initialize({
 bt.report(new Error("something broke"));
 ```
 
+For more advanced usage, see `BacktraceReport` API below.
+
 ## Documentation
 
 ### bt.initialize([options])
@@ -202,6 +204,12 @@ Available options:
    added.
  * `prefix` String. Defaults to `""`. You might consider passing `"foo."` to
    namespace the added attributes with `"foo."`.
+
+#### report.setError(error)
+
+`error` is an Error object. Backtrace will extract information from this object
+such as the error message and stack trace and send this information along with
+the report.
 
 #### report.send([callback])
 
