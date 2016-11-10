@@ -19,6 +19,11 @@ var testCases = [
     fn: testGlobalPromiseHandler,
     path: "global_promise_handler.js",
   },
+  {
+    name: "report object with request",
+    fn: testRequestReportObject,
+    path: "request_report_object.js",
+  },
 ];
 
 runOneTest(0);
@@ -113,5 +118,15 @@ function testGlobalThrow(child, server, request, json, callback) {
 function testGlobalPromiseHandler(child, server, request, json, callback) {
   assert.strictEqual(json.lang, "nodejs");
   assert.strictEqual(json.attributes['error.message'], "wrong person is president");
+  callback();
+}
+
+function testRequestReportObject(child, server, request, json, callback) {
+  assert.strictEqual(json.lang, "nodejs");
+  assert.strictEqual(json.attributes['error.message'], "RIP");
+  assert.strictEqual(typeof(json.attributes.endTime), 'number');
+  assert.ok(json.attributes.endTime >= json.attributes.startTime);
+  assert.strictEqual(json.attributes.url, '/path');
+  assert.strictEqual(json.attributes.method, 'GET');
   callback();
 }

@@ -59,14 +59,15 @@ event loop iteration, in which case `handlePromises` should be set to `true`.
 ##### `attributes`
 
 Optional. Object that contains additional attributes to be sent along with
-every error report.
+every error report. These can be overridden on an individual report with
+`report.setAttribute`.
 
 Example:
 
 ```
 {
-    application: "ApplicationName",
-    serverId: "foo",
+  application: "ApplicationName",
+  serverId: "foo",
 }
 ```
 
@@ -111,9 +112,106 @@ a hard tab should be represented by when viewing source code.
 
 ### bt.report(error, [callback])
 
-Send an error report to Backtrace.
+Sends an error report to the endpoint specified in `initialize`.
 
  * `error` - should be an `Error` object created with `new Error("message")`.
    If this parameter is not an instance of `Error` then backtrace-node will
    print a warning message to stderr.
  * `callback(err)` - optional. Called when the report is finished sending.
+
+### bt.reportSync(error)
+
+Same as `bt.report`, but blocks until finished.
+
+### bt.createReport()
+
+Create a report object that you can later choose whether or not to send.
+
+This may be useful to track something like a request.
+
+Returns a `BacktraceReport`.
+
+### bt.BacktraceReport
+
+Create a `BacktraceReport` object with `bt.createReport`.
+
+Example:
+
+```js
+http.createServer(function(request, response) {
+  var report = createReport();
+  report.addObjectAttributes(request);
+
+  // ...later...
+  report.setError(new Error("something broke"));
+  report.send();
+});
+```
+
+#### report.addAttribute(key, value)
+
+Adds an attribute to a specific report. Valid types for `value` are
+`string`, `number`, and `boolean`.
+
+#### report.addObjectAttributes(object, [options])
+
+Adds all key-value pairs of `object` into the report recursively. For example:
+
+```js
+http.createServer(function(request, response) {
+    report.addObjectAttributes(request);
+});
+```
+
+In this example, the list of attributes added is:
+
+```
+readable = true
+socket.readable = true
+socket.writable = true
+socket.allowHalfOpen = true
+socket.destroyed = false
+socket.bytesRead = 0
+server.allowHalfOpen = true
+server.pauseOnConnect = false
+server.httpAllowHalfOpen = false
+server.timeout = 120000
+parser.maxHeaderPairs = 2000
+socket.remoteAddress = "::ffff:127.0.0.1"
+socket.remoteFamily = "IPv6"
+socket.remotePort = 32958
+socket.localAddress = "::ffff:127.0.0.1"
+socket.localPort = 12345
+socket.bytesWritten = 0
+httpVersionMajor = 1
+httpVersionMinor = 1
+httpVersion = "1.1"
+complete = false
+headers.host = "localhost:12345"
+headers.user-agent = "curl/7.47.0"
+headers.accept = "*/*"
+upgrade = false
+url = "/"
+method = "GET"
+```
+
+Available options:
+
+ * `allowPrivateProps` Boolean. By default, keys that start with an underscore
+   are ignored. If you pass `true` for `allowPrivateProps` then these keys are
+   added.
+ * `prefix` String. Defaults to `""`. You might consider passing `"foo."` to
+   namespace the added attributes with `"foo."`.
+
+#### report.send([callback])
+
+Sends the error report to the endpoint specified in `initialize`.
+
+ * `error` - should be an `Error` object created with `new Error("message")`.
+   If this parameter is not an instance of `Error` then backtrace-node will
+   print a warning message to stderr.
+ * `callback(err)` - optional. Called when the report is finished sending.
+
+#### report.sendSync()
+
+Same as `report.send`, but blocks until finished.

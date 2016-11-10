@@ -8,6 +8,9 @@ var fs = require('fs');
 
 exports.initialize = initialize;
 exports.report = reportAsync;
+exports.reportSync = reportSync;
+exports.createReport = createReport;
+exports.BacktraceReport = BacktraceReport;
 
 var debugBacktrace;
 var timeout;
@@ -89,6 +92,8 @@ var procSelfStatusData = [
   },
 ];
 
+var syncReportJs = path.join(__dirname, "sync_report.js");
+var asyncReportJs = path.join(__dirname, "async_report.js");
 var rootPackageJson = getRootPackageJson();
 
 function initialize(options) {
@@ -160,107 +165,30 @@ function makeUuid() {
     bytes.slice(10, 16).toString('hex');
 }
 
+function getTimestamp() {
+  return Math.floor((new Date()).getTime() / 1000)
+}
+
+function getUptime() {
+  return Math.floor(process.uptime());
+}
+
 function abortDueToMultipleListeners() {
   var err = new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
   console.error(err.stack);
   process.exit(1);
 }
 
-function createReportObj(err) {
-  var mem = process.memoryUsage();
-  var payload = {
-    report: {
-      uuid: makeUuid(),
-      timestamp: Math.floor((new Date()).getTime() / 1000),
-      lang: "nodejs",
-      langVersion: process.version,
-      attributes: extend({
-        "process.age": Math.floor(process.uptime() * 1000),
-        "uname.machine": process.arch,
-        "uname.sysname": process.platform,
-        "classifiers": err.name,
-        "error.message": err.message,
-        "vm.rss.size": mem.rss,
-        "gc.heap.total": mem.heapTotal,
-        "gc.heap.used": mem.heapUsed,
-        "hostname": os.hostname(),
-      }, userAttributes),
-      env: process.env,
-    },
-    stack: err.stack,
-    tabWidth: tabWidth,
-    endpoint: endpoint,
-    token: token,
-  };
-  if (rootPackageJson && !payload.report.attributes.application) {
-    payload.report.attributes.application = rootPackageJson.name;
-  }
-  obtainProcSelfStatus(payload.report);
-  return payload;
+function reportSync(err) {
+  var report = createReport();
+  report.setError(err);
+  report.sendSync();
 }
 
 function reportAsync(err, callback) {
-  if (!validateErrorObject(err)) return;
-  var payload = createReportObj(err);
-  var asyncReportJs = path.join(__dirname, "async_report.js");
-  var args = [asyncReportJs];
-  if (debugBacktrace) args.push("--debug");
-  var stdioValue = debugBacktrace ? 'inherit' : 'ignore';
-  var payloadString = JSON.stringify(payload);
-
-  var child = spawn(process.execPath, args, {
-    timeout: timeout,
-    stdio: ['pipe', stdioValue, stdioValue],
-    encoding: 'utf8',
-    detached: !debugBacktrace,
-  });
-  child.on('error', onChildError);
-  child.on('close', onChildClose);
-  child.stdin.write(payloadString);
-  child.stdin.end();
-  if (!debugBacktrace) child.unref();
-
-  function onChildError(err) {
-    if (callback) {
-      callback(err);
-    } else if (debugBacktrace) {
-      console.error("Unable to spawn report process:");
-      console.error(err.stack);
-    }
-  }
-
-  function onChildClose(code, signal) {
-    var err;
-    if (code !== 0) {
-      err = new Error("report process exited with code " + code);
-    } else if (signal) {
-      err = new Error("report process exited with signal " + signal);
-    } else {
-      err = null;
-    }
-    if (callback) {
-      callback(err);
-    } else if (err && debugBacktrace) {
-      console.error(err.stack);
-    }
-  }
-}
-
-function reportSync(err) {
-  if (!validateErrorObject(err)) return;
-  var payload = createReportObj(err);
-  var syncReportJs = path.join(__dirname, "sync_report.js");
-  var args = [syncReportJs];
-  if (debugBacktrace) args.push("--debug");
-  var stdioValue = debugBacktrace ? 'inherit' : 'ignore';
-  var payloadString = JSON.stringify(payload);
-
-  spawnSync(process.execPath, args, {
-    input: payloadString,
-    timeout: timeout,
-    stdio: [null, stdioValue, stdioValue],
-    encoding: 'utf8',
-  });
+  var report = createReport();
+  report.setError(err);
+  report.send(callback);
 }
 
 function obtainProcSelfStatus(report) {
@@ -336,3 +264,140 @@ function validateErrorObject(err) {
   console.error(new Error("Attempted to report error with non Error type").stack);
   return false;
 }
+
+function isValidAttr(value) {
+    return (typeof(value) === 'string' ||
+            typeof(value) === 'boolean' ||
+            typeof(value) === 'number');
+}
+
+function addAttrs(attributes, seenObjs, prefix, obj, allowPrivateProps) {
+  if (seenObjs.has(obj)) return;
+  seenObjs.add(obj);
+
+  for (var key in obj) {
+    if (!obj.hasOwnProperty(key)) continue;
+    if (!allowPrivateProps && key[0] === '_') continue;
+    var value = obj[key];
+    if (isValidAttr(value)) {
+      attributes[prefix + key] = value;
+    } else if (!Array.isArray(value) && typeof(value) === 'object') {
+      addAttrs(attributes, seenObjs, key + ".", value, allowPrivateProps);
+    }
+  }
+}
+
+function createReport() {
+  return new BacktraceReport();
+}
+
+function BacktraceReport() {
+  var mem = process.memoryUsage();
+  this.payload = {
+    report: {
+      uuid: makeUuid(),
+      timestamp: getTimestamp(),
+      lang: "nodejs",
+      langVersion: process.version,
+      attributes: extend({
+        "process.age": getUptime(),
+        "uname.machine": process.arch,
+        "uname.sysname": process.platform,
+        "vm.rss.size": mem.rss,
+        "gc.heap.total": mem.heapTotal,
+        "gc.heap.used": mem.heapUsed,
+        "hostname": os.hostname(),
+      }, userAttributes),
+      env: process.env,
+    },
+    tabWidth: tabWidth,
+    endpoint: endpoint,
+    token: token,
+  };
+  if (rootPackageJson && !this.payload.report.attributes.application) {
+    this.payload.report.attributes.application = rootPackageJson.name;
+  }
+  obtainProcSelfStatus(this.payload.report);
+}
+
+BacktraceReport.prototype.setError = function(err) {
+  if (!validateErrorObject(err)) return;
+
+  this.payload.report.attributes.classifiers = err.name;
+  this.payload.report.attributes['error.message'] = err.message;
+  this.payload.stack = err.stack;
+};
+
+BacktraceReport.prototype.send = function(callback) {
+  var args = [asyncReportJs];
+  if (debugBacktrace) args.push("--debug");
+  var stdioValue = debugBacktrace ? 'inherit' : 'ignore';
+  var payloadString = JSON.stringify(this.payload);
+
+  var child = spawn(process.execPath, args, {
+    timeout: timeout,
+    stdio: ['pipe', stdioValue, stdioValue],
+    encoding: 'utf8',
+    detached: !debugBacktrace,
+  });
+  child.on('error', onChildError);
+  child.on('close', onChildClose);
+  child.stdin.write(payloadString);
+  child.stdin.end();
+  if (!debugBacktrace) child.unref();
+
+  function onChildError(err) {
+    if (callback) {
+      callback(err);
+    } else if (debugBacktrace) {
+      console.error("Unable to spawn report process:");
+      console.error(err.stack);
+    }
+  }
+
+  function onChildClose(code, signal) {
+    var err;
+    if (code !== 0) {
+      err = new Error("report process exited with code " + code);
+    } else if (signal) {
+      err = new Error("report process exited with signal " + signal);
+    } else {
+      err = null;
+    }
+    if (callback) {
+      callback(err);
+    } else if (err && debugBacktrace) {
+      console.error(err.stack);
+    }
+  }
+};
+
+BacktraceReport.prototype.sendSync = function() {
+  var args = [syncReportJs];
+  if (debugBacktrace) args.push("--debug");
+  var stdioValue = debugBacktrace ? 'inherit' : 'ignore';
+  var payloadString = JSON.stringify(this.payload);
+
+  spawnSync(process.execPath, args, {
+    input: payloadString,
+    timeout: timeout,
+    stdio: [null, stdioValue, stdioValue],
+    encoding: 'utf8',
+  });
+};
+
+BacktraceReport.prototype.addAttribute = function(key, value) {
+  if (!isValidAttr(value)) {
+    console.error(new Error("Attempted to add attribute with invalid type '" +
+      typeof(value) + "'").stack);
+    return;
+  }
+  this.payload.report.attributes[key] = value;
+};
+
+BacktraceReport.prototype.addObjectAttributes = function(object, options) {
+  options = options || {};
+  var prefix = options.prefix || "";
+  var allowPrivateProps = !!options.allowPrivateProps;
+  addAttrs(this.payload.report.attributes, new Set(), prefix, object, allowPrivateProps);
+};
