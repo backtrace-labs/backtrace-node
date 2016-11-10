@@ -1,4 +1,5 @@
 var http = require('http');
+var fs = require('fs');
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
 var path = require('path');
@@ -38,34 +39,39 @@ function runOneTest(testIndex) {
   server.listen(0, "localhost", onListening);
 
   function onListening() {
-    server.on('request', onRequest);
-
-    var port = server.address().port;
-    var token = crypto.randomBytes(16).toString('hex');
-
     var jsPath = path.join(__dirname, testCase.path);
-    var args = [jsPath, port, token];
-    var stdioAction = argv.isDebug ? 'inherit' : 'ignore';
-    var child = spawn(process.execPath, args, { stdio: stdioAction});
-    var timeoutInterval = setTimeout(timeRanOut, timeout);
+    fs.readFile(jsPath, {encoding: 'utf8'}, onReadFile);
 
-    function onRequest(request, response) {
-      var sink = new StreamSink();
-      sink.on('finish', gotFullRequest);
-      request.pipe(sink);
+    function onReadFile (err, contents) {
+      if (err) throw err;
 
-      function gotFullRequest() {
-        var body = sink.toString('utf8');
-        var json = JSON.parse(body);
-        testCase.fn(child, server, request, json, testCaseDone);
+      server.on('request', onRequest);
 
-        function testCaseDone(err) {
-          if (err) throw err;
-          clearTimeout(timeoutInterval);
-          response.statusCode = 200;
-          response.write("OK");
-          response.end();
-          server.close(runNextTest);
+      var port = server.address().port;
+      var token = crypto.randomBytes(16).toString('hex');
+      var args = [jsPath, port, token];
+      var stdioAction = argv.isDebug ? 'inherit' : 'ignore';
+      var child = spawn(process.execPath, args, { stdio: stdioAction});
+      var timeoutInterval = setTimeout(timeRanOut, timeout);
+
+      function onRequest(request, response) {
+        var sink = new StreamSink();
+        sink.on('finish', gotFullRequest);
+        request.pipe(sink);
+
+        function gotFullRequest() {
+          var body = sink.toString('utf8');
+          var json = JSON.parse(body);
+          testCase.fn(child, server, request, json, contents, testCaseDone);
+
+          function testCaseDone(err) {
+            if (err) throw err;
+            clearTimeout(timeoutInterval);
+            response.statusCode = 200;
+            response.write("OK");
+            response.end();
+            server.close(runNextTest);
+          }
         }
       }
     }
@@ -109,24 +115,34 @@ function usage() {
   process.exit(1);
 }
 
-function testGlobalThrow(child, server, request, json, callback) {
+function testGlobalThrow(child, server, request, json, contents, callback) {
   assert.strictEqual(json.lang, "nodejs");
   assert.strictEqual(json.attributes['error.message'], "notAFunction is not a function");
+  assert.strictEqual(objFirstValue(json.sourceCode).text,
+    'function crash() {\n  notAFunction();\n}\n');
   callback();
 }
 
-function testGlobalPromiseHandler(child, server, request, json, callback) {
+function testGlobalPromiseHandler(child, server, request, json, contents, callback) {
   assert.strictEqual(json.lang, "nodejs");
   assert.strictEqual(json.attributes['error.message'], "wrong person is president");
+  assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
   callback();
 }
 
-function testRequestReportObject(child, server, request, json, callback) {
+function testRequestReportObject(child, server, request, json, contents, callback) {
   assert.strictEqual(json.lang, "nodejs");
   assert.strictEqual(json.attributes['error.message'], "RIP");
   assert.strictEqual(typeof(json.attributes.endTime), 'number');
   assert.ok(json.attributes.endTime >= json.attributes.startTime);
   assert.strictEqual(json.attributes.url, '/path');
   assert.strictEqual(json.attributes.method, 'GET');
+  assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
   callback();
+}
+
+function objFirstValue(object) {
+  for (var key in object) {
+    return object[key];
+  }
 }

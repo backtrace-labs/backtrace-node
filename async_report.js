@@ -6,6 +6,7 @@ var https = require('https');
 var url = require('url');
 var querystring = require('querystring');
 var spawn = require('child_process').spawn;
+var readSourceFile = require('source-scan').scanFile;
 
 var stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
 var whichHttpLib = {
@@ -134,6 +135,7 @@ function parseStack(info, cb) {
   var stack = info.stack;
   var report = info.report;
   var tabWidth = info.tabWidth;
+  var contextLineCount = info.contextLineCount;
   var lines = stack.split("\n").slice(1);
   var stackArray = [];
   var wantedSourceCode = {};
@@ -165,7 +167,7 @@ function parseStack(info, cb) {
     },
   };
   report.mainThread = "main";
-  resolveSourceCode(report, tabWidth, wantedSourceCode, onResolvedSourceCode);
+  resolveSourceCode(report, tabWidth, contextLineCount, wantedSourceCode, onResolvedSourceCode);
 
   function onResolvedSourceCode(err) {
     if (err) return cb(err);
@@ -182,24 +184,39 @@ function parseStack(info, cb) {
   }
 }
 
-function resolveSourceCode(report, tabWidth, wantedSourceCode, cb) {
+function resolveSourceCode(report, tabWidth, contextLineCount, wantedSourceCode, cb) {
   report.sourceCode = {};
 
   var pend = new Pend();
   for (var sourceCodePath in wantedSourceCode) {
     if (sourceCodePath[0] !== '/') continue;
 
-    pend.go(makeReadFn(sourceCodePath));
+    var wantedLinesList = wantedSourceCode[sourceCodePath];
+    var minLine = wantedLinesList[0].line;
+    var maxLine = minLine;
+    for (var i = 1; i < wantedLinesList.length; i += 1) {
+      var item = wantedLinesList[i];
+      minLine = Math.min(minLine, item.line);
+      maxLine = Math.min(maxLine, item.line);
+    }
+    pend.go(makeReadFn(sourceCodePath, minLine, maxLine));
   }
   pend.wait(cb);
 
-  function makeReadFn(sourceCodePath) {
+  function makeReadFn(sourceCodePath, minLine, maxLine) {
     return readFn;
 
     function readFn(cb) {
-      fs.readFile(sourceCodePath, {encoding: 'utf8'}, onReadFinished);
+      var startLine = Math.max(minLine - 1 - contextLineCount, 0);
+      var endLine = maxLine + contextLineCount;
+      var options = {
+        filePath: sourceCodePath,
+        startLine: startLine,
+        endLine: endLine,
+      };
+      readSourceFile(options, onReadFinished);
 
-      function onReadFinished(err, contents) {
+      function onReadFinished(err, buf) {
         if (err) {
           console.error("Unable to read '" + sourceCodePath + "': " + err.message);
           // Don't report an error here. We can allow some fs lookups to fail and
@@ -209,10 +226,9 @@ function resolveSourceCode(report, tabWidth, wantedSourceCode, cb) {
         }
         report.sourceCode[sourceCodePath] = {
           path: sourceCodePath,
-          startLine: 0,
-          startColumn: 0,
-          startPos: 0,
-          text: contents,
+          startLine: startLine + 1,
+          startColumn: 1,
+          text: buf.toString('utf8'),
           tabWidth: tabWidth,
         };
         cb();

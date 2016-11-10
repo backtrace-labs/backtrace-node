@@ -32,7 +32,7 @@ server.listen(0, "localhost", function() {
   });
 
   http.get("http://localhost:" + port + "/path", function(resp) {
-    assert.strictEual(resp.statusCode, 500);
+    assert.strictEqual(resp.statusCode, 500);
     server.close();
   });
 });

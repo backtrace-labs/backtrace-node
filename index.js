@@ -18,6 +18,7 @@ var tabWidth;
 var endpoint;
 var token;
 var userAttributes;
+var contextLineCount;
 
 var procSelfStatusData = [
   {
@@ -105,6 +106,7 @@ function initialize(options) {
   endpoint = options.endpoint;
   token = options.token;
   userAttributes = extend({}, options.attributes || {});
+  contextLineCount = options.contextLineCount || 200;
 
   var disableGlobalHandler = !!options.disableGlobalHandler;
   var handlePromises = !!options.handlePromises;
@@ -311,6 +313,7 @@ function BacktraceReport() {
       env: process.env,
     },
     tabWidth: tabWidth,
+    contextLineCount: contextLineCount,
     endpoint: endpoint,
     token: token,
   };

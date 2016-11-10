@@ -97,7 +97,7 @@ will be reported is if you call `bt.report(error)`.
 
 ##### `contextLineCount`
 
-Defaults to `20`. When an error is reported, this many lines above and below
+Defaults to `200`. When an error is reported, this many lines above and below
 each stack function are included in the report.
 
 NOTE: this option is not yet implemented as currently all source code for files
