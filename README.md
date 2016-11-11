@@ -112,18 +112,38 @@ how many spaces they should be indented to correctly display the source code.
 Therefore the error report can override this number to specify how many spaces
 a hard tab should be represented by when viewing source code.
 
-### bt.report(error, [callback])
+### bt.report([error], [attributes], [callback])
 
 Sends an error report to the endpoint specified in `initialize`.
 
- * `error` - should be an `Error` object created with `new Error("message")`.
+ * `error` - optional. An `Error` object created with `new Error("message")`.
    If this parameter is not an instance of `Error` then backtrace-node will
    print a warning message to stderr.
+ * `attributes` - optional. An object which contains key-value pairs to add
+   to the report.
  * `callback(err)` - optional. Called when the report is finished sending.
 
-### bt.reportSync(error)
+Calling this function is the same as doing:
+
+```js
+var report = createReport();
+report.setError(error);
+report.addObjectAttributes(attributes);
+report.send(callback);
+```
+
+### bt.reportSync([error], [attributes])
 
 Same as `bt.report`, but blocks until finished.
+
+Calling this function is the same as doing:
+
+```js
+var report = createReport();
+report.setError(error);
+report.addObjectAttributes(attributes);
+report.sendSync();
+```
 
 ### bt.createReport()
 

@@ -181,15 +181,63 @@ function abortDueToMultipleListeners() {
   process.exit(1);
 }
 
-function reportSync(err) {
+function reportSync(arg1, arg2) {
+  var err, attributes;
+  if (arg1 instanceof Error) {
+    err = arg1;
+    if (typeof(arg2) === 'object') {
+      attributes = arg2;
+    } else if (arg2 != null) {
+      throw new Error("expected object for second argument");
+    }
+  } else if (typeof(arg1) === 'object') {
+    attributes = arg1;
+    if (arg2 != null) throw new Error("expected nothing after attributes");
+  } else if (arg1 != null) {
+    throw new Error("expected Error or object for first argument");
+  }
+
   var report = createReport();
-  report.setError(err);
+  if (attributes) report.addObjectAttributes(attributes);
+  if (err) report.setError(err);
   report.sendSync();
 }
 
-function reportAsync(err, callback) {
+function reportAsync(arg1, arg2, arg3) {
+  var err, attributes, callback;
+  if (typeof(arg1) === 'function') {
+    callback = arg1;
+    if (arg2 != null) throw new Error("expected nothing after callback");
+  } else if (arg1 instanceof Error) {
+    err = arg1;
+    if (typeof(arg2) === 'function') {
+      callback = arg2;
+      if (arg3 != null) throw new Error("expected nothing after callback");
+    } else if (typeof(arg2) === 'object') {
+      attributes = arg2;
+      if (typeof(arg3) === 'function') {
+        callback = arg3;
+      } else if (arg3 != null) {
+        throw new Error("expected function for third argument");
+      }
+    } else if (arg2 != null) {
+      throw new Error("expected object or function for second argument");
+    }
+  } else if (typeof(arg1) === 'object') {
+    attributes = arg1;
+    if (typeof(arg2) === 'function') {
+      callback = arg2;
+      if (arg3 != null) throw new Error("expected nothing after callback");
+    } else if (arg2 != null) {
+      throw new Error("expected function for second argument");
+    }
+  } else if (arg1 != null) {
+    throw new Error("expected Error, object, or function for first argument");
+  }
+
   var report = createReport();
-  report.setError(err);
+  if (attributes) report.addObjectAttributes(attributes);
+  if (err) report.setError(err);
   report.send(callback);
 }
 
