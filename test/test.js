@@ -117,6 +117,7 @@ function usage() {
 
 function testGlobalThrow(child, server, request, json, contents, callback) {
   assert.strictEqual(json.lang, "nodejs");
+  assert.strictEqual(json.agent, "backtrace-node");
   assert.strictEqual(json.attributes['error.message'], "notAFunction is not a function");
   assert.strictEqual(objFirstValue(json.sourceCode).text,
     'function crash() {\n  notAFunction();\n}\n');
@@ -125,6 +126,7 @@ function testGlobalThrow(child, server, request, json, contents, callback) {
 
 function testGlobalPromiseHandler(child, server, request, json, contents, callback) {
   assert.strictEqual(json.lang, "nodejs");
+  assert.strictEqual(json.agent, "backtrace-node");
   assert.strictEqual(json.attributes['error.message'], "wrong person is president");
   assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
   callback();
@@ -132,6 +134,7 @@ function testGlobalPromiseHandler(child, server, request, json, contents, callba
 
 function testRequestReportObject(child, server, request, json, contents, callback) {
   assert.strictEqual(json.lang, "nodejs");
+  assert.strictEqual(json.agent, "backtrace-node");
   assert.strictEqual(json.attributes['error.message'], "RIP");
   assert.strictEqual(typeof(json.attributes.endTime), 'number');
   assert.ok(json.attributes.endTime >= json.attributes.startTime);
