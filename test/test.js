@@ -121,6 +121,8 @@ function testGlobalThrow(child, server, request, json, contents, callback) {
   assert.strictEqual(json.attributes['error.message'], "notAFunction is not a function");
   assert.strictEqual(objFirstValue(json.sourceCode).text,
     'function crash() {\n  notAFunction();\n}\n');
+  assert.strictEqual(json.threads.main.stack[0].line, 17);
+  assert.strictEqual(json.threads.main.stack[0].column, 3);
   callback();
 }
 
@@ -129,6 +131,8 @@ function testGlobalPromiseHandler(child, server, request, json, contents, callba
   assert.strictEqual(json.agent, "backtrace-node");
   assert.strictEqual(json.attributes['error.message'], "wrong person is president");
   assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
+  assert.strictEqual(json.threads.main.stack[0].line, 14);
+  assert.strictEqual(json.threads.main.stack[0].column, 12);
   callback();
 }
 
@@ -141,6 +145,8 @@ function testRequestReportObject(child, server, request, json, contents, callbac
   assert.strictEqual(json.attributes.url, '/path');
   assert.strictEqual(json.attributes.method, 'GET');
   assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
+  assert.strictEqual(json.threads.main.stack[0].line, 24);
+  assert.strictEqual(json.threads.main.stack[0].column, 23);
   callback();
 }
 
