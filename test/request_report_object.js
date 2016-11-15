@@ -18,12 +18,14 @@ server.listen(0, "localhost", function() {
     var report = bt.createReport();
     report.addObjectAttributes(request);
     report.addAttribute("startTime", new Date().getTime());
+    report.log("log line 1", {here: 123});
     var sink = new StreamSink();
     sink.on('finish', function() {
       report.addAttribute("endTime", new Date().getTime());
       report.setError(new Error("RIP"));
       report.addAnnotation("Ad Hoc Annotation",
         {one: [1, 2, 3], ok: true, derp: {field: "str"}, no: null});
+      report.log("log line 2", true, false);
       report.send(function(err) {
         if (err) throw err;
         response.statusCode = 500;

@@ -167,11 +167,13 @@ function testRequestReportObject(child, server, request, json, contents, callbac
   assert.strictEqual(json.attributes.url, '/path');
   assert.strictEqual(json.attributes.method, 'GET');
   assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
-  assert.strictEqual(json.threads.main.stack[0].line, 24);
+  assert.strictEqual(json.threads.main.stack[0].line, 25);
   assert.strictEqual(json.threads.main.stack[0].column, 23);
   assert.strictEqual(json.classifiers[0], "Error");
   assert.deepEqual(json.annotations['Ad Hoc Annotation'],
     {one: [1, 2, 3], ok: true, derp: {field: "str"}, no: null});
+  assert.strictEqual(json.annotations.Log[0].msg, 'log line 1 { here: 123 }');
+  assert.strictEqual(json.annotations.Log[1].msg, 'log line 2 true false');
 
   // If you update package.json of backtrace-node you'll have to additionally update these tests.
   var dependencies = json.annotations.Dependencies;

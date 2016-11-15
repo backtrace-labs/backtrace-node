@@ -244,6 +244,12 @@ See also `addAttribute`.
 such as the error message and stack trace and send this information along with
 the report.
 
+#### report.log(...)
+
+Adds a timestamped log message to the report. Log output is available when you
+view a report. The arguments to report.log are the same as the arguments to
+`console.log`.
+
 #### report.send([callback])
 
 Sends the error report to the endpoint specified in `initialize`.
