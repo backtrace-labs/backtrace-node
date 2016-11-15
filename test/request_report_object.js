@@ -22,6 +22,8 @@ server.listen(0, "localhost", function() {
     sink.on('finish', function() {
       report.addAttribute("endTime", new Date().getTime());
       report.setError(new Error("RIP"));
+      report.addAnnotation("Ad Hoc Annotation",
+        {one: [1, 2, 3], ok: true, derp: {field: "str"}, no: null});
       report.send(function(err) {
         if (err) throw err;
         response.statusCode = 500;

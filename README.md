@@ -175,6 +175,8 @@ http.createServer(function(request, response) {
 Adds an attribute to a specific report. Valid types for `value` are
 `string`, `number`, and `boolean`.
 
+Attributes are indexed and searchable. See also `addAnnotation`.
+
 #### report.addObjectAttributes(object, [options])
 
 Adds all key-value pairs of `object` into the report recursively. For example:
@@ -224,6 +226,17 @@ Available options:
    added.
  * `prefix` String. Defaults to `""`. You might consider passing `"foo."` to
    namespace the added attributes with `"foo."`.
+
+#### report.addAnnotation(key, value)
+
+Adds an annotation to a specific report. Annotations, unlike attributes, are
+not indexed and searchable. However, they are available for inspection when
+you view a specific report.
+
+ * `key` - String which is the name of the annotation.
+ * `value` - Any type which is JSON-serializable.
+
+See also `addAttribute`.
 
 #### report.setError(error)
 
