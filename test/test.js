@@ -123,6 +123,15 @@ function testGlobalThrow(child, server, request, json, contents, callback) {
     'function crash() {\n  notAFunction();\n}\n');
   assert.strictEqual(json.threads.main.stack[0].line, 17);
   assert.strictEqual(json.threads.main.stack[0].column, 3);
+
+  // If you update package.json of backtrace-node you'll have to additionally update these tests.
+  assert.ok(json.dependencies.pend.requestedVersion.startsWith("~1.2."));
+  assert.ok(json.dependencies.pend.installedVersion.startsWith("1.2."));
+  assert.ok(json.dependencies['source-scan'].requestedVersion.startsWith('~1.0.'));
+  assert.ok(json.dependencies['source-scan'].installedVersion.startsWith('1.0.'));
+  assert.ok(json.dependencies['source-scan'].dependencies.streamsink.requestedVersion.startsWith('~1.2.'));
+  assert.ok(json.dependencies['source-scan'].dependencies.streamsink.installedVersion.startsWith('1.2.'));
+
   callback();
 }
 
@@ -133,6 +142,15 @@ function testGlobalPromiseHandler(child, server, request, json, contents, callba
   assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
   assert.strictEqual(json.threads.main.stack[0].line, 14);
   assert.strictEqual(json.threads.main.stack[0].column, 12);
+
+  // If you update package.json of backtrace-node you'll have to additionally update these tests.
+  assert.ok(json.dependencies.pend.requestedVersion.startsWith("~1.2."));
+  assert.ok(json.dependencies.pend.installedVersion.startsWith("1.2."));
+  assert.ok(json.dependencies['source-scan'].requestedVersion.startsWith('~1.0.'));
+  assert.ok(json.dependencies['source-scan'].installedVersion.startsWith('1.0.'));
+  assert.ok(json.dependencies['source-scan'].dependencies.streamsink.requestedVersion.startsWith('~1.2.'));
+  assert.ok(json.dependencies['source-scan'].dependencies.streamsink.installedVersion.startsWith('1.2.'));
+
   callback();
 }
 
@@ -147,6 +165,15 @@ function testRequestReportObject(child, server, request, json, contents, callbac
   assert.strictEqual(objFirstValue(json.sourceCode).text, contents);
   assert.strictEqual(json.threads.main.stack[0].line, 24);
   assert.strictEqual(json.threads.main.stack[0].column, 23);
+
+  // If you update package.json of backtrace-node you'll have to additionally update these tests.
+  assert.ok(json.dependencies.pend.requestedVersion.startsWith("~1.2."));
+  assert.ok(json.dependencies.pend.installedVersion.startsWith("1.2."));
+  assert.ok(json.dependencies['source-scan'].requestedVersion.startsWith('~1.0.'));
+  assert.ok(json.dependencies['source-scan'].installedVersion.startsWith('1.0.'));
+  assert.ok(json.dependencies.streamsink.requestedVersion.startsWith('~1.2.'));
+  assert.ok(json.dependencies.streamsink.installedVersion.startsWith('1.2.'));
+
   callback();
 }
 
