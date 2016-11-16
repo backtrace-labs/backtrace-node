@@ -25,6 +25,11 @@ var testCases = [
     fn: testRequestReportObject,
     path: "request_report_object.js",
   },
+  {
+    name: "min and max lines of source code",
+    fn: testMinMaxSourceLine,
+    path: "source_code_max_line.js",
+  },
 ];
 
 runOneTest(0);
@@ -183,6 +188,13 @@ function testRequestReportObject(child, server, request, json, contents, callbac
   assert.ok(dependencies['source-scan'].installedVersion.startsWith('1.0.'));
   assert.ok(dependencies.streamsink.requestedVersion.startsWith('~1.2.'));
   assert.ok(dependencies.streamsink.installedVersion.startsWith('1.2.'));
+
+  callback();
+}
+
+function testMinMaxSourceLine(child, server, request, json, contents, callback) {
+  assert.strictEqual(objFirstValue(json.sourceCode).text,
+    '// this comment should be included\nmain();\n\nfunction main() {\n  f1();\n}\n\nfunction f1() {\n  f2();\n}\n\nfunction f2() {\n  bt.report(new Error("here"));\n}\n');
 
   callback();
 }
