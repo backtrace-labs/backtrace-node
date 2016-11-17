@@ -27,21 +27,6 @@ initialization. It registers a handler for `uncaughtException` which will
 spawn a detached child process to perform the error report and then crash
 in the same way that your application would have crashed without the handler.
 
-### bt.errorHandlerMiddleware(err, req, res, next)
-
-This is a connect/express middleware function that will automatically send
-error reports. Use it like this:
-
-```js
-app.use(bt.errorHandlerMiddleware);
-```
-
-This middleware is read-only; it kicks off an error report and then passes the
-error down the middleware chain.
-
-For more details see
-[Express error handling](https://expressjs.com/en/guide/error-handling.html)
-
 #### Options
 
 ##### `endpoint`
@@ -159,6 +144,22 @@ report.setError(error);
 report.addObjectAttributes(attributes);
 report.sendSync();
 ```
+
+### bt.errorHandlerMiddleware(err, req, res, next)
+
+This is a connect/express middleware function that will automatically send
+error reports. Use it like this:
+
+```js
+app.use(bt.errorHandlerMiddleware);
+```
+
+This middleware is read-only; it kicks off an error report and then passes the
+error down the middleware chain.
+
+For more details see
+[Express error handling](https://expressjs.com/en/guide/error-handling.html)
+
 
 ### bt.createReport()
 
