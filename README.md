@@ -267,9 +267,6 @@ view a report. The arguments to report.log are the same as the arguments to
 
 Sends the error report to the endpoint specified in `initialize`.
 
- * `error` - should be an `Error` object created with `new Error("message")`.
-   If this parameter is not an instance of `Error` then backtrace-node will
-   print a warning message to stderr.
  * `callback(err)` - optional. Called when the report is finished sending.
 
 #### report.sendSync()
