@@ -102,9 +102,6 @@ will be reported is if you call `bt.report(error)`.
 Defaults to `200`. When an error is reported, this many lines above and below
 each stack function are included in the report.
 
-NOTE: this option is not yet implemented as currently all source code for files
-in the stack trace are sent in the report.
-
 ##### `tabWidth`
 
 Defaults to `8`. If there are any hard tabs in the source code, it is unclear
