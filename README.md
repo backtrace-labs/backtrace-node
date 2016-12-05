@@ -62,7 +62,7 @@ event loop iteration, in which case `handlePromises` should be set to `true`.
 
 Optional. Object that contains additional attributes to be sent along with
 every error report. These can be overridden on an individual report with
-`report.setAttribute`.
+`report.addAttribute`.
 
 Example:
 
