@@ -30,6 +30,11 @@ var testCases = [
     fn: testMinMaxSourceLine,
     path: "source_code_max_line.js",
   },
+  {
+    name: "tracing",
+    fn: testTracing,
+    path: "tracing.js",
+  },
 ];
 
 runOneTest(0);
@@ -199,8 +204,36 @@ function testMinMaxSourceLine(child, server, request, json, contents, callback) 
   callback();
 }
 
+function testTracing(child, server, request, json, contents, callback) {
+  assertStackContains(json, "test/tracing.js", 11, null);
+  assertStackContains(json, "test/tracing.js", 15, "one");
+  assertStackContains(json, "test/tracing.js", 19, "two");
+  assertStackContains(json, "test/tracing.js", 30, null);
+  callback();
+}
+
 function objFirstValue(object) {
   for (var key in object) {
     return object[key];
   }
+}
+
+function assertStackContains(json, file, line, func) {
+  var stack = json.threads.main.stack;
+
+  for (var i = 0; i < stack.length; i += 1) {
+    var frame = stack[i];
+    var sourceCodeId = frame.sourceCode;
+    if (sourceCodeId == null) continue;
+    if (frame.line == null) continue;
+    if (frame.funcName == null && func != null) continue;
+    var sourceCodePath = json.sourceCode[sourceCodeId].path;
+    if (sourceCodePath.endsWith(file) &&
+        (func == null || frame.funcName.startsWith(func)) &&
+        frame.line === line)
+    {
+      return;
+    }
+  }
+  throw new Error("not found in stack: " + file + " " + line + " " + func);
 }

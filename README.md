@@ -257,6 +257,21 @@ See also `addAttribute`.
 such as the error message and stack trace and send this information along with
 the report.
 
+#### report.trace()
+
+This function captures a stack trace at the current location. Due to the event
+loop, errors in Node.js sometimes are missing part of the stack trace.
+
+Call this function before every asynchronous function call, and your stack
+trace will be complete.
+
+Note that it is safe to call trace multiple times; if you call trace
+redundantly, backtrace-node will recognize that the second trace call supercedes
+the first, and only the latter will be included in the report.
+
+trace is automatically called when you call createReport and when you call
+setError.
+
 #### report.log(...)
 
 Adds a timestamped log message to the report. Log output is available when you
