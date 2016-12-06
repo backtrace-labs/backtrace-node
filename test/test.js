@@ -209,6 +209,14 @@ function testTracing(child, server, request, json, contents, callback) {
   assertStackContains(json, "test/tracing.js", 15, "one");
   assertStackContains(json, "test/tracing.js", 19, "two");
   assertStackContains(json, "test/tracing.js", 30, null);
+
+  var errProps = json.annotations['Error Properties'];
+  assert.strictEqual(errProps.code, 'ECONNREFUSED');
+  assert.strictEqual(errProps.errno, 'ECONNREFUSED');
+  assert.strictEqual(errProps.syscall, 'connect');
+  assert.strictEqual(errProps.address, '127.0.0.1');
+  assert.strictEqual(errProps.port, 1234);
+
   callback();
 }
 
