@@ -129,6 +129,10 @@ report.addObjectAttributes(attributes);
 report.send(callback);
 ```
 
+Though the callstack generation is synchronous, note that actually sending
+the report is an asynchronous process. If you wish to synchronously generate
+and send the error report, use `reportSync` as specified below.
+
 ### bt.reportSync([error], [attributes])
 
 Same as `bt.report`, but blocks until finished.
