@@ -131,7 +131,9 @@ report.send(callback);
 
 Though the callstack generation is synchronous, note that actually sending
 the report is an asynchronous process. If you wish to synchronously generate
-and send the error report, use `reportSync` as specified below.
+and send the error report, use `reportSync` as specified below. Note that
+unlike `report`, the `reportSync` function is also safe to use for
+`uncaughtException` handlers.
 
 ### bt.reportSync([error], [attributes])
 
