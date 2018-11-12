@@ -249,7 +249,12 @@ function testMinMaxSourceLine(
 
 function testTracing(child, server, request, json, contents, callback) {
   assertStackContains(json, 'test/tracing.js', 11, null);
-  assertStackContains(json, 'test/tracing.js', 15, 'one');
+  assertStackContains(
+    json,
+    'test/tracing.js',
+    15,
+    'Timeout.one [as _onTimeout]',
+  );
   assertStackContains(json, 'test/tracing.js', 19, 'two');
   assertStackContains(json, 'test/tracing.js', 30, null);
 
