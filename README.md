@@ -7,8 +7,8 @@
 ```js
 var bt = require('backtrace-node');
 bt.initialize({
-  endpoint: "https://console.backtrace.io",
-  token: "51cc8e69c5b62fa8c72dc963e730f1e8eacbd243aeafc35d08d05ded9a024121",
+  endpoint: "https://youruniverse.sp.backtrace.io:6098",
+  token: "abcdef123456",
 });
 
 // ...
@@ -33,7 +33,7 @@ in the same way that your application would have crashed without the handler.
 
 Required.
 
-Example: `https://backtrace.example.com:1234`.
+Example: `https://backtrace.example.com:6098`.
 
 Sets the HTTP/HTTPS endpoint that error reports will be sent to.
 
