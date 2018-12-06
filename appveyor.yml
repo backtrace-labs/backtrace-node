@@ -15,5 +15,5 @@ before_build:
   - ps: npm --version
   - ps: npm install
 test_script:
-  - ps: 'npm test # PowerShell' # Pass comment to PS for easier debugging
+  - ps: 'npm run test # PowerShell' # Pass comment to PS for easier debugging
 deploy: off
