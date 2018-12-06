@@ -13,7 +13,7 @@ before_build:
   - ps: Install-Product node $env:nodejs_version
   - node --version
   - npm --version
-  - npm isntall
+  - npm install
 test_script:
-  - ps: ./node_modules/mocha/bin
+  - npm run test
 deploy: off
