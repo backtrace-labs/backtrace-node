@@ -1,20 +1,18 @@
-version: 1.0.{build}
+version: 0.7.{build}
 environment:
-  nodejs_version: "6"
+  nodejs_version: '6'
 branches:
   only:
     - /master
     - /dev
-environment:  
-  APPVEYOR_YML_DISABLE_PS_LINUX: true
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - ps: git config --global core.autocrlf true
 before_build:
   - ps: Install-Product node 6.15.1
   - node --version
-  - npm --version  
+  - npm --version
   - npm isntall --production
 test_script:
-    - npm run test
+  - npm run test
 deploy: off

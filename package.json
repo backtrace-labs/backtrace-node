@@ -1,6 +1,6 @@
 {
   "name": "backtrace-node",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "Backtrace error reporting tool",
   "main": "lib/index.js",
   "author": "Backtrace <team@backtrace.io>",
