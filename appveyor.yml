@@ -1,6 +1,6 @@
 version: 0.7.{build}
 environment:
-  - nodejs_version: '6'
+  nodejs_version: '6'
 branches:
   only:
     - /master
