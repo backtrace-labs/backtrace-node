@@ -15,7 +15,7 @@
     "streamsink": "~1.2.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha test/ --bail --reporter spec --check-leaks"
   },
   "devDependencies": {
     "chai": "~4.2.0",
