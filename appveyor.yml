@@ -12,7 +12,7 @@ before_build:
   - ps: Install-Product node $env:nodejs_version
   - node --version
   - npm --version
-  - npm isntall --production
+  - npm isntall
 test_script:
   - npm run test
 deploy: off
