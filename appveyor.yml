@@ -11,9 +11,9 @@ init:
   - ps: git config --global core.autocrlf true
 before_build:
   - ps: Install-Product node $env:nodejs_version
-  - ps: node --version
-  - ps: npm --version
-  - ps: npm install
+install:
+  - npm install
+  - npm install -g mocha
 test_script:
   # Output useful info for debugging.
   - node --version
