@@ -15,5 +15,5 @@ before_build:
   - npm --version
   - npm isntall
 test_script:
-  - ./node_modules/mocha/bin
+  - ps: ./node_modules/mocha/bin
 deploy: off
