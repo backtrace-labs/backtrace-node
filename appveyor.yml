@@ -5,6 +5,7 @@ branches:
   only:
     - /master
     - /dev
+build: off
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - ps: git config --global core.autocrlf true
