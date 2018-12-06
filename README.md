@@ -9,13 +9,13 @@
 ```js
 var bt = require('backtrace-node');
 bt.initialize({
-  endpoint: 'https://youruniverse.sp.backtrace.io:6098',
-  token: 'abcdef123456',
+  endpoint: "https://youruniverse.sp.backtrace.io:6098",
+  token: "abcdef123456",
 });
 
 // ...
 
-bt.report(new Error('something broke'));
+bt.report(new Error("something broke"));
 ```
 
 For more advanced usage, see `BacktraceReport` API below.
@@ -115,12 +115,12 @@ a hard tab should be represented by when viewing source code.
 
 Sends an error report to the endpoint specified in `initialize`.
 
-- `error` - optional. An `Error` object created with `new Error("message")`.
-  If this parameter is not an instance of `Error` then backtrace-node will
-  print a warning message to stderr.
-- `attributes` - optional. An object which contains key-value pairs to add
-  to the report.
-- `callback(err)` - optional. Called when the report is finished sending.
+ * `error` - optional. An `Error` object created with `new Error("message")`.
+   If this parameter is not an instance of `Error` then backtrace-node will
+   print a warning message to stderr.
+ * `attributes` - optional. An object which contains key-value pairs to add
+   to the report.
+ * `callback(err)` - optional. Called when the report is finished sending.
 
 Calling this function is the same as doing:
 
@@ -165,6 +165,7 @@ error down the middleware chain.
 For more details see
 [Express error handling](https://expressjs.com/en/guide/error-handling.html)
 
+
 ### bt.createReport()
 
 Create a report object that you can later choose whether or not to send.
@@ -185,7 +186,7 @@ http.createServer(function(request, response) {
   report.addObjectAttributes(request);
 
   // ...later...
-  report.setError(new Error('something broke'));
+  report.setError(new Error("something broke"));
   report.send();
 });
 ```
@@ -203,7 +204,7 @@ Adds all key-value pairs of `object` into the report recursively. For example:
 
 ```js
 http.createServer(function(request, response) {
-  report.addObjectAttributes(request);
+    report.addObjectAttributes(request);
 });
 ```
 
@@ -241,11 +242,11 @@ method = "GET"
 
 Available options:
 
-- `allowPrivateProps` Boolean. By default, keys that start with an underscore
-  are ignored. If you pass `true` for `allowPrivateProps` then these keys are
-  added.
-- `prefix` String. Defaults to `""`. You might consider passing `"foo."` to
-  namespace the added attributes with `"foo."`.
+ * `allowPrivateProps` Boolean. By default, keys that start with an underscore
+   are ignored. If you pass `true` for `allowPrivateProps` then these keys are
+   added.
+ * `prefix` String. Defaults to `""`. You might consider passing `"foo."` to
+   namespace the added attributes with `"foo."`.
 
 #### report.addAnnotation(key, value)
 
@@ -253,8 +254,8 @@ Adds an annotation to a specific report. Annotations, unlike attributes, are
 not indexed and searchable. However, they are available for inspection when
 you view a specific report.
 
-- `key` - String which is the name of the annotation.
-- `value` - Any type which is JSON-serializable.
+ * `key` - String which is the name of the annotation.
+ * `value` - Any type which is JSON-serializable.
 
 See also `addAttribute`.
 
@@ -289,7 +290,7 @@ view a report. The arguments to report.log are the same as the arguments to
 
 Sends the error report to the endpoint specified in `initialize`.
 
-- `callback(err)` - optional. Called when the report is finished sending.
+ * `callback(err)` - optional. Called when the report is finished sending.
 
 #### report.sendSync()
 
