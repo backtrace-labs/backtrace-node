@@ -1,0 +1,24 @@
+version: 0.7.{build}
+environment:
+  nodejs_version: '6'
+branches:
+  only:
+    - /master
+    - /dev
+build: off
+init:
+  # Good practise, because Windows line endings are different from Unix/Linux ones
+  - ps: git config --global core.autocrlf true
+before_build:
+  - ps: Install-Product node $env:nodejs_version
+install:
+  - npm install
+  - npm install -g mocha
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  # We test multiple Windows shells because of prior stdout buffering issues
+  # filed against Grunt. https://github.com/joyent/node/issues/3584
+  - ps: 'npm test # PowerShell' # Pass comment to PS for easier debugging
+deploy: off

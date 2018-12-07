@@ -1,5 +1,7 @@
 # backtrace-node
 
+[![Build status](https://ci.appveyor.com/api/projects/status/c47xgiwye8iejjpb?svg=true)](https://ci.appveyor.com/project/sbahra/backtrace-node)
+
 [Backtrace](http://backtrace.io/) error reporting tool for Node.js.
 
 ## Usage

@@ -297,4 +297,3 @@ function assertStackContains(json, file, line, func) {
   }
   throw new Error('not found in stack: ' + file + ' ' + line + ' ' + func);
 }
-
