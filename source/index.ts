@@ -3,10 +3,22 @@ import { BacktraceClient } from './backtraceClient';
 import * as btReport from './model/backtraceReport';
 
 let backtraceClient: BacktraceClient;
-export function initialize(configuration: BacktraceClientOptions) {
+
+/**
+ * Initalize Backtrace Client and Backtrace node integration
+ * @param configuration Bcktrace configuration
+ */
+export function initialize(configuration: BacktraceClientOptions): BacktraceClient {
   backtraceClient = new BacktraceClient(configuration);
+  return backtraceClient;
 }
 
+/**
+ * Send report asynchronously to Backtrace
+ * @param arg report payload
+ * @param arg2 attributes
+ * @param arg3 file attachments paths
+ */
 export function reportAsync(
   arg: Function | Error | string | object,
   arg2: object | undefined = {},
@@ -29,6 +41,12 @@ export function reportAsync(
   });
 }
 
+ /**
+   * Send report synchronosuly to Backtrace
+   * @param error report payload
+   * @param reportAttributes attributes
+   * @param attachments file attachments paths
+*/
 export function reportSync(
   data: Error | string,
   attributes: object | undefined = {},
