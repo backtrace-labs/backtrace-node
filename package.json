@@ -10,14 +10,20 @@
     "url": "git@github.com:backtrace-labs/backtrace-node.git"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "form-data": "^2.3.3",
+    "node-machine-id": "^1.1.10",
     "pend": "~1.2.0",
     "source-scan": "~1.0.1",
     "streamsink": "~1.2.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "tsc"
   },
   "devDependencies": {
+    "@types/form-data": "^2.2.1",
+    "@types/node": "^11.11.4",
     "chai": "~4.2.0",
     "mocha": "~5.2.0"
   }
