@@ -145,6 +145,7 @@ export class BacktraceReport {
   private async collectReportInformation(): Promise<void> {
     // get stack trace to retrieve calling module information
     this.stackTrace = new BacktraceStackTrace(this.err);
+    this.stackTrace.setSourceCodeOptions(this.tabWidth, this.contextLineCount);
     await this.stackTrace.parseStackFrames();
     // retrieve calling module object
     [this._callingModule, this._callingModulePath] = readModule(

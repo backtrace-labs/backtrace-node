@@ -19,6 +19,7 @@ try {
   opts.allowMultipleUncaughtExceptionListeners = true;
   opts.handlePromises = true;
   opts.disableGlobalHandler = false;
+  opts.contextLineCount = 200;
   const client = new BacktraceClient(opts);
 
   client.reportSync(
