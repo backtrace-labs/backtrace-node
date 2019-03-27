@@ -8,8 +8,8 @@ import { BacktraceApi } from './backtraceApi';
 export class BacktraceClient {
   private _memorizedAttributes: object = {};
   private _backtraceApi: BacktraceApi;
-  constructor(private options: BacktraceClientOptions) {
-    options = options || new BacktraceClientOptions();
+  constructor(public options: BacktraceClientOptions) {
+    this.options = options || new BacktraceClientOptions();
     if (!options.endpoint) {
       throw new Error("Backtrace: missing 'endpoint' option.");
     }
@@ -18,8 +18,8 @@ export class BacktraceClient {
   }
 
   /**
-   * Memorize selected values from application. 
-   * Memorized attributes will be available in your next Backtrace report. 
+   * Memorize selected values from application.
+   * Memorized attributes will be available in your next Backtrace report.
    * Memorized attributes will be only available for one report.
    * @param key attribute key
    * @param value attribute value
@@ -30,33 +30,45 @@ export class BacktraceClient {
 
   /**
    * Send report asynchronously to Backtrace
-   * @param arg report payload
-   * @param arg2 attributes
-   * @param arg3 file attachments paths
+   * @param payload report payload
+   * @param reportAttributes attributes
+   * @param fileAttachments file attachments paths
    */
   public async reportAsync(
-    arg: Error | string,
-    arg2: object | undefined = {},
-    arg3: string[] = []
+    payload: Error | string,
+    reportAttributes: object | undefined = {},
+    fileAttachments: string[] = []
   ): Promise<void> {
-    const attributes = this.combineClientAttributes(arg2);
-    const report = new BacktraceReport(arg, attributes, arg3);
+    const attributes = this.combineClientAttributes(reportAttributes);
+    const report = new BacktraceReport(payload, attributes, fileAttachments);
+    report.setSourceCodeOptions(
+      this.options.tabWidth,
+      this.options.contextLineCount
+    );
     await this._backtraceApi.send(report);
   }
 
   /**
    * Send report synchronosuly to Backtrace
-   * @param error report payload
+   * @param payload report payload - error or string
    * @param reportAttributes attributes
    * @param attachments file attachments paths
    */
   public reportSync(
-    error: Error | string,
+    payload: Error | string,
     reportAttributes: object | undefined = {},
     attachments: string[] = []
   ): void {
     const attributes = this.combineClientAttributes(reportAttributes);
-    const report = new BacktraceReport(error, attributes, attachments);
+    const report = new BacktraceReport(payload, attributes, attachments);
+    report.setSourceCodeOptions(
+      this.options.tabWidth,
+      this.options.contextLineCount
+    );
+    this._backtraceApi.send(report);
+  }
+
+  public sendReport(report: BacktraceReport): void {
     this._backtraceApi.send(report);
   }
 
@@ -98,7 +110,7 @@ export class BacktraceClient {
   private registerGlobalHandler(multipleExceptionListener: boolean): void {
     const listenerCount: number = process.listenerCount('uncaughtException');
     if (!multipleExceptionListener && listenerCount !== 0) {
-      console.log(
+      console.error(
         'Backtrace: multiple "uncaughtException" listeners attached.'
       );
       return;
@@ -125,6 +137,4 @@ export class BacktraceClient {
       );
     }
   }
-
-  private onUncaughtException(err: Error) {}
 }

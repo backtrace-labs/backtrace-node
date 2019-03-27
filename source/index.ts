@@ -8,7 +8,9 @@ let backtraceClient: BacktraceClient;
  * Initalize Backtrace Client and Backtrace node integration
  * @param configuration Bcktrace configuration
  */
-export function initialize(configuration: BacktraceClientOptions): BacktraceClient {
+export function initialize(
+  configuration: BacktraceClientOptions
+): BacktraceClient {
   backtraceClient = new BacktraceClient(configuration);
   return backtraceClient;
 }
@@ -41,12 +43,12 @@ export function reportAsync(
   });
 }
 
- /**
-   * Send report synchronosuly to Backtrace
-   * @param error report payload
-   * @param reportAttributes attributes
-   * @param attachments file attachments paths
-*/
+/**
+ * Send report synchronosuly to Backtrace
+ * @param error report payload
+ * @param reportAttributes attributes
+ * @param attachments file attachments paths
+ */
 export function reportSync(
   data: Error | string,
   attributes: object | undefined = {},
@@ -58,12 +60,27 @@ export function reportSync(
   backtraceClient.reportSync(data, attributes, attachments);
 }
 
-export function createReport() {
-  return new btReport.BacktraceReport();
+/**
+ * Generaten BacktraceReport with default configuration
+ */
+export function createReport(): btReport.BacktraceReport {
+  return BacktraceReport();
 }
 
-export function BacktraceReport() {
-  return new btReport.BacktraceReport();
+/**
+ * Generaten BacktraceReport with default configuration
+ */
+export function BacktraceReport(): btReport.BacktraceReport {
+  const report = new btReport.BacktraceReport();
+  report.setSourceCodeOptions(
+    backtraceClient.options.tabWidth,
+    backtraceClient.options.contextLineCount
+  );
+  report.send = () => {
+    backtraceClient.sendReport(report);
+  };
+
+  return report;
 }
 
 export function errorHandlerMiddleware(

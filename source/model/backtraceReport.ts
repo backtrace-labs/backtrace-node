@@ -1,4 +1,4 @@
-import { randomBytes, pseudoRandomBytes } from 'crypto';
+import { pseudoRandomBytes } from 'crypto';
 import { machineIdSync } from 'node-machine-id';
 import * as os from 'os';
 import packageJson from './../../package.json';
@@ -41,10 +41,12 @@ export class BacktraceReport {
    */
   public annotations!: object;
 
+  public send!: () => void;
+
   /**
    * Thread information about current application
    */
-  public stackTrace!: BacktraceStackTrace.BacktraceStackTrace;
+  public stackTrace!: BacktraceStackTrace;
 
   /**
    * Calling module information
@@ -52,6 +54,9 @@ export class BacktraceReport {
   private _callingModule!: NodeRequire;
 
   private _callingModulePath!: string;
+
+  private tabWidth: number = 8;
+  private contextLineCount: number = 200;
 
   /**
    * Create new BacktraceReport - report information that will collect information
@@ -80,26 +85,11 @@ export class BacktraceReport {
   }
 
   /**
-   * Set error in BacktraceReport object
+   * Set error or message in BacktraceReport object
    * @param err Current error
    */
   public setError(err: Error | string): void {
-    if (this.isExceptionTypeReport(err)) {
-    }
-    // get stack trace to retrieve calling module information
-    this.stackTrace = new BacktraceStackTrace.BacktraceStackTrace(err);
-    // retrieve calling module object
-    [this._callingModule, this._callingModulePath] = readModule(
-      this.stackTrace.getCallingModulePath()
-    );
-
-    //combine attributes
-    this.attributes = {
-      ...this.clientAttributes,
-      ...this.readBuiltInAttributes(),
-    };
-    //combine annotations
-    this.annotations = this.readAnnotation();
+    this.err = err;
   }
 
   /**
@@ -125,7 +115,12 @@ export class BacktraceReport {
     return this.attachments;
   }
 
-  public toJson(): BacktraceData {
+  public async toJson(): Promise<BacktraceData> {
+    // why library should wait to retrieve source code data?
+    // architecture decision require to pass additional parameters
+    // not in constructor, but in additional method.
+    await this.collectReportInformation();
+
     return {
       uuid: this.uuid,
       timestamp: this.timestamp,
@@ -138,8 +133,33 @@ export class BacktraceReport {
       agentVersion: this.agentVersion,
       annotations: this.annotations,
       attributes: this.attributes,
+      sourceCode: this.stackTrace.getSourceCode(),
     };
   }
+
+  public setSourceCodeOptions(tabWidth: number, contextLineCount: number) {
+    this.tabWidth = tabWidth;
+    this.contextLineCount = contextLineCount;
+  }
+
+  private async collectReportInformation(): Promise<void> {
+    // get stack trace to retrieve calling module information
+    this.stackTrace = new BacktraceStackTrace(this.err);
+    await this.stackTrace.parseStackFrames();
+    // retrieve calling module object
+    [this._callingModule, this._callingModulePath] = readModule(
+      this.stackTrace.getCallingModulePath()
+    );
+
+    //combine attributes
+    this.attributes = {
+      ...this.clientAttributes,
+      ...this.readBuiltInAttributes(),
+    };
+    //combine annotations
+    this.annotations = this.readAnnotation();
+  }
+
   private readBuiltInAttributes(): object {
     return {
       ...readProcessStatus(),

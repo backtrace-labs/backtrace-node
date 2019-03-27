@@ -16,11 +16,9 @@ try {
 } catch (err) {
   const opts: BacktraceClientOptions = new BacktraceClientOptions();
   opts.endpoint = `https://submit.backtrace.io/yolo/328174ab5c377e2cdcb6c763ec2bbdf1f9aa5282c1f6bede693efe06a479db54/json?_mod_sync=1`;
-  // opts.endpoint = `http://localhost:54357/Home/Upload`;
-
-  // bt.initialize(opts);
-  // bt.reportSync(err);
-
+  opts.allowMultipleUncaughtExceptionListeners = true;
+  opts.handlePromises = true;
+  opts.disableGlobalHandler = false;
   const client = new BacktraceClient(opts);
 
   client.reportSync(

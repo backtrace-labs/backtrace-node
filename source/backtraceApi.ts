@@ -8,7 +8,7 @@ export class BacktraceApi {
   constructor(private backtraceUri: string) {}
 
   public async send(report: BacktraceReport): Promise<void> {
-    const formData = this.getFormData(report);
+    const formData = await this.getFormData(report);
     try {
       const result = await axios.post(this.backtraceUri, formData, {
         headers: {
@@ -27,9 +27,9 @@ export class BacktraceApi {
     }
   }
 
-  private getFormData(report: BacktraceReport): FormData {
+  private async getFormData(report: BacktraceReport): Promise<FormData> {
     const formData = new FormData();
-    const json: string = JSON.stringify(report.toJson());
+    const json: string = JSON.stringify(await report.toJson());
     formData.append('upload_file', json, 'upload_file.json');
 
     report.getAttachments().forEach(filePath => {

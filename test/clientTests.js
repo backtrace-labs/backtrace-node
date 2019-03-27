@@ -8,6 +8,17 @@ describe('Client behaviour tests', () => {
     }).to.Throw('Must call bt.initialize first');
   });
 
+  it('test', () => {
+    const initModel = {
+      endpoint: 'endpoint',
+      token: 'token',
+      disableGlobalHandler: true,
+    };
+    bt.initialize(initModel);
+    const report = bt.createReport();
+    report.sendSync();
+  });
+
   it('Disabled global handler with disabled multiple exception listeners', () => {
     const initModel = {
       endpoint: 'endpoint',
