@@ -1,6 +1,6 @@
 {
   "name": "backtrace-node",
-  "version": "0.8.1",
+  "version": "1.0.0",
   "description": "Backtrace error reporting tool",
   "main": "lib/index.js",
   "author": "Backtrace <team@backtrace.io>",
@@ -13,7 +13,6 @@
     "axios": "^0.18.0",
     "form-data": "^2.3.3",
     "node-machine-id": "^1.1.10",
-    "pend": "~1.2.0",
     "source-scan": "~1.0.1",
     "streamsink": "~1.2.0"
   },
