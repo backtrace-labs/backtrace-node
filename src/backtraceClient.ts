@@ -9,10 +9,10 @@ export class BacktraceClient {
   private _memorizedAttributes: object = {};
   private _backtraceApi: BacktraceApi;
   constructor(public options: BacktraceClientOptions) {
-    this.options = options || new BacktraceClientOptions();
     if (!options.endpoint) {
       throw new Error("Backtrace: missing 'endpoint' option.");
     }
+    this.options = { ...new BacktraceClientOptions(), ...options };
     this._backtraceApi = new BacktraceApi(options.endpoint);
     this.registerHandlers();
   }

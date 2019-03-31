@@ -25,7 +25,10 @@ export function readModule(
   if (!root) {
     root = process.cwd();
   }
-  root = path.dirname(root);
+  const filePath = fs.lstatSync(root).isFile();
+  if (filePath) {
+    root = path.dirname(root);
+  }
   const modulePredictedPath = path.join(root, 'package.json');
   const exists = fs.existsSync(modulePredictedPath);
   if (!exists) {

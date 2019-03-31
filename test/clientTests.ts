@@ -9,7 +9,7 @@ describe('Backtrace client tests', () => {
         new bt.BacktraceClient(
           (undefined as unknown) as BacktraceClientOptions
         );
-      }).to.Throw("Backtrace: missing 'endpoint' option.");
+      }).to.Throw();
     });
   });
 
@@ -44,7 +44,6 @@ describe('Backtrace client tests', () => {
 
     //check default options
     assert.equal(client.options.timeout, defaultOptions.timeout);
-    assert.equal(client.options.attributes, defaultOptions.attributes);
     assert.equal(client.options.handlePromises, defaultOptions.handlePromises);
   });
 
@@ -62,12 +61,14 @@ describe('Backtrace client tests', () => {
 
       client.clearMemorizedAttributes();
       const res = client.checkMemorizedAttributes();
-      assert.equal(res, {});
+      assert.isEmpty(res);
     });
 
     it('Clear empty attributes', function() {
       this.retries(2);
       client.clearMemorizedAttributes();
+      const res = client.checkMemorizedAttributes();
+      assert.isEmpty(res);
     });
 
     it('Add attributes', () => {
@@ -114,13 +115,14 @@ describe('Backtrace client tests', () => {
     before(() => {
       client = new bt.BacktraceClient({
         endpoint: 'endpoint',
-        attributes: clientAttributes
+        attributes: clientAttributes,
       } as BacktraceClientOptions);
     });
 
     it('Create new report', () => {
       const report = client.createReport('');
-      assert(!report);
+      assert.isEmpty({});
+      assert.isNotEmpty(report);
     });
 
     describe('Payload creation', () => {
@@ -130,7 +132,7 @@ describe('Backtrace client tests', () => {
       stringPayload.forEach(payload => {
         it(`Create report with string payload: ${payload}`, () => {
           const report = client.createReport(payload);
-          assert.equal(report.classifiers, []);
+          assert.isEmpty(report.classifiers);
           report.toJson().then(data => {
             assert.equal((data.attributes as any)['error.message'], payload);
           });
@@ -140,15 +142,14 @@ describe('Backtrace client tests', () => {
       errPayload.forEach(payload => {
         it(`Create report with error payload with message: ${
           payload.message
-        }`, () => {
+        }`, async () => {
           const report = client.createReport(payload);
-          assert.equal(report.classifiers, [payload.name]);
-          report.toJson().then(data => {
-            assert.equal(
-              (data.attributes as any)['error.message'],
-              payload.message
-            );
-          });
+          expect(report.classifiers).to.eql([payload.name]);
+          const data = await report.toJson();
+          assert.equal(
+            (data.attributes as any)['error.message'],
+            payload.message
+          );
         });
       });
     });
@@ -160,23 +161,31 @@ describe('Backtrace client tests', () => {
         report.toJson().then(data => {
           assert.equal((data.attributes as any)['name'], clientAttributes.name);
           assert.equal((data.attributes as any)['age'], clientAttributes.age);
-          assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
+          assert.equal(
+            (data.attributes as any)['ready'],
+            clientAttributes.ready
+          );
         });
       });
 
       it('Exception error attribute should contain client attribute', () => {
-        const opts = (undefined as unknown) as BacktraceClientOptions
+        const opts = (undefined as unknown) as BacktraceClientOptions;
         try {
           const attr = opts.attributes;
-        }
-        catch (err) {
+        } catch (err) {
           const report = client.createReport(err);
           report.toJson().then(data => {
-            assert.equal((data.attributes as any)['name'], clientAttributes.name);
+            assert.equal(
+              (data.attributes as any)['name'],
+              clientAttributes.name
+            );
             assert.equal((data.attributes as any)['age'], clientAttributes.age);
-            assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
+            assert.equal(
+              (data.attributes as any)['ready'],
+              clientAttributes.ready
+            );
           });
-        }    
+        }
       });
     });
 
@@ -190,7 +199,10 @@ describe('Backtrace client tests', () => {
         report.toJson().then(data => {
           assert.equal((data.attributes as any)['name'], clientAttributes.name);
           assert.equal((data.attributes as any)['age'], clientAttributes.age);
-          assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
+          assert.equal(
+            (data.attributes as any)['ready'],
+            clientAttributes.ready
+          );
           assert.equal((data.attributes as any)[key], value);
         });
 
@@ -204,16 +216,21 @@ describe('Backtrace client tests', () => {
         client.memorize(key, value);
         try {
           const attr = opts.attributes;
-        }
-        catch (err) {
+        } catch (err) {
           const report = client.createReport(err);
           report.toJson().then(data => {
-            assert.equal((data.attributes as any)['name'], clientAttributes.name);
+            assert.equal(
+              (data.attributes as any)['name'],
+              clientAttributes.name
+            );
             assert.equal((data.attributes as any)['age'], clientAttributes.age);
-            assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
+            assert.equal(
+              (data.attributes as any)['ready'],
+              clientAttributes.ready
+            );
             assert.equal((data.attributes as any)[key], value);
           });
-        }    
+        }
       });
     });
   });

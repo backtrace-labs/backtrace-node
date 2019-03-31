@@ -93,6 +93,7 @@ export class BacktraceReport {
    */
   public setError(err: Error | string): void {
     this.err = err;
+    this.classifiers = this.isExceptionTypeReport(err) ? [err.name] : [];
   }
 
   /**
@@ -157,8 +158,8 @@ export class BacktraceReport {
 
     //combine attributes
     this.attributes = {
-      ...this.clientAttributes,
       ...this.readBuiltInAttributes(),
+      ...this.clientAttributes,
     };
     //combine annotations
     this.annotations = this.readAnnotation();
