@@ -4,16 +4,34 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+    // {
+    //   "type": "node",
+    //   "request": "launch",
+    //   "name": "Launch Program",
+    //   "preLaunchTask": "tsc-watch",
+    //   "useWSL": true,
+    //   "program": "${workspaceFolder}//source/test.ts",
+    //   "protocol": "inspector",
+    //   "outFiles": ["${workspaceFolder}/dist/source/**/*.js"]
+    // }
+
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "preLaunchTask": "tsc-watch",
-      "useWSL": true,
-      "program": "${workspaceFolder}//source/test.ts",
-      "protocol": "inspector",
-      "outFiles": ["${workspaceFolder}/dist/source/**/*.js"]
+      "name": "Mocha Current File",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": [
+        "--no-timeouts",
+        "--colors",
+        "${file}",
+        "--require",
+        "ts-node/register"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "internalConsoleOptions": "neverOpen"
     }
+
     // {
     //   "type": "node",
     //   "request": "launch",
