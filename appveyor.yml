@@ -5,7 +5,7 @@ branches:
   only:
     - /master
     - /dev
-    - /typescript
+    - /feature/typescript
 build: off
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
