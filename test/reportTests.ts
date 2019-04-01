@@ -5,9 +5,39 @@ import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
 
 describe('Backrace report tests', () => {
   describe('Initialization tests', () => {
-    it('Initialize exception report', () => {
+    it('Initialize report', () => {
       const report = new BacktraceReport();
       assert.isNotEmpty(report);
+    });
+
+    it('Initialize report with attributes', async () => {
+      const attributes = { foo: 'foo', bar: 'bar' };
+      const report = new BacktraceReport('', attributes);
+      assert.isNotEmpty(report);
+
+      const data = await report.toJson();
+      assert.equal(data.attributes['foo'], attributes.foo);
+      assert.equal(data.attributes['bar'], attributes.bar);
+    });
+
+    it('Initialize report with attachments', async () => {
+      const attachments = ['path', 'to', 'attachments'];
+      const report = new BacktraceReport('', {}, attachments);
+      assert.isNotEmpty(report);
+
+      expect(report.getAttachments()).to.eql(attachments);
+    });
+
+    it('Initialize report with attributes and attachments', async () => {
+      const attributes = { foo: 'foo', bar: 'bar' };
+      const attachments = ['path', 'to', 'attachments'];
+      const report = new BacktraceReport('', attributes, attachments);
+      assert.isNotEmpty(report);
+      expect(report.getAttachments()).to.eql(attachments);
+
+      const data = await report.toJson();
+      assert.equal(data.attributes['foo'], attributes.foo);
+      assert.equal(data.attributes['bar'], attributes.bar);
     });
 
     const msgs = ['', ' ', '`', '!@#$%'];
@@ -126,15 +156,19 @@ describe('Backrace report tests', () => {
       assert.equal(data.attributes['age'], attributes.age);
       assert.equal(data.attributes['adult'], attributes.adult);
     });
+
+    it('Add attachments', () => {
+      const report = new BacktraceReport();
+    });
   });
 
   describe('Report generation', () => {
     before(() => {
       bt.initialize({
-        'endpoint': 'endpoint',
-        'token': 'token'
+        endpoint: 'endpoint',
+        token: 'token',
       } as BacktraceClientOptions);
-    })
+    });
     it('Generate report - createReport method', () => {
       const report = bt.createReport();
       assert.isNotEmpty(report);

@@ -8,15 +8,15 @@
     //   "type": "node",
     //   "request": "launch",
     //   "name": "Launch Program",
-    //   "preLaunchTask": "tsc-watch",
     //   "useWSL": true,
-    //   "program": "${workspaceFolder}//source/test.ts",
+    //   "program": "${workspaceFolder}//src/test.ts",
     //   "protocol": "inspector",
-    //   "outFiles": ["${workspaceFolder}/dist/source/**/*.js"]
+    //   "outFiles": ["${workspaceFolder}/dist/src/**/*.js"]
     // }
 
     {
       "type": "node",
+
       "request": "launch",
       "name": "Mocha Current File",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
