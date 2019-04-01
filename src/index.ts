@@ -74,6 +74,9 @@ export function createReport(): btReport.BacktraceReport {
  * Generaten BacktraceReport with default configuration
  */
 export function BacktraceReport(): btReport.BacktraceReport {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
   const report = new btReport.BacktraceReport();
   report.setSourceCodeOptions(
     backtraceClient.options.tabWidth,
@@ -92,6 +95,9 @@ export function errorHandlerMiddleware(
   resp: any,
   next: any
 ) {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
   backtraceClient.reportSync(err, req);
   next(err);
 }

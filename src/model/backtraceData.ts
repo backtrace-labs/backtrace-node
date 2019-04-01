@@ -8,8 +8,8 @@ export interface BacktraceData {
   agent: string;
   agentVersion: string;
   mainThread: string;
-  attributes: object;
-  annotations: object;
+  attributes: { [index: string]: any };
+  annotations: { [index: string]: any };
   threads: object;
   classifiers: string[];
   sourceCode: { [index: string]: ISourceCode };

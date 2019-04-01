@@ -113,10 +113,11 @@ describe('Backtrace client tests', () => {
     };
 
     before(() => {
-      client = new bt.BacktraceClient({
+      const credentials = ({
         endpoint: 'endpoint',
         attributes: clientAttributes,
-      } as BacktraceClientOptions);
+      } as unknown) as BacktraceClientOptions;
+      client = new bt.BacktraceClient(credentials);
     });
 
     it('Create new report', () => {
