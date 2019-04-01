@@ -13,7 +13,7 @@ before_build:
   - ps: Install-Product node $env:nodejs_version
 install:
   - npm install
-  - npm install -g mocha
+  - npm install -g mocha ts-node
 test_script:
   # Output useful info for debugging.
   - node --version
