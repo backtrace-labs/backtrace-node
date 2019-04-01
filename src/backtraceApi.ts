@@ -16,12 +16,12 @@ export class BacktraceApi {
         },
       });
       if (result.status !== 200) {
-        console.error(
+        console.log(
           `Invalid attempt to submit error to Backtrace. Result: ${result}`
         );
       }
     } catch (err) {
-      console.error(
+      console.log(
         `Invalid attempt to submit error to Backtrace. Error Message: ${err}`
       );
     }
