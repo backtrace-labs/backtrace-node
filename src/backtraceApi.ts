@@ -5,12 +5,13 @@ import { BacktraceReport } from './model/backtraceReport';
 import * as fs from 'fs';
 
 export class BacktraceApi {
-  constructor(private backtraceUri: string) {}
+  constructor(private backtraceUri: string, private timeout: number) {}
 
   public async send(report: BacktraceReport): Promise<void> {
     const formData = await this.getFormData(report);
     try {
       const result = await axios.post(this.backtraceUri, formData, {
+        timeout: this.timeout,
         headers: {
           'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
         },

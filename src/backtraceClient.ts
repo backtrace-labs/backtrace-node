@@ -13,7 +13,7 @@ export class BacktraceClient {
       throw new Error("Backtrace: missing 'endpoint' option.");
     }
     this.options = { ...new BacktraceClientOptions(), ...options };
-    this._backtraceApi = new BacktraceApi(options.endpoint);
+    this._backtraceApi = new BacktraceApi(this.getSubmitUrl(), options.timeout);
     this.registerHandlers();
   }
 
@@ -95,6 +95,22 @@ export class BacktraceClient {
 
   public sendReport(report: BacktraceReport): void {
     this._backtraceApi.send(report);
+  }
+
+  private getSubmitUrl(): string {
+    let url = this.options.endpoint;
+    if (url.includes('submit.backtrace.io')) {
+      return url;
+    }
+    if (!this.options.token) {
+      throw new Error(
+        'Token is required if Backtrace-node have to build url to Backtrace'
+      );
+    }
+    const uriSeparator = url.endsWith('/') ? '' : '/';
+    return `${this.options.endpoint}${uriSeparator}post?format=json&token=${
+      this.options.token
+    }`;
   }
 
   private combineClientAttributes(attributes: object = {}): object {

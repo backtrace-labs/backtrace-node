@@ -11,6 +11,12 @@ describe('Backtrace client tests', () => {
         );
       }).to.Throw();
     });
+
+    it('Missing required endpoint', () => {
+      expect(() => {
+        new bt.BacktraceClient({ endpoint: 'blah' } as BacktraceClientOptions);
+      }).to.Throw();
+    });
   });
 
   it('Client options assignment', () => {
@@ -51,7 +57,7 @@ describe('Backtrace client tests', () => {
     let client!: bt.BacktraceClient;
     before(() => {
       client = new bt.BacktraceClient({
-        endpoint: 'endpoint',
+        endpoint: 'submit.backtrace.io',
       } as BacktraceClientOptions);
     });
 
@@ -114,7 +120,7 @@ describe('Backtrace client tests', () => {
 
     before(() => {
       const credentials = ({
-        endpoint: 'endpoint',
+        endpoint: 'submit.backtrace.io',
         attributes: clientAttributes,
       } as unknown) as BacktraceClientOptions;
       client = new bt.BacktraceClient(credentials);
