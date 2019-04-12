@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha Current File",
+      "name": "Mocha",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
         "--no-timeouts",
@@ -20,6 +20,7 @@
       ],
       "console": "integratedTerminal",
       "sourceMaps": true,
+      "preLaunchTask": "tsc-watch",
       "internalConsoleOptions": "neverOpen"
     }
   ]
