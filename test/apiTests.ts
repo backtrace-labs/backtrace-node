@@ -1,7 +1,9 @@
 import nock from 'nock';
 import * as bt from '../src/index';
+import { assert } from 'chai';
 import { BacktraceClient } from '../src';
 import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
+import { BacktraceResultStatus } from '../src/model/backtraceResult';
 
 describe('Integration tests', () => {
   describe('Correct send', () => {
@@ -40,7 +42,8 @@ describe('Integration tests', () => {
         const opts = (undefined as unknown) as BacktraceClientOptions;
         const attr = opts.attributes;
       } catch (err) {
-        await client.reportAsync(err);
+        const result = await client.reportAsync(err);
+        assert.equal(result.Status, BacktraceResultStatus.Ok);
       }
     });
 

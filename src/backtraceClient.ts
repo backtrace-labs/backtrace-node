@@ -1,19 +1,29 @@
 import { BacktraceClientOptions } from './model/backtraceClientOptions';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceApi } from './backtraceApi';
+import { EventEmitter } from 'events';
+import { BacktraceResult } from './model/backtraceResult';
+import { BacktraceData } from './model/backtraceData';
+import { ClientRateLimit } from './clientRateLimit';
 
 /**
  * Backtrace client
  */
-export class BacktraceClient {
+export class BacktraceClient extends EventEmitter {
   private _memorizedAttributes: object = {};
   private _backtraceApi: BacktraceApi;
+  private _clientRateLimit: ClientRateLimit;
   constructor(public options: BacktraceClientOptions) {
+    super();
     if (!options.endpoint) {
       throw new Error("Backtrace: missing 'endpoint' option.");
     }
     this.options = { ...new BacktraceClientOptions(), ...options };
-    this._backtraceApi = new BacktraceApi(this.getSubmitUrl(), options.timeout);
+    this._backtraceApi = new BacktraceApi(
+      this.getSubmitUrl(),
+      this.options.timeout
+    );
+    this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
   }
 
@@ -65,13 +75,20 @@ export class BacktraceClient {
     payload: Error | string,
     reportAttributes: object | undefined = {},
     fileAttachments: string[] = []
-  ): Promise<void> {
+  ): Promise<BacktraceResult> {
     const report = this.createReport(
       payload,
       reportAttributes,
       fileAttachments
     );
-    await this._backtraceApi.send(report);
+    this.emit('before-send', report);
+    const limitResult = this.testClientLimits(report);
+    if (limitResult) {
+      return limitResult;
+    }
+    const result = await this._backtraceApi.send(report);
+    this.emit('after-send', report, result);
+    return result;
   }
 
   /**
@@ -90,11 +107,40 @@ export class BacktraceClient {
       reportAttributes,
       fileAttachments
     );
-    this._backtraceApi.send(report);
+    this.sendReport(report);
   }
 
-  public sendReport(report: BacktraceReport): void {
-    this._backtraceApi.send(report);
+  public sendReport(report: BacktraceReport): BacktraceResult {
+    this.emit('before-send', report);
+    const limitResult = this.testClientLimits(report);
+    if (limitResult) {
+      return limitResult;
+    }
+    this._backtraceApi.send(report).then(result => {
+      this.emit('after-send', report, result);
+    });
+
+    return BacktraceResult.Processing(report);
+  }
+
+  private testClientLimits(
+    report: BacktraceReport
+  ): BacktraceResult | undefined {
+    if (this.samplingHit()) {
+      this.emit('sampling-hit', report);
+      return BacktraceResult.OnSamplingHit(report);
+    }
+
+    const limitReach = this._clientRateLimit.skipReport(report);
+    if (limitReach) {
+      this.emit('rate-limit', report);
+      return BacktraceResult.OnLimitReached(report);
+    }
+    return undefined;
+  }
+
+  private samplingHit(): boolean {
+    return !!this.options.sampling && Math.random() > this.options.sampling;
   }
 
   private getSubmitUrl(): string {
@@ -131,6 +177,13 @@ export class BacktraceClient {
   }
 
   private registerHandlers(): void {
+    this._backtraceApi.on(
+      'before-data-send',
+      (report: BacktraceReport, json: BacktraceData) => {
+        this.emit('before-data-send', report, json);
+      }
+    );
+
     if (!!this.options.disableGlobalHandler) {
       this.registerGlobalHandler(
         !!this.options.allowMultipleUncaughtExceptionListeners

@@ -3,12 +3,19 @@ import * as path from 'path';
 import axios from 'axios';
 import { BacktraceReport } from './model/backtraceReport';
 import * as fs from 'fs';
+import { BacktraceResult } from './model/backtraceResult';
+import { EventEmitter } from 'events';
+import { BacktraceData } from './model/backtraceData';
 
-export class BacktraceApi {
-  constructor(private backtraceUri: string, private timeout: number) {}
+export class BacktraceApi extends EventEmitter {
+  constructor(private backtraceUri: string, private timeout: number) {
+    super();
+  }
 
-  public async send(report: BacktraceReport): Promise<void> {
-    const formData = await this.getFormData(report);
+  public async send(report: BacktraceReport): Promise<BacktraceResult> {
+    const data = await report.toJson();
+    this.emit('before-data-send', report, data);
+    const formData = await this.getFormData(report, data);
     try {
       const result = await axios.post(this.backtraceUri, formData, {
         timeout: this.timeout,
@@ -17,20 +24,23 @@ export class BacktraceApi {
         },
       });
       if (result.status !== 200) {
-        console.log(
+        const err = new Error(
           `Invalid attempt to submit error to Backtrace. Result: ${result}`
         );
+        return BacktraceResult.OnError(report, err);
       }
+      return BacktraceResult.Ok(report, result.data);
     } catch (err) {
-      console.log(
-        `Invalid attempt to submit error to Backtrace. Error Message: ${err}`
-      );
+      return BacktraceResult.OnError(report, err);
     }
   }
 
-  private async getFormData(report: BacktraceReport): Promise<FormData> {
+  private async getFormData(
+    report: BacktraceReport,
+    data: BacktraceData
+  ): Promise<FormData> {
     const formData = new FormData();
-    const json: string = JSON.stringify(await report.toJson());
+    const json: string = JSON.stringify(data);
     formData.append('upload_file', json, 'upload_file.json');
 
     report.getAttachments().forEach(filePath => {

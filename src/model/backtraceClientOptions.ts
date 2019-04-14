@@ -11,6 +11,6 @@ export class BacktraceClientOptions {
   public tabWidth: number = 8;
   public contextLineCount: number = 200;
 
-  public sampling: boolean = true;
+  public sampling: number | undefined = undefined;
   public rateLimit: number = 0;
 }
