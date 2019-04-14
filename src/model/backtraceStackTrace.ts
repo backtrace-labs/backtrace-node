@@ -114,8 +114,7 @@ export class BacktraceStackTrace {
       return;
     }
     // add source code to existing list. Otherwise create empty array
-    this.requestedSourceCode[stackFrame.sourceCode] =
-      this.requestedSourceCode[stackFrame.sourceCode] || [];
+    this.requestedSourceCode[stackFrame.sourceCode] = this.requestedSourceCode[stackFrame.sourceCode] || [];
     this.requestedSourceCode[stackFrame.sourceCode].push({
       line: stackFrame.line,
       column: stackFrame.column,
@@ -146,9 +145,7 @@ export class BacktraceStackTrace {
     }
   }
 
-  private async getSourceCodeInformation(
-    parameter: ISourceScan
-  ): Promise<ISourceCode> {
+  private async getSourceCodeInformation(parameter: ISourceScan): Promise<ISourceCode> {
     return new Promise<ISourceCode>((res, rej) => {
       scanFile(parameter, (err: Error, buff: Buffer) => {
         if (err) {
@@ -167,10 +164,6 @@ export class BacktraceStackTrace {
   }
 
   private isCallingModule(stackFrame: BacktraceStackFrame): boolean {
-    return (
-      !this.callingModulePath &&
-      fs.existsSync(stackFrame.sourceCode) &&
-      !stackFrame.sourceCode.includes('node_modules')
-    );
+    return !this.callingModulePath && fs.existsSync(stackFrame.sourceCode) && !stackFrame.sourceCode.includes('node_modules');
   }
 }

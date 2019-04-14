@@ -18,11 +18,11 @@ export class BacktraceClient extends EventEmitter {
     if (!options.endpoint) {
       throw new Error("Backtrace: missing 'endpoint' option.");
     }
-    this.options = { ...new BacktraceClientOptions(), ...options };
-    this._backtraceApi = new BacktraceApi(
-      this.getSubmitUrl(),
-      this.options.timeout
-    );
+    this.options = {
+      ...new BacktraceClientOptions(),
+      ...options,
+    };
+    this._backtraceApi = new BacktraceApi(this.getSubmitUrl(), this.options.timeout);
     this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
   }
@@ -52,17 +52,10 @@ export class BacktraceClient extends EventEmitter {
     return this._memorizedAttributes;
   }
 
-  public createReport(
-    payload: Error | string,
-    reportAttributes: object | undefined = {},
-    fileAttachments: string[] = []
-  ): BacktraceReport {
+  public createReport(payload: Error | string, reportAttributes: object | undefined = {}, fileAttachments: string[] = []): BacktraceReport {
     const attributes = this.combineClientAttributes(reportAttributes);
     const report = new BacktraceReport(payload, attributes, fileAttachments);
-    report.setSourceCodeOptions(
-      this.options.tabWidth,
-      this.options.contextLineCount
-    );
+    report.setSourceCodeOptions(this.options.tabWidth, this.options.contextLineCount);
     return report;
   }
   /**
@@ -71,16 +64,8 @@ export class BacktraceClient extends EventEmitter {
    * @param reportAttributes attributes
    * @param fileAttachments file attachments paths
    */
-  public async reportAsync(
-    payload: Error | string,
-    reportAttributes: object | undefined = {},
-    fileAttachments: string[] = []
-  ): Promise<BacktraceResult> {
-    const report = this.createReport(
-      payload,
-      reportAttributes,
-      fileAttachments
-    );
+  public async reportAsync(payload: Error | string, reportAttributes: object | undefined = {}, fileAttachments: string[] = []): Promise<BacktraceResult> {
+    const report = this.createReport(payload, reportAttributes, fileAttachments);
     this.emit('before-send', report);
     const limitResult = this.testClientLimits(report);
     if (limitResult) {
@@ -97,16 +82,8 @@ export class BacktraceClient extends EventEmitter {
    * @param reportAttributes attributes
    * @param fileAttachments file attachments paths
    */
-  public reportSync(
-    payload: Error | string,
-    reportAttributes: object | undefined = {},
-    fileAttachments: string[] = []
-  ): void {
-    const report = this.createReport(
-      payload,
-      reportAttributes,
-      fileAttachments
-    );
+  public reportSync(payload: Error | string, reportAttributes: object | undefined = {}, fileAttachments: string[] = []): void {
+    const report = this.createReport(payload, reportAttributes, fileAttachments);
     this.sendReport(report);
   }
 
@@ -116,16 +93,14 @@ export class BacktraceClient extends EventEmitter {
     if (limitResult) {
       return limitResult;
     }
-    this._backtraceApi.send(report).then(result => {
+    this._backtraceApi.send(report).then((result) => {
       this.emit('after-send', report, result);
     });
 
     return BacktraceResult.Processing(report);
   }
 
-  private testClientLimits(
-    report: BacktraceReport
-  ): BacktraceResult | undefined {
+  private testClientLimits(report: BacktraceReport): BacktraceResult | undefined {
     if (this.samplingHit()) {
       this.emit('sampling-hit', report);
       return BacktraceResult.OnSamplingHit(report);
@@ -149,14 +124,10 @@ export class BacktraceClient extends EventEmitter {
       return url;
     }
     if (!this.options.token) {
-      throw new Error(
-        'Token is required if Backtrace-node have to build url to Backtrace'
-      );
+      throw new Error('Token is required if Backtrace-node have to build url to Backtrace');
     }
     const uriSeparator = url.endsWith('/') ? '' : '/';
-    return `${this.options.endpoint}${uriSeparator}post?format=json&token=${
-      this.options.token
-    }`;
+    return `${this.options.endpoint}${uriSeparator}post?format=json&token=${this.options.token}`;
   }
 
   private combineClientAttributes(attributes: object = {}): object {
@@ -177,17 +148,12 @@ export class BacktraceClient extends EventEmitter {
   }
 
   private registerHandlers(): void {
-    this._backtraceApi.on(
-      'before-data-send',
-      (report: BacktraceReport, json: BacktraceData) => {
-        this.emit('before-data-send', report, json);
-      }
-    );
+    this._backtraceApi.on('before-data-send', (report: BacktraceReport, json: BacktraceData) => {
+      this.emit('before-data-send', report, json);
+    });
 
     if (!!this.options.disableGlobalHandler) {
-      this.registerGlobalHandler(
-        !!this.options.allowMultipleUncaughtExceptionListeners
-      );
+      this.registerGlobalHandler(!!this.options.allowMultipleUncaughtExceptionListeners);
     }
     if (this.options.handlePromises) {
       this.registerPromiseHandler();
@@ -204,9 +170,7 @@ export class BacktraceClient extends EventEmitter {
   private registerGlobalHandler(multipleExceptionListener: boolean): void {
     const listenerCount: number = process.listenerCount('uncaughtException');
     if (!multipleExceptionListener && listenerCount !== 0) {
-      console.error(
-        'Backtrace: multiple "uncaughtException" listeners attached.'
-      );
+      console.error('Backtrace: multiple "uncaughtException" listeners attached.');
       return;
     }
 
@@ -216,19 +180,14 @@ export class BacktraceClient extends EventEmitter {
     });
 
     if (!multipleExceptionListener) {
-      (process as NodeJS.EventEmitter).on(
-        'newListener',
-        (eventName: string, listener) => {
-          if (eventName === 'uncaughtException') {
-            // handle worst scenario when someone want to add new uncaughtException listener
-            var err = new Error(
-              "Backtrace: multiple 'uncaughtException' listeners attached."
-            );
-            console.error(err.stack);
-            process.exit(1);
-          }
+      (process as NodeJS.EventEmitter).on('newListener', (eventName: string, listener) => {
+        if (eventName === 'uncaughtException') {
+          // handle worst scenario when someone want to add new uncaughtException listener
+          var err = new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
+          console.error(err.stack);
+          process.exit(1);
         }
-      );
+      });
     }
   }
 }

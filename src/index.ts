@@ -11,9 +11,7 @@ export { BacktraceReport as BtReport } from './model/backtraceReport';
  * Initalize Backtrace Client and Backtrace node integration
  * @param configuration Bcktrace configuration
  */
-export function initialize(
-  configuration: BacktraceClientOptions
-): BacktraceClient {
+export function initialize(configuration: BacktraceClientOptions): BacktraceClient {
   backtraceClient = new BacktraceClient(configuration);
   return backtraceClient;
 }
@@ -24,11 +22,7 @@ export function initialize(
  * @param arg2 attributes
  * @param arg3 file attachments paths
  */
-export function reportAsync(
-  arg: Function | Error | string | object,
-  arg2: object | undefined = {},
-  arg3: string[] = []
-) {
+export function reportAsync(arg: Function | Error | string | object, arg2: object | undefined = {}, arg3: string[] = []) {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
@@ -52,11 +46,7 @@ export function reportAsync(
  * @param reportAttributes attributes
  * @param attachments file attachments paths
  */
-export function reportSync(
-  data: Error | string,
-  attributes: object | undefined = {},
-  attachments: string[] = []
-) {
+export function reportSync(data: Error | string, attributes: object | undefined = {}, attachments: string[] = []) {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
@@ -78,10 +68,7 @@ export function BacktraceReport(): btReport.BacktraceReport {
     throw new Error('Must call initialize method first');
   }
   const report = new btReport.BacktraceReport();
-  report.setSourceCodeOptions(
-    backtraceClient.options.tabWidth,
-    backtraceClient.options.contextLineCount
-  );
+  report.setSourceCodeOptions(backtraceClient.options.tabWidth, backtraceClient.options.contextLineCount);
   report.send = () => {
     backtraceClient.sendReport(report);
   };
@@ -89,12 +76,7 @@ export function BacktraceReport(): btReport.BacktraceReport {
   return report;
 }
 
-export function errorHandlerMiddleware(
-  err: Error,
-  req: any,
-  resp: any,
-  next: any
-) {
+export function errorHandlerMiddleware(err: Error, req: any, resp: any, next: any) {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }

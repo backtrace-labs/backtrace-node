@@ -16,8 +16,7 @@ describe('Emitter tests', () => {
       .post(query)
       .reply(200, {
         _rxid: '00000000-78ab-5702-0000-000000000000',
-        fingerprint:
-          '3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564',
+        fingerprint: '3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564',
         response: 'ok',
         unique: false,
       });
@@ -37,24 +36,18 @@ describe('Emitter tests', () => {
   });
 
   it('after-send event', () => {
-    client.on(
-      'after-send',
-      (report: BacktraceReport, result: BacktraceResultStatus) => {
-        assert.isNotEmpty(report);
-        assert.isNotEmpty(result);
-      }
-    );
+    client.on('after-send', (report: BacktraceReport, result: BacktraceResultStatus) => {
+      assert.isNotEmpty(report);
+      assert.isNotEmpty(result);
+    });
     client.reportSync('');
   });
 
   it('before-send event', () => {
-    client.on(
-      'before-data-send',
-      (report: BacktraceReport, data: BacktraceData) => {
-        assert.isNotEmpty(report);
-        assert.isNotEmpty(data);
-      }
-    );
+    client.on('before-data-send', (report: BacktraceReport, data: BacktraceData) => {
+      assert.isNotEmpty(report);
+      assert.isNotEmpty(data);
+    });
     client.reportSync('');
   });
 });

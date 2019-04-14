@@ -16,8 +16,7 @@ describe('Client report limit tests', () => {
       .post(query)
       .reply(200, {
         _rxid: '00000000-78ab-5702-0000-000000000000',
-        fingerprint:
-          '3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564',
+        fingerprint: '3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564',
         response: 'ok',
         unique: false,
       });

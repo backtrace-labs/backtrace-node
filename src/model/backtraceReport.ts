@@ -73,11 +73,7 @@ export class BacktraceReport {
    * @param attributes Report attributes dictionary
    * @param attachments Report attachments that Backtrace will send to API
    */
-  constructor(
-    private err: Error | string = '',
-    private clientAttributes: { [index: string]: any } = {},
-    private attachments: string[] = []
-  ) {
+  constructor(private err: Error | string = '', private clientAttributes: { [index: string]: any } = {}, private attachments: string[] = []) {
     if (!clientAttributes) {
       clientAttributes = {};
     }
@@ -159,9 +155,7 @@ export class BacktraceReport {
     this.stackTrace.setSourceCodeOptions(this.tabWidth, this.contextLineCount);
     await this.stackTrace.parseStackFrames();
     // retrieve calling module object
-    [this._callingModule, this._callingModulePath] = readModule(
-      this.stackTrace.getCallingModulePath()
-    );
+    [this._callingModule, this._callingModulePath] = readModule(this.stackTrace.getCallingModulePath());
 
     //combine attributes
     this.attributes = {
@@ -245,6 +239,6 @@ export class BacktraceReport {
     if (this.detectReportType(this.err)) {
       result['Exception'] = this.err;
     }
-    return { ...result, ...this.annotations};
+    return { ...result, ...this.annotations };
   }
 }

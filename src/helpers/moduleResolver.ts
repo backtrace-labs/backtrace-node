@@ -7,18 +7,12 @@ import * as path from 'path';
 export function readModuleDependencies(path: string): object {
   const packageJson = require(path);
   return {
-    requestedVersions:
-      packageJson.dependencies ||
-      packageJson.peerDependencies ||
-      packageJson.devDependencies,
+    requestedVersions: packageJson.dependencies || packageJson.peerDependencies || packageJson.devDependencies,
     devDependencies: packageJson.devDependencies,
   };
 }
 
-export function readModule(
-  root: string,
-  depth: number = 5
-): [NodeRequire, string] {
+export function readModule(root: string, depth: number = 5): [NodeRequire, string] {
   if (depth < 0) {
     return readLibModule();
   }

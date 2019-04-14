@@ -6,9 +6,7 @@ describe('Backtrace client tests', () => {
   describe('Initialization tests', () => {
     it('Missing required endpoint', () => {
       expect(() => {
-        new bt.BacktraceClient(
-          (undefined as unknown) as BacktraceClientOptions
-        );
+        new bt.BacktraceClient((undefined as unknown) as BacktraceClientOptions);
       }).to.Throw();
     });
 
@@ -24,15 +22,9 @@ describe('Backtrace client tests', () => {
     clientOptions.endpoint = 'submit.backtrace.io/blah';
     const client = new bt.BacktraceClient(clientOptions);
 
-    assert.equal(
-      client.options.allowMultipleUncaughtExceptionListeners,
-      clientOptions.allowMultipleUncaughtExceptionListeners
-    );
+    assert.equal(client.options.allowMultipleUncaughtExceptionListeners, clientOptions.allowMultipleUncaughtExceptionListeners);
     assert.equal(client.options.attributes, clientOptions.attributes);
-    assert.equal(
-      client.options.contextLineCount,
-      clientOptions.contextLineCount
-    );
+    assert.equal(client.options.contextLineCount, clientOptions.contextLineCount);
   });
 
   it('Mixing passed options with default', () => {
@@ -136,27 +128,22 @@ describe('Backtrace client tests', () => {
       const stringPayload: string[] = ['', '!', ' ', 'foo'];
       const errPayload: Error[] = [new Error(), new Error('err')];
 
-      stringPayload.forEach(payload => {
+      stringPayload.forEach((payload) => {
         it(`Create report with string payload: ${payload}`, () => {
           const report = client.createReport(payload);
           assert.isEmpty(report.classifiers);
-          report.toJson().then(data => {
+          report.toJson().then((data) => {
             assert.equal((data.attributes as any)['error.message'], payload);
           });
         });
       });
 
-      errPayload.forEach(payload => {
-        it(`Create report with error payload with message: ${
-          payload.message
-        }`, async () => {
+      errPayload.forEach((payload) => {
+        it(`Create report with error payload with message: ${payload.message}`, async () => {
           const report = client.createReport(payload);
           expect(report.classifiers).to.eql([payload.name]);
           const data = await report.toJson();
-          assert.equal(
-            (data.attributes as any)['error.message'],
-            payload.message
-          );
+          assert.equal((data.attributes as any)['error.message'], payload.message);
         });
       });
     });
@@ -165,13 +152,10 @@ describe('Backtrace client tests', () => {
       it('String error attribute should contain client attribute', () => {
         const msg = '';
         const report = client.createReport(msg);
-        report.toJson().then(data => {
+        report.toJson().then((data) => {
           assert.equal((data.attributes as any)['name'], clientAttributes.name);
           assert.equal((data.attributes as any)['age'], clientAttributes.age);
-          assert.equal(
-            (data.attributes as any)['ready'],
-            clientAttributes.ready
-          );
+          assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
         });
       });
 
@@ -181,16 +165,10 @@ describe('Backtrace client tests', () => {
           const attr = opts.attributes;
         } catch (err) {
           const report = client.createReport(err);
-          report.toJson().then(data => {
-            assert.equal(
-              (data.attributes as any)['name'],
-              clientAttributes.name
-            );
+          report.toJson().then((data) => {
+            assert.equal((data.attributes as any)['name'], clientAttributes.name);
             assert.equal((data.attributes as any)['age'], clientAttributes.age);
-            assert.equal(
-              (data.attributes as any)['ready'],
-              clientAttributes.ready
-            );
+            assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
           });
         }
       });
@@ -203,13 +181,10 @@ describe('Backtrace client tests', () => {
         const value = 'memorizeValue';
         client.memorize(key, value);
         const report = client.createReport(msg);
-        report.toJson().then(data => {
+        report.toJson().then((data) => {
           assert.equal((data.attributes as any)['name'], clientAttributes.name);
           assert.equal((data.attributes as any)['age'], clientAttributes.age);
-          assert.equal(
-            (data.attributes as any)['ready'],
-            clientAttributes.ready
-          );
+          assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
           assert.equal((data.attributes as any)[key], value);
         });
 
@@ -225,16 +200,10 @@ describe('Backtrace client tests', () => {
           const attr = opts.attributes;
         } catch (err) {
           const report = client.createReport(err);
-          report.toJson().then(data => {
-            assert.equal(
-              (data.attributes as any)['name'],
-              clientAttributes.name
-            );
+          report.toJson().then((data) => {
+            assert.equal((data.attributes as any)['name'], clientAttributes.name);
             assert.equal((data.attributes as any)['age'], clientAttributes.age);
-            assert.equal(
-              (data.attributes as any)['ready'],
-              clientAttributes.ready
-            );
+            assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
             assert.equal((data.attributes as any)[key], value);
           });
         }

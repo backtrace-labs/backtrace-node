@@ -41,7 +41,7 @@ describe('Backrace report tests', () => {
     });
 
     const msgs = ['', ' ', '`', '!@#$%'];
-    msgs.forEach(msg => {
+    msgs.forEach((msg) => {
       it(`Initialize message report - with string parameter: ${msg}`, async () => {
         const report = new BacktraceReport(msg);
         assert.isEmpty(report.classifiers);
@@ -51,7 +51,7 @@ describe('Backrace report tests', () => {
     });
 
     const errors = [new Error(), new Error('')];
-    errors.forEach(err => {
+    errors.forEach((err) => {
       it(`Initialize exception report - with exception parameter: ${err}`, async () => {
         const report = new BacktraceReport(err);
         expect(report.classifiers).to.eql([err.name]);
@@ -60,8 +60,8 @@ describe('Backrace report tests', () => {
       });
     });
 
-    msgs.forEach(msg => {
-      errors.forEach(err => {
+    msgs.forEach((msg) => {
+      errors.forEach((err) => {
         it(`Check initialization parameter change from string to error:: string == ${msg} err == ${err}`, async () => {
           const report = new BacktraceReport(msg);
 
@@ -74,10 +74,7 @@ describe('Backrace report tests', () => {
           report.setError(err);
           assert.isTrue(report.isExceptionTypeReport());
           const exData = await report.toJson();
-          assert.equal(
-            exData.attributes['error.message'] as string,
-            err.message
-          );
+          assert.equal(exData.attributes['error.message'] as string, err.message);
         });
 
         it(`Check initialization parameter change from error to string`, async () => {
@@ -86,10 +83,7 @@ describe('Backrace report tests', () => {
           // setup error information
           assert.isTrue(report.isExceptionTypeReport());
           const exData = await report.toJson();
-          assert.equal(
-            exData.attributes['error.message'] as string,
-            err.message
-          );
+          assert.equal(exData.attributes['error.message'] as string, err.message);
 
           //setup msg
           report.setError(msg);
@@ -107,10 +101,7 @@ describe('Backrace report tests', () => {
       const report = new BacktraceReport();
       const timeAfterReport = Math.floor(new Date().getTime() / 1000);
       assert.equal(report.lang, 'nodejs');
-      assert.isTrue(
-        timeAfterReport >= report.timestamp &&
-          report.timestamp >= timeBeforeReport
-      );
+      assert.isTrue(timeAfterReport >= report.timestamp && report.timestamp >= timeBeforeReport);
       assert.isNotEmpty(report.uuid);
       assert.equal(report.mainThread, 'main');
     });
@@ -118,7 +109,7 @@ describe('Backrace report tests', () => {
     const keys = ['foo', 'bar', ' ', '-', '  '];
     const values: any = [false, 1, 123, '123', '!@#$%'];
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       values.forEach((value: any) => {
         it('Add report attribute', async () => {
           const report = new BacktraceReport();

@@ -49,7 +49,7 @@ export class BacktraceResult {
     private message: string,
     private status: BacktraceResultStatus,
     private err: Error | undefined = undefined,
-    data: any | undefined = undefined
+    data: any | undefined = undefined,
   ) {
     if (!data) {
       return;
@@ -60,21 +60,11 @@ export class BacktraceResult {
   }
 
   public static Processing(report: BacktraceReport): BacktraceResult {
-    return new BacktraceResult(
-      report,
-      'Data were send to API and waiting for server result',
-      BacktraceResultStatus.InProcessing
-    );
+    return new BacktraceResult(report, 'Data were send to API and waiting for server result', BacktraceResultStatus.InProcessing);
   }
 
   public static Ok(report: BacktraceReport, result: string): BacktraceResult {
-    return new BacktraceResult(
-      report,
-      'Report is available on the Backtrace server',
-      BacktraceResultStatus.Ok,
-      undefined,
-      result
-    );
+    return new BacktraceResult(report, 'Report is available on the Backtrace server', BacktraceResultStatus.Ok, undefined, result);
   }
   /**
    * Set result when client rate limit reached
@@ -82,19 +72,11 @@ export class BacktraceResult {
    * @returns  BacktraceResult with limit reached information
    */
   public static OnLimitReached(report: BacktraceReport): BacktraceResult {
-    return new BacktraceResult(
-      report,
-      'Client report limit reached',
-      BacktraceResultStatus.LimitReached
-    );
+    return new BacktraceResult(report, 'Client report limit reached', BacktraceResultStatus.LimitReached);
   }
 
   public static OnSamplingHit(report: BacktraceReport): BacktraceResult {
-    return new BacktraceResult(
-      report,
-      'Sampling hit',
-      BacktraceResultStatus.SamplingHit
-    );
+    return new BacktraceResult(report, 'Sampling hit', BacktraceResultStatus.SamplingHit);
   }
 
   /**
@@ -104,11 +86,6 @@ export class BacktraceResult {
    * @returns  BacktraceResult with exception information
    */
   public static OnError(report: BacktraceReport, err: Error): BacktraceResult {
-    return new BacktraceResult(
-      report,
-      err.message,
-      BacktraceResultStatus.ServerError,
-      err
-    );
+    return new BacktraceResult(report, err.message, BacktraceResultStatus.ServerError, err);
   }
 }

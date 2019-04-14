@@ -11,7 +11,7 @@ export function readProcessStatus(): object {
   //   event loop is not safe to use.
   // * We are collecting a snapshot of virtual memory used. If this is done asynchronously, then
   //   we may pick up virtual memory information for a time different than the moment we are
-//   interested in.
+  //   interested in.
   // * procfs is a virtual filesystem; there is no disk I/O to block on. It's synchronous anyway.
   let contents;
   try {

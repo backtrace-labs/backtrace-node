@@ -24,9 +24,7 @@ export class BacktraceApi extends EventEmitter {
         },
       });
       if (result.status !== 200) {
-        const err = new Error(
-          `Invalid attempt to submit error to Backtrace. Result: ${result}`
-        );
+        const err = new Error(`Invalid attempt to submit error to Backtrace. Result: ${result}`);
         return BacktraceResult.OnError(report, err);
       }
       return BacktraceResult.Ok(report, result.data);
@@ -35,10 +33,7 @@ export class BacktraceApi extends EventEmitter {
     }
   }
 
-  private async getFormData(
-    report: BacktraceReport,
-    data: BacktraceData
-  ): Promise<FormData> {
+  private async getFormData(report: BacktraceReport, data: BacktraceData): Promise<FormData> {
     const formData = new FormData();
     const json: string = JSON.stringify(data);
     formData.append('upload_file', json, 'upload_file.json');
@@ -49,11 +44,7 @@ export class BacktraceApi extends EventEmitter {
         return;
       }
       const name = path.basename(filePath);
-      formData.append(
-        `attachment_${name}`,
-        fs.createReadStream(filePath),
-        name
-      );
+      formData.append(`attachment_${name}`, fs.createReadStream(filePath), name);
     });
 
     return formData;

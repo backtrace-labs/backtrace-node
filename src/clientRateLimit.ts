@@ -6,9 +6,7 @@ export class ClientRateLimit {
 
   constructor(private reportPerMin: number) {
     if (reportPerMin < 0) {
-      throw new Error(
-        'ReportPerMinute argument must be greater or equal to zero'
-      );
+      throw new Error('ReportPerMinute argument must be greater or equal to zero');
     }
     this._watcherEnable = reportPerMin > 0;
   }
