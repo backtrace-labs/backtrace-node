@@ -5,7 +5,7 @@ import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 /**
  * Reprresent single stack frame in stack trace
  */
-interface BacktraceStackFrame {
+interface IBacktraceStackFrame {
   funcName: string;
   sourceCode: string;
   library: string;
@@ -20,7 +20,7 @@ interface BacktraceStackFrame {
 export class BacktraceStackTrace {
   public readonly fault: boolean = true;
   public readonly name = 'main';
-  public stack: BacktraceStackFrame[] = [];
+  public stack: IBacktraceStackFrame[] = [];
 
   public sourceCodeInformation: { [index: string]: ISourceCode } = {};
   private callingModulePath = '';
@@ -48,7 +48,7 @@ export class BacktraceStackTrace {
    * Get calling module path
    */
   public getCallingModulePath(): string {
-    //handle a situation when every one stack frame is from node_modules
+    // handle a situation when every one stack frame is from node_modules
     if (!this.callingModulePath) {
       this.callingModulePath = this.stack[0].sourceCode;
     }
@@ -81,9 +81,9 @@ export class BacktraceStackTrace {
     if (!stackTrace) {
       return;
     }
-    //get exception lines and remove first line of descrtiption
+    // get exception lines and remove first line of descrtiption
     const lines = stackTrace.split('\n').slice(1);
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const match = line.match(this.stackLineRe);
       if (!match) {
         return;
@@ -108,8 +108,8 @@ export class BacktraceStackTrace {
     await this.readSourceCode();
   }
 
-  private addSourceRequest(stackFrame: BacktraceStackFrame): void {
-    //ignore not existing stack frames
+  private addSourceRequest(stackFrame: IBacktraceStackFrame): void {
+    // ignore not existing stack frames
     if (!fs.existsSync(stackFrame.sourceCode)) {
       return;
     }
@@ -163,7 +163,9 @@ export class BacktraceStackTrace {
     });
   }
 
-  private isCallingModule(stackFrame: BacktraceStackFrame): boolean {
-    return !this.callingModulePath && fs.existsSync(stackFrame.sourceCode) && !stackFrame.sourceCode.includes('node_modules');
+  private isCallingModule(stackFrame: IBacktraceStackFrame): boolean {
+    return (
+      !this.callingModulePath && fs.existsSync(stackFrame.sourceCode) && !stackFrame.sourceCode.includes('node_modules')
+    );
   }
 }

@@ -1,9 +1,9 @@
-import nock from 'nock';
-import * as bt from '../src/index';
 import { assert } from 'chai';
-import { BacktraceClient } from '../src';
-import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
-import { BacktraceResultStatus } from '../src/model/backtraceResult';
+import nock from 'nock';
+import { BacktraceClient } from '..';
+import * as bt from '../index';
+import { BacktraceClientOptions } from '../model/backtraceClientOptions';
+import { BacktraceResultStatus } from '../model/backtraceResult';
 
 describe('Integration tests', () => {
   describe('Correct send', () => {

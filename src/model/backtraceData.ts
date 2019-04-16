@@ -1,6 +1,6 @@
 import { ISourceCode } from './sourceCode';
 
-export interface BacktraceData {
+export interface IBacktraceData {
   uuid: string;
   timestamp: number;
   lang: string;

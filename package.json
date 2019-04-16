@@ -1,16 +1,31 @@
 {
   "name": "backtrace-node",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "description": "Backtrace error reporting tool",
-  "main": "lib/index.js",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index.d.ts",
+  "files": [
+    "lib/src/**/*"
+  ],
   "author": "Backtrace <team@backtrace.io>",
+  "keywords": [
+    "Error",
+    "Reporting",
+    "Diagnostic",
+    "Tool",
+    "Bug",
+    "Bugs",
+    "StackTrace"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git@github.com:backtrace-labs/backtrace-node.git"
   },
   "scripts": {
-    "test": "mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json test/**/*.ts",
+    "test": "mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json src/test/**/*.ts",
+    "lint": "tslint -p ./tsconfig.json",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "build": "tsc"
   },
   "dependencies": {
@@ -27,9 +42,11 @@
     "@types/nock": "^9.3.1",
     "@types/node": "^11.11.4",
     "chai": "~4.2.0",
+    "electron": "4.1.4",
     "mocha": "^5.2.0",
     "nock": "^10.0.6",
     "ts-node": "^8.0.3",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.3.4000"
   }
 }

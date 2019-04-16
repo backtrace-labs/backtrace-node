@@ -1,11 +1,11 @@
-import FormData from 'form-data';
-import * as path from 'path';
 import axios from 'axios';
-import { BacktraceReport } from './model/backtraceReport';
-import * as fs from 'fs';
-import { BacktraceResult } from './model/backtraceResult';
 import { EventEmitter } from 'events';
-import { BacktraceData } from './model/backtraceData';
+import FormData from 'form-data';
+import * as fs from 'fs';
+import * as path from 'path';
+import { IBacktraceData } from './model/backtraceData';
+import { BacktraceReport } from './model/backtraceReport';
+import { BacktraceResult } from './model/backtraceResult';
 
 export class BacktraceApi extends EventEmitter {
   constructor(private backtraceUri: string, private timeout: number) {
@@ -33,12 +33,12 @@ export class BacktraceApi extends EventEmitter {
     }
   }
 
-  private async getFormData(report: BacktraceReport, data: BacktraceData): Promise<FormData> {
+  private async getFormData(report: BacktraceReport, data: IBacktraceData): Promise<FormData> {
     const formData = new FormData();
     const json: string = JSON.stringify(data);
     formData.append('upload_file', json, 'upload_file.json');
 
-    report.getAttachments().forEach(filePath => {
+    report.getAttachments().forEach((filePath) => {
       const result = fs.existsSync(filePath);
       if (!result) {
         return;

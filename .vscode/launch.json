@@ -9,19 +9,19 @@
       "request": "launch",
       "name": "Mocha",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--no-timeouts",
-        "--colors",
-        "--require",
-        "ts-node/register",
-        "--project",
-        "${workspaceFolder}/tsconfig.json",
-        "${workspaceFolder}/test/**/*.ts"
-      ],
+      "args": ["--no-timeouts", "--colors", "--require", "ts-node/register", "--project", "${workspaceFolder}/tsconfig.json", "${workspaceFolder}/src/test/**/*.ts"],
       "console": "integratedTerminal",
       "sourceMaps": true,
       "preLaunchTask": "tsc-watch",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Electron TypeScript sample",
+      "program": "${workspaceFolder}//examples/typescript/electron/source/main.ts",
+      "protocol": "inspector",
+      "outFiles": ["${workspaceFolder}/examples/typescript/electron/dist/main.js"]
     }
   ]
 }

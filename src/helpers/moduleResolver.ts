@@ -4,8 +4,8 @@ import * as path from 'path';
 /**
  * Read module dependencies
  */
-export function readModuleDependencies(path: string): object {
-  const packageJson = require(path);
+export function readModuleDependencies(modulePath: string): object {
+  const packageJson = require(modulePath);
   return {
     requestedVersions: packageJson.dependencies || packageJson.peerDependencies || packageJson.devDependencies,
     devDependencies: packageJson.devDependencies,
@@ -40,7 +40,7 @@ export function readModule(root: string, depth: number = 5): [NodeRequire, strin
 }
 
 function readLibModule() {
-  console.log('reading Backtrace module - cannot found correct module');
+  console.warn('reading Backtrace module - cannot found correct module');
   return require('../../package.json');
 }
 function readParentDir(root: string, depth: number) {

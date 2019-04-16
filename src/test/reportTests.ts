@@ -1,7 +1,7 @@
-import * as bt from '../src/index';
 import { assert, expect } from 'chai';
-import { BacktraceReport } from '../src/model/backtraceReport';
-import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
+import * as bt from '../index';
+import { BacktraceClientOptions } from '../model/backtraceClientOptions';
+import { BacktraceReport } from '../model/backtraceReport';
 
 describe('Backrace report tests', () => {
   describe('Initialization tests', () => {
@@ -85,7 +85,7 @@ describe('Backrace report tests', () => {
           const exData = await report.toJson();
           assert.equal(exData.attributes['error.message'] as string, err.message);
 
-          //setup msg
+          // setup msg
           report.setError(msg);
           assert.isFalse(report.isExceptionTypeReport());
           const msgData = await report.toJson();
@@ -121,9 +121,9 @@ describe('Backrace report tests', () => {
     });
 
     const userData = {
-      name: 'username',
-      age: 9999,
       adult: true,
+      age: 9999,
+      name: 'username',
     };
 
     it('Add report annotation', async () => {

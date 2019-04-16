@@ -1,11 +1,11 @@
-import { BacktraceClientOptions } from './model/backtraceClientOptions';
-import { BacktraceReport } from './model/backtraceReport';
-import { BacktraceApi } from './backtraceApi';
-import { EventEmitter } from 'events';
-import { BacktraceResult } from './model/backtraceResult';
-import { BacktraceData } from './model/backtraceData';
 import { ClientRateLimit } from './clientRateLimit';
 
+import { EventEmitter } from 'events';
+import { BacktraceApi } from './backtraceApi';
+import { BacktraceClientOptions } from './model/backtraceClientOptions';
+import { IBacktraceData } from './model/backtraceData';
+import { BacktraceReport } from './model/backtraceReport';
+import { BacktraceResult } from './model/backtraceResult';
 /**
  * Backtrace client
  */
@@ -16,6 +16,7 @@ export class BacktraceClient extends EventEmitter {
   constructor(public options: BacktraceClientOptions) {
     super();
     if (!options.endpoint) {
+      // tslint:disable-next-line: quotemark
       throw new Error("Backtrace: missing 'endpoint' option.");
     }
     this.options = {
@@ -52,7 +53,11 @@ export class BacktraceClient extends EventEmitter {
     return this._memorizedAttributes;
   }
 
-  public createReport(payload: Error | string, reportAttributes: object | undefined = {}, fileAttachments: string[] = []): BacktraceReport {
+  public createReport(
+    payload: Error | string,
+    reportAttributes: object | undefined = {},
+    fileAttachments: string[] = [],
+  ): BacktraceReport {
     const attributes = this.combineClientAttributes(reportAttributes);
     const report = new BacktraceReport(payload, attributes, fileAttachments);
     report.setSourceCodeOptions(this.options.tabWidth, this.options.contextLineCount);
@@ -64,7 +69,11 @@ export class BacktraceClient extends EventEmitter {
    * @param reportAttributes attributes
    * @param fileAttachments file attachments paths
    */
-  public async reportAsync(payload: Error | string, reportAttributes: object | undefined = {}, fileAttachments: string[] = []): Promise<BacktraceResult> {
+  public async reportAsync(
+    payload: Error | string,
+    reportAttributes: object | undefined = {},
+    fileAttachments: string[] = [],
+  ): Promise<BacktraceResult> {
     const report = this.createReport(payload, reportAttributes, fileAttachments);
     this.emit('before-send', report);
     const limitResult = this.testClientLimits(report);
@@ -82,7 +91,11 @@ export class BacktraceClient extends EventEmitter {
    * @param reportAttributes attributes
    * @param fileAttachments file attachments paths
    */
-  public reportSync(payload: Error | string, reportAttributes: object | undefined = {}, fileAttachments: string[] = []): void {
+  public reportSync(
+    payload: Error | string,
+    reportAttributes: object | undefined = {},
+    fileAttachments: string[] = [],
+  ): void {
     const report = this.createReport(payload, reportAttributes, fileAttachments);
     this.sendReport(report);
   }
@@ -119,7 +132,7 @@ export class BacktraceClient extends EventEmitter {
   }
 
   private getSubmitUrl(): string {
-    let url = this.options.endpoint;
+    const url = this.options.endpoint;
     if (url.includes('submit.backtrace.io')) {
       return url;
     }
@@ -148,7 +161,7 @@ export class BacktraceClient extends EventEmitter {
   }
 
   private registerHandlers(): void {
-    this._backtraceApi.on('before-data-send', (report: BacktraceReport, json: BacktraceData) => {
+    this._backtraceApi.on('before-data-send', (report: BacktraceReport, json: IBacktraceData) => {
       this.emit('before-data-send', report, json);
     });
 
@@ -183,7 +196,8 @@ export class BacktraceClient extends EventEmitter {
       (process as NodeJS.EventEmitter).on('newListener', (eventName: string, listener) => {
         if (eventName === 'uncaughtException') {
           // handle worst scenario when someone want to add new uncaughtException listener
-          var err = new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
+          // tslint:disable-next-line: quotemark
+          const err = new Error("Backtrace: multiple 'uncaughtException' listeners attached.");
           console.error(err.stack);
           process.exit(1);
         }

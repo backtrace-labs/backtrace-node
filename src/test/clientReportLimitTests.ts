@@ -1,11 +1,10 @@
-import nock from 'nock';
-import * as bt from '../src/index';
 import { assert } from 'chai';
-import { BacktraceClient } from '../src';
-import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
-import { BacktraceResultStatus } from '../src/model/backtraceResult';
-import { BacktraceReport } from '../src/model/backtraceReport';
-import { BacktraceData } from '../src/model/backtraceData';
+import nock from 'nock';
+import { BacktraceClient } from '..';
+import * as bt from '../index';
+import { BacktraceClientOptions } from '../model/backtraceClientOptions';
+import { BacktraceReport } from '../model/backtraceReport';
+import { BacktraceResultStatus } from '../model/backtraceResult';
 
 describe('Client report limit tests', () => {
   let client!: BacktraceClient;
@@ -35,7 +34,7 @@ describe('Client report limit tests', () => {
   });
 
   it('test limit reach', async () => {
-    //reach limit after this report
+    // reach limit after this report
     await client.reportAsync('');
     for (let index = 0; index < 10; index++) {
       const limitReachResult = await client.reportAsync('');
@@ -44,7 +43,7 @@ describe('Client report limit tests', () => {
   });
 
   it('test limit reach event', async () => {
-    //reach limit after this report
+    // reach limit after this report
     await client.reportAsync('');
     client.on('rate-limit', (report: BacktraceReport) => {
       assert.isNotEmpty(report);

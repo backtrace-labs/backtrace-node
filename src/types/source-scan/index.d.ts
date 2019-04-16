@@ -4,8 +4,5 @@ declare module 'source-scan' {
     startLine: number;
     endLine: number;
   }
-  export function scanFile(
-    options: IScanFileOptions,
-    callback: (err: Error, buff: Buffer) => void
-  ): void;
+  export function scanFile(options: IScanFileOptions, callback: (err: Error, buff: Buffer) => void): void;
 }

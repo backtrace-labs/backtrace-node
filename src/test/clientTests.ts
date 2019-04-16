@@ -1,28 +1,31 @@
-import * as bt from '../src/index';
 import { assert, expect } from 'chai';
-import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
+import * as bt from '../index';
+import { BacktraceClientOptions } from '../model/backtraceClientOptions';
 
 describe('Backtrace client tests', () => {
   describe('Initialization tests', () => {
     it('Missing required endpoint', () => {
       expect(() => {
-        new bt.BacktraceClient((undefined as unknown) as BacktraceClientOptions);
+        const client = new bt.BacktraceClient((undefined as unknown) as BacktraceClientOptions);
       }).to.Throw();
     });
 
     it('Missing required endpoint', () => {
       expect(() => {
-        new bt.BacktraceClient({ endpoint: 'blah' } as BacktraceClientOptions);
+        const client = new bt.BacktraceClient({ endpoint: 'blah' } as BacktraceClientOptions);
       }).to.Throw();
     });
   });
 
   it('Client options assignment', () => {
-    let clientOptions = new BacktraceClientOptions();
+    const clientOptions = new BacktraceClientOptions();
     clientOptions.endpoint = 'submit.backtrace.io/blah';
     const client = new bt.BacktraceClient(clientOptions);
 
-    assert.equal(client.options.allowMultipleUncaughtExceptionListeners, clientOptions.allowMultipleUncaughtExceptionListeners);
+    assert.equal(
+      client.options.allowMultipleUncaughtExceptionListeners,
+      clientOptions.allowMultipleUncaughtExceptionListeners,
+    );
     assert.equal(client.options.attributes, clientOptions.attributes);
     assert.equal(client.options.contextLineCount, clientOptions.contextLineCount);
   });
@@ -36,11 +39,11 @@ describe('Backtrace client tests', () => {
     const defaultOptions = new BacktraceClientOptions();
 
     const client = new bt.BacktraceClient(clientOptions);
-    //check if clientOptions variable properties are assigned correctly
+    // check if clientOptions variable properties are assigned correctly
     assert.equal(client.options.endpoint, clientOptions.endpoint);
     assert.equal(client.options.token, clientOptions.token);
 
-    //check default options
+    // check default options
     assert.equal(client.options.timeout, defaultOptions.timeout);
     assert.equal(client.options.handlePromises, defaultOptions.handlePromises);
   });
@@ -133,7 +136,7 @@ describe('Backtrace client tests', () => {
           const report = client.createReport(payload);
           assert.isEmpty(report.classifiers);
           report.toJson().then((data) => {
-            assert.equal((data.attributes as any)['error.message'], payload);
+            assert.equal(data.attributes['error.message'], payload);
           });
         });
       });
@@ -143,7 +146,7 @@ describe('Backtrace client tests', () => {
           const report = client.createReport(payload);
           expect(report.classifiers).to.eql([payload.name]);
           const data = await report.toJson();
-          assert.equal((data.attributes as any)['error.message'], payload.message);
+          assert.equal(data.attributes['error.message'], payload.message);
         });
       });
     });
@@ -153,9 +156,9 @@ describe('Backtrace client tests', () => {
         const msg = '';
         const report = client.createReport(msg);
         report.toJson().then((data) => {
-          assert.equal((data.attributes as any)['name'], clientAttributes.name);
-          assert.equal((data.attributes as any)['age'], clientAttributes.age);
-          assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
+          assert.equal(data.attributes['name'], clientAttributes.name);
+          assert.equal(data.attributes['age'], clientAttributes.age);
+          assert.equal(data.attributes['ready'], clientAttributes.ready);
         });
       });
 
@@ -166,9 +169,9 @@ describe('Backtrace client tests', () => {
         } catch (err) {
           const report = client.createReport(err);
           report.toJson().then((data) => {
-            assert.equal((data.attributes as any)['name'], clientAttributes.name);
-            assert.equal((data.attributes as any)['age'], clientAttributes.age);
-            assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
+            assert.equal(data.attributes['name'], clientAttributes.name);
+            assert.equal(data.attributes['age'], clientAttributes.age);
+            assert.equal(data.attributes['ready'], clientAttributes.ready);
           });
         }
       });
@@ -182,10 +185,10 @@ describe('Backtrace client tests', () => {
         client.memorize(key, value);
         const report = client.createReport(msg);
         report.toJson().then((data) => {
-          assert.equal((data.attributes as any)['name'], clientAttributes.name);
-          assert.equal((data.attributes as any)['age'], clientAttributes.age);
-          assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
-          assert.equal((data.attributes as any)[key], value);
+          assert.equal(data.attributes['name'], clientAttributes.name);
+          assert.equal(data.attributes['age'], clientAttributes.age);
+          assert.equal(data.attributes['ready'], clientAttributes.ready);
+          assert.equal(data.attributes[key], value);
         });
 
         client.clearMemorizedAttributes();
@@ -201,10 +204,10 @@ describe('Backtrace client tests', () => {
         } catch (err) {
           const report = client.createReport(err);
           report.toJson().then((data) => {
-            assert.equal((data.attributes as any)['name'], clientAttributes.name);
-            assert.equal((data.attributes as any)['age'], clientAttributes.age);
-            assert.equal((data.attributes as any)['ready'], clientAttributes.ready);
-            assert.equal((data.attributes as any)[key], value);
+            assert.equal(data.attributes['name'], clientAttributes.name);
+            assert.equal(data.attributes['age'], clientAttributes.age);
+            assert.equal(data.attributes['ready'], clientAttributes.ready);
+            assert.equal(data.attributes[key], value);
           });
         }
       });

@@ -1,5 +1,5 @@
-import { BacktraceClientOptions } from './model/backtraceClientOptions';
 import { BacktraceClient } from './backtraceClient';
+import { BacktraceClientOptions } from './model/backtraceClientOptions';
 import * as btReport from './model/backtraceReport';
 
 let backtraceClient: BacktraceClient;
@@ -22,7 +22,11 @@ export function initialize(configuration: BacktraceClientOptions): BacktraceClie
  * @param arg2 attributes
  * @param arg3 file attachments paths
  */
-export function reportAsync(arg: Function | Error | string | object, arg2: object | undefined = {}, arg3: string[] = []) {
+export function reportAsync(
+  arg: () => void | Error | string | object,
+  arg2: object | undefined = {},
+  arg3: string[] = [],
+) {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }

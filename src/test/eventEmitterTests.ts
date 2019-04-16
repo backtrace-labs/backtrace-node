@@ -1,11 +1,11 @@
-import nock from 'nock';
-import * as bt from '../src/index';
 import { assert } from 'chai';
-import { BacktraceClient } from '../src';
-import { BacktraceClientOptions } from '../src/model/backtraceClientOptions';
-import { BacktraceResultStatus } from '../src/model/backtraceResult';
-import { BacktraceReport } from '../src/model/backtraceReport';
-import { BacktraceData } from '../src/model/backtraceData';
+import nock from 'nock';
+import { BacktraceClient } from '..';
+import * as bt from '../index';
+import { BacktraceClientOptions } from '../model/backtraceClientOptions';
+import { IBacktraceData } from '../model/backtraceData';
+import { BacktraceReport } from '../model/backtraceReport';
+import { BacktraceResultStatus } from '../model/backtraceResult';
 
 describe('Emitter tests', () => {
   let client!: BacktraceClient;
@@ -44,7 +44,7 @@ describe('Emitter tests', () => {
   });
 
   it('before-send event', () => {
-    client.on('before-data-send', (report: BacktraceReport, data: BacktraceData) => {
+    client.on('before-data-send', (report: BacktraceReport, data: IBacktraceData) => {
       assert.isNotEmpty(report);
       assert.isNotEmpty(data);
     });

@@ -1,5 +1,5 @@
-import * as process from 'process';
 import * as fs from 'fs';
+import * as process from 'process';
 
 export function readProcessStatus(): object {
   const sys = process.platform;
@@ -20,9 +20,10 @@ export function readProcessStatus(): object {
     return {};
   }
   const result = {} as any;
-  for (var i = 0; i < _procSelfStatusData.length; i += 1) {
-    var item = _procSelfStatusData[i];
-    var match = contents.match(item.re);
+  // tslint:disable-next-line: prefer-for-of
+  for (let i = 0; i < _procSelfStatusData.length; i += 1) {
+    const item = _procSelfStatusData[i];
+    const match = contents.match(item.re);
     if (!match) {
       continue;
     }
@@ -33,7 +34,7 @@ export function readProcessStatus(): object {
 }
 
 function parseKb(str: string): number {
-  return parseInt(str) * 1024;
+  return parseInt(str, 10) * 1024;
 }
 const _procSelfStatusData = [
   {
