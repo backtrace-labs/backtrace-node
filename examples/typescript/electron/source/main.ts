@@ -1,12 +1,21 @@
-import { BacktraceClient, BacktraceClientOptions } from 'backtrace-node';
-import { app, BrowserWindow } from 'electron';
+import { BacktraceClientOptions, initialize } from 'backtrace-node';
+import { app, BrowserWindow, crashReporter } from 'electron';
+import * as path from 'path'
 
-let win: BrowserWindow;
+function initializeRemoteLogging() {
+  const token = 'tokenToYourInstace';
+  const endpoint = `https:///submit.backtrace.io/${token}`;
+  initialize({
+    endpoint,
+  } as BacktraceClientOptions);
 
-console.log(app);
-const backtraceClient = new BacktraceClient({
-  endpoint: 'https:///submit.backtrace.io/tokenToYourInstace',
-} as BacktraceClientOptions);
+  crashReporter.start({
+    productName: 'Your product name',
+    companyName: 'My Company, Inc',
+    submitURL: endpoint,
+    uploadToServer: true,
+  });
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -14,19 +23,22 @@ function createWindow() {
     height: 500,
     darkTheme: true,
   });
+  win.loadURL(path.join(__dirname, 'renderer', 'index.html'));
+  win.webContents.openDevTools();
 
   win.on('close', () => {
-    console.log('window is closing');
+    process.crash();
   });
   app.setBadgeCount(1);
 }
-try {
-  app.on('ready', createWindow);
-  app.on('activate', () => {
-    if (win === null) {
-      createWindow();
-    }
-  });
-} catch (e) {
-  console.error(e);
-}
+
+initializeRemoteLogging();
+
+let win: BrowserWindow;
+
+app.on('ready', createWindow);
+app.on('activate', () => {
+  if (win === null) {
+    createWindow();
+  }
+});
