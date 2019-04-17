@@ -4,7 +4,7 @@
   "description": "Backtrace sample Electron application with TypeScript support",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node_modules/.bin/tsc && cp ./source/renderer/index.html ./dist/renderer"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/backtrace-labs/backtrace-node#readme",
   "devDependencies": {
-    "electron": "^4.1.4"
+    "electron": "^4.1.4",
+    "typescript": "^3.4.3"
   },
   "dependencies": {
     "backtrace-node": "file:../../.."

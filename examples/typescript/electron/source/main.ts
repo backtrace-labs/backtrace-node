@@ -1,22 +1,62 @@
-import { BacktraceClientOptions, initialize, reportAsync, reportSync, getBacktraceClient } from 'backtrace-node';
-import { app, BrowserWindow, crashReporter, ipcMain } from 'electron';
-import * as path from 'path';
+import { BacktraceClient, BacktraceClientOptions, initialize } from 'backtrace-node';
+import { app, BrowserWindow, crashReporter, ipcMain, ipcRenderer } from 'electron';
 import * as fs from 'fs';
+import * as path from 'path';
 
-function initializeRemoteLogging() {
-  const token = 'd272507e493f159ffae0baca421cb43157cbc3ea99fed4fc5e4726bd3cd6763f';
-  const endpoint = `https:///submit.backtrace.io/yolo/${token}`;
-  initialize({
-    endpoint: endpoint + '/json',
-    timeout: 20000,
-  } as BacktraceClientOptions);
+export class ElectronExample {
+  private _backtraceClient!: BacktraceClient;
 
-  crashReporter.start({
-    productName: 'Your product name',
-    companyName: 'My Company, Inc',
-    submitURL: endpoint + '/minidump',
-    uploadToServer: true,
-  });
+  public initializeRemoteLogging() {
+    const token = 'd272507e493f159ffae0baca421cb43157cbc3ea99fed4fc5e4726bd3cd6763f';
+    const endpoint = `https://submit.backtrace.io/yolo/${token}`;
+    this._backtraceClient = initialize({
+      endpoint: endpoint + '/json',
+      timeout: 20000,
+    } as BacktraceClientOptions);
+
+    crashReporter.start({
+      productName: 'Your product name',
+      companyName: 'My Company, Inc',
+      submitURL: endpoint + '/minidump',
+      uploadToServer: true,
+    });
+  }
+
+  public async readDataFromFileStorage(): Promise<void> {
+    this._backtraceClient.memorize('ipc-method::invoke-main', this);
+    try {
+      this._backtraceClient.memorize('ipc-method::invoke-main', 'before reading');
+      this.readFile();
+    } catch (e) {
+      await this._backtraceClient.reportAsync(
+        e,
+        {
+          attribute: 'attribute',
+          numberAttribute: 123132,
+          foo: false,
+        },
+        ['path', 'to', 'my', 'files'],
+      );
+    }
+  }
+
+  public async invokeInvalidIpcCommunication(): Promise<void> {
+    try {
+      this.forwardMessage('msg');
+    } catch (err) {
+      this._backtraceClient.reportAsync(err);
+    }
+  }
+  private forwardMessage(msg: string) {
+    this.ipcReply(msg);
+  }
+  private ipcReply(msg: string) {
+    ipcRenderer.send(msg);
+  }
+
+  private readFile() {
+    fs.readFileSync('path to not existing file');
+  }
 }
 
 function createWindow() {
@@ -26,7 +66,6 @@ function createWindow() {
     darkTheme: true,
   });
   win.loadURL(path.join(__dirname, 'renderer', 'index.html'));
-  win.webContents.openDevTools();
 
   win.on('close', () => {
     process.crash();
@@ -35,44 +74,22 @@ function createWindow() {
   setupCallbacks();
 }
 
-function readFile() {
-  fs.readFileSync('path to not existing file');
-}
-
-async function invokeInvalidMethod() {
-  try {
-    readFile();
-  } catch (e) {
-    const client = getBacktraceClient();
-    const result = await client.reportAsync(
-      e,
-      {
-        attribute: 'attribute',
-        numberAttribute: 123132,
-        foo: false,
-      },
-      ['path', 'to', 'my', 'files'],
-    );
-
-    console.log(result);
-  }
-}
+const electronExample = new ElectronExample();
+electronExample.initializeRemoteLogging();
 
 function setupCallbacks() {
   ipcMain.on('invoke-main', async () => {
-    await invokeInvalidMethod();
+    await electronExample.readDataFromFileStorage();
   });
 
   ipcMain.on('invoke-main-2', async () => {
-    await invokeInvalidMethod();
+    await electronExample.invokeInvalidIpcCommunication();
   });
 
   ipcMain.on('crash-process', () => {
     process.crash();
   });
 }
-
-initializeRemoteLogging();
 
 let win: BrowserWindow;
 
