@@ -9,6 +9,30 @@
       "isBackground": true,
       "group": "build",
       "problemMatcher": "$tsc-watch"
+    },
+    {
+      "label": "build-electron",
+      "command": "npm",
+      "options": {
+        "cwd": "${workspaceFolder}/examples/typescript/electron"
+      },
+      "args": ["run", "build"],
+      "type": "shell",
+      "isBackground": true,
+      "group": "build",
+      "problemMatcher": "$tsc-watch"
+    },
+    {
+      "label": "build-node",
+      "command": "npm",
+      "options": {
+        "cwd": "${workspaceFolder}/examples/typescript/node"
+      },
+      "args": ["run", "build"],
+      "type": "shell",
+      "isBackground": true,
+      "group": "build",
+      "problemMatcher": "$tsc-watch"
     }
   ]
 }
