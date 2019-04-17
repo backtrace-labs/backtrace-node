@@ -6,13 +6,20 @@ let backtraceClient: BacktraceClient;
 
 export { BacktraceClient } from './backtraceClient';
 export { BacktraceReport as BtReport } from './model/backtraceReport';
-
+export { BacktraceClientOptions } from './model/backtraceClientOptions';
 /**
  * Initalize Backtrace Client and Backtrace node integration
  * @param configuration Bcktrace configuration
  */
 export function initialize(configuration: BacktraceClientOptions): BacktraceClient {
   backtraceClient = new BacktraceClient(configuration);
+  return backtraceClient;
+}
+
+/**
+ * Returns used BacktraceClient
+ */
+export function getBacktraceClient() {
   return backtraceClient;
 }
 
