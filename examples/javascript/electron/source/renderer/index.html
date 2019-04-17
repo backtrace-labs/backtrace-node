@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Backtrace Electron example</title>
+  </head>
+
+  <body>
+    <h1>Hello from Rendenrer</h1>
+    <p>Lets learn Backtrace-node and CrashReporter advantages</p>
+
+    <button id="invokeMain">Invoke main</button>
+    <button id="crashProcess">Crash</button>
+    <button id="invokeMain2">Invoke another method in main process</button>
+    <script>
+      require('./renderer.js');
+    </script>
+  </body>
+</html>

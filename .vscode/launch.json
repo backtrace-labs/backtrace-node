@@ -36,11 +36,26 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Launch Electron sample",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "program": "${workspaceFolder}/examples/javascript/electron/source/main.js",
+      "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Launch Node  TypeScript sample",
       "preLaunchTask": "build-node",
       "program": "${workspaceFolder}//examples/typescript/node/source/main.ts",
       "protocol": "inspector",
       "outFiles": ["${workspaceFolder}//examples/typescript/node/dist/main.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Node sample",
+      "program": "${workspaceFolder}//examples/javascript/node/source/main.js",
+      "protocol": "inspector"
     }
   ]
 }

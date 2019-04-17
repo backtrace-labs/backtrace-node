@@ -7,8 +7,8 @@ export class ElectronExample {
   private _backtraceClient!: BacktraceClient;
 
   public initializeRemoteLogging() {
-    const token = 'd272507e493f159ffae0baca421cb43157cbc3ea99fed4fc5e4726bd3cd6763f';
-    const endpoint = `https://submit.backtrace.io/yolo/${token}`;
+    const token = 'token';
+    const endpoint = `https://submit.backtrace.io/universe/${token}`;
     this._backtraceClient = initialize({
       endpoint: endpoint + '/json',
       timeout: 20000,
