@@ -95,9 +95,9 @@ export class BacktraceClient extends EventEmitter {
     payload: Error | string,
     reportAttributes: object | undefined = {},
     fileAttachments: string[] = [],
-  ): void {
+  ): BacktraceResult {
     const report = this.createReport(payload, reportAttributes, fileAttachments);
-    this.sendReport(report);
+    return this.sendReport(report);
   }
 
   public sendReport(report: BacktraceReport): BacktraceResult {

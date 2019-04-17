@@ -1,6 +1,7 @@
 import { BacktraceClient } from './backtraceClient';
 import { BacktraceClientOptions } from './model/backtraceClientOptions';
 import * as btReport from './model/backtraceReport';
+import { BacktraceResult } from './model/backtraceResult';
 
 let backtraceClient: BacktraceClient;
 
@@ -29,11 +30,11 @@ export function getBacktraceClient() {
  * @param arg2 attributes
  * @param arg3 file attachments paths
  */
-export function reportAsync(
+export async function reportAsync(
   arg: () => void | Error | string | object,
   arg2: object | undefined = {},
   arg3: string[] = [],
-) {
+): Promise<BacktraceResult> {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
@@ -44,11 +45,11 @@ export function reportAsync(
   if (typeof arg === 'object' && arg2 === {}) {
     arg2 = arg;
   }
-  backtraceClient.reportAsync(data, arg2, arg3).then(() => {
-    if (arg instanceof Function) {
-      arg();
-    }
-  });
+  const result = await backtraceClient.reportAsync(data, arg2, arg3);
+  if (arg instanceof Function) {
+    arg();
+  }
+  return result;
 }
 
 /**
@@ -57,11 +58,15 @@ export function reportAsync(
  * @param reportAttributes attributes
  * @param attachments file attachments paths
  */
-export function reportSync(data: Error | string, attributes: object | undefined = {}, attachments: string[] = []) {
+export function reportSync(
+  data: Error | string,
+  attributes: object | undefined = {},
+  attachments: string[] = [],
+): BacktraceResult {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
-  backtraceClient.reportSync(data, attributes, attachments);
+  return backtraceClient.reportSync(data, attributes, attachments);
 }
 
 /**
