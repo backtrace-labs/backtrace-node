@@ -1,12 +1,12 @@
+import { BacktraceClient, BacktraceClientOptions } from 'backtrace-node';
 import { app, BrowserWindow } from 'electron';
-// import { BacktraceClient } from '../../../../src';
-// import { BacktraceClientOptions } from '../../../../src/model/backtraceClientOptions';
 
 let win: BrowserWindow;
 
-// const backtraceClient = new BacktraceClient({
-//   endpoint: 'path to your endpoint',
-// } as BacktraceClientOptions);
+console.log(app);
+const backtraceClient = new BacktraceClient({
+  endpoint: 'https:///submit.backtrace.io/tokenToYourInstace',
+} as BacktraceClientOptions);
 
 function createWindow() {
   win = new BrowserWindow({
@@ -23,7 +23,9 @@ function createWindow() {
 try {
   app.on('ready', createWindow);
   app.on('activate', () => {
-    if (win === null) { createWindow(); }
+    if (win === null) {
+      createWindow();
+    }
   });
 } catch (e) {
   console.error(e);
