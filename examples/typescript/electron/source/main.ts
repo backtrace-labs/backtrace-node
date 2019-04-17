@@ -67,9 +67,6 @@ function createWindow() {
   });
   win.loadURL(path.join(__dirname, 'renderer', 'index.html'));
 
-  win.on('close', () => {
-    process.crash();
-  });
   app.setBadgeCount(1);
   setupCallbacks();
 }
