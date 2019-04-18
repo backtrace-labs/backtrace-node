@@ -1,1 +1,8 @@
 test/
+src/test/
+examples/
+.vscode/
+.gitignore
+.prettierrc
+tsconfig.json
+tslint.json
