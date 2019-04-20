@@ -1,7 +1,8 @@
-import { BacktraceClient, BacktraceClientOptions, initialize } from 'backtrace-node';
+import { BacktraceClient, BacktraceClientOptions, initialize, BtReport } from 'backtrace-node';
 import { app, BrowserWindow, crashReporter, ipcMain, ipcRenderer } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { IBacktraceData } from 'backtrace-node/lib/src/model/backtraceData';
 
 export class ElectronExample {
   private _backtraceClient!: BacktraceClient;
@@ -23,11 +24,15 @@ export class ElectronExample {
   }
 
   public async readDataFromFileStorage(): Promise<void> {
-    this._backtraceClient.memorize('ipc-method::invoke-main', this);
     try {
       this._backtraceClient.memorize('ipc-method::invoke-main', 'before reading');
       this.readFile();
     } catch (e) {
+      this._backtraceClient.memorize('ipc-method::invoke-main-err', 'error');
+      this._backtraceClient.on('before-data-send', (report: BtReport, data: IBacktraceData) => {
+        const attributes = data.attributes;
+        console.log(attributes);
+      });
       await this._backtraceClient.reportAsync(
         e,
         {
