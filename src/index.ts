@@ -2,6 +2,7 @@ import { BacktraceClient } from './backtraceClient';
 import { BacktraceClientOptions } from './model/backtraceClientOptions';
 import * as btReport from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
+export { IBacktraceData } from './model/backtraceData';
 
 let backtraceClient: BacktraceClient;
 

@@ -12,6 +12,7 @@
     },
     {
       "label": "build-electron",
+      "dependsOn":["tsc-watch"],
       "command": "npm",
       "options": {
         "cwd": "${workspaceFolder}/examples/typescript/electron"
@@ -24,6 +25,7 @@
     },
     {
       "label": "build-node",
+      "dependsOn":["tsc-watch"],
       "command": "npm",
       "options": {
         "cwd": "${workspaceFolder}/examples/typescript/node"
