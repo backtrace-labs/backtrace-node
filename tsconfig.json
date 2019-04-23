@@ -8,8 +8,8 @@
     "outDir": "./dist",
     "strict": true,
     "declaration": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "typeRoots": ["./node_modules/@types", "./lib/types"],
     "esModuleInterop": true
   },
-  "exclude": ["./dist", "./src/test/*", "./examples"]
+  "exclude": ["./dist", "./lib/test/*", "./examples"]
 }
