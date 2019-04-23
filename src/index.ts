@@ -84,8 +84,7 @@ export function BacktraceReport(): btReport.BacktraceReport {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
-  const report = new btReport.BacktraceReport();
-  report.setSourceCodeOptions(backtraceClient.options.tabWidth, backtraceClient.options.contextLineCount);
+  const report = backtraceClient.createReport('');
   report.send = () => {
     backtraceClient.sendReport(report);
   };

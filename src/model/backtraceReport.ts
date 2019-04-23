@@ -81,12 +81,12 @@ export class BacktraceReport {
     if (!clientAttributes) {
       clientAttributes = {};
     }
+    this.splitAttributesFromAnnotations(clientAttributes);
     if (!attachments) {
       attachments = [];
     }
     this.setError(err);
   }
-
   /**
    * Check if report contains exception information
    */
@@ -107,8 +107,9 @@ export class BacktraceReport {
    * Add new attributes to existing report attributes
    * @param attributes new report attributes object
    */
-  public addObjectAttributes(attributes: object): void {
+  public addObjectAttributes(attributes: { [index: string]: any }): void {
     this.clientAttributes = {
+      ...this.clientAttributes,
       ...this.attributes,
       ...attributes,
     };
@@ -118,7 +119,7 @@ export class BacktraceReport {
     this.clientAttributes[key] = value;
   }
 
-  public addAnnotation(key: string, value: any): void {
+  public addAnnotation(key: string, value: object): void {
     this.annotations[key] = value;
   }
 
@@ -244,5 +245,21 @@ export class BacktraceReport {
       result['Exception'] = this.err;
     }
     return { ...result, ...this.annotations };
+  }
+
+  private splitAttributesFromAnnotations(clientAttributes: { [index: string]: any }) {
+    for (const key in clientAttributes) {
+      if (clientAttributes.hasOwnProperty(key)) {
+        const element = this.clientAttributes[key];
+        if (!element) {
+          continue;
+        }
+        if (typeof element === 'object') {
+          this.annotations[key] = element;
+        } else {
+          this.attributes[key] = element;
+        }
+      }
+    }
   }
 }
