@@ -5,11 +5,11 @@
     "target": "es5",
     "module": "commonjs",
     "sourceMap": true,
-    "outDir": "./lib",
+    "outDir": "./dist",
     "strict": true,
     "declaration": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "esModuleInterop": true
   },
-  "exclude": ["./lib", "./src/test/*", "./examples"]
+  "exclude": ["./dist", "./src/test/*", "./examples"]
 }
