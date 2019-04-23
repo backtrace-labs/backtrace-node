@@ -1,0 +1,19 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node_modules/.bin/tsc",
+    "start": "node ./dist/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "backtrace-node": "file:../../../dist"
+  },
+  "devDependencies": {
+    "typescript": "^3.4.3"
+  }
+}
