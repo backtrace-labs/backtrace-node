@@ -10,10 +10,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "backtrace-node": "file:../../../dist"
-  },
   "devDependencies": {
     "typescript": "^3.4.3"
+  },
+  "dependencies": {
+    "backtrace-node": "file:../../.."
   }
 }
