@@ -1,5 +1,5 @@
 export class BacktraceClientOptions {
-  public timeout: number = 1000;
+  public timeout: number = 15000;
   public endpoint!: string;
   public token!: string;
   public attributes: object = {};

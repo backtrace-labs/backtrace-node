@@ -1,8 +1,7 @@
-import { BacktraceClient, BacktraceClientOptions, initialize, BtReport } from 'backtrace-node';
+import { BacktraceClient, BacktraceClientOptions, BtReport, IBacktraceData, initialize } from 'backtrace-node';
 import { app, BrowserWindow, crashReporter, ipcMain, ipcRenderer } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IBacktraceData } from 'backtrace-node/lib/src/model/backtraceData';
 
 export class ElectronExample {
   private _backtraceClient!: BacktraceClient;
