@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "resolveJsonModule": true,
     "stripInternal": true,
     "target": "es5",
     "module": "commonjs",

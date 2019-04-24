@@ -1,9 +1,10 @@
+// tslint:disable-next-line: no-var-requires
+const packageJson = require('./../../package.json');
 import { pseudoRandomBytes } from 'crypto';
 import { machineIdSync } from 'node-machine-id';
 import * as os from 'os';
 import { readModule, readModuleDependencies } from '../helpers/moduleResolver';
 import { readProcessStatus } from '../helpers/processHelper';
-import packageJson from './../../package.json';
 import { IBacktraceData } from './backtraceData';
 import { BacktraceStackTrace } from './backtraceStackTrace';
 

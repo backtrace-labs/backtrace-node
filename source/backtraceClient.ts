@@ -165,7 +165,7 @@ export class BacktraceClient extends EventEmitter {
       this.emit('before-data-send', report, json);
     });
 
-    if (!!this.options.disableGlobalHandler) {
+    if (!this.options.disableGlobalHandler) {
       this.registerGlobalHandler(!!this.options.allowMultipleUncaughtExceptionListeners);
     }
     if (this.options.handlePromises) {
