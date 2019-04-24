@@ -1,11 +1,11 @@
 import { assert } from 'chai';
 import nock from 'nock';
 import { BacktraceClient } from '..';
-import * as bt from '../index';
-import { BacktraceClientOptions } from '../model/backtraceClientOptions';
-import { IBacktraceData } from '../model/backtraceData';
-import { BacktraceReport } from '../model/backtraceReport';
-import { BacktraceResultStatus } from '../model/backtraceResult';
+import * as bt from '../source/index';
+import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
+import { IBacktraceData } from '../source/model/backtraceData';
+import { BacktraceReport } from '../source/model/backtraceReport';
+import { BacktraceResultStatus } from '../source/model/backtraceResult';
 
 describe('Emitter tests', () => {
   let client!: BacktraceClient;

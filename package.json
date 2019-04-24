@@ -1,11 +1,12 @@
 {
   "name": "backtrace-node",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Backtrace error reporting tool",
-  "main": "./dist/lib/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "main": "./lib/source/index.js",
+  "types": "./lib/source/index.d.ts",
   "files": [
-    "lib/src/**/*"
+    "/source",
+    "/lib"
   ],
   "author": "Backtrace <team@backtrace.io>",
   "keywords": [
@@ -23,9 +24,9 @@
     "url": "git@github.com:backtrace-labs/backtrace-node.git"
   },
   "scripts": {
-    "test": "mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json lib/test/**/*.ts",
+    "test": "mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json test/**/*.ts",
     "lint": "tslint -p ./tsconfig.json",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "format": "prettier --write \"source/**/*.ts\" \"source/**/*.js\"",
     "build": "tsc"
   },
   "dependencies": {

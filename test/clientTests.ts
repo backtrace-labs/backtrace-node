@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
-import * as bt from '../index';
-import { BacktraceClientOptions } from '../model/backtraceClientOptions';
+import * as bt from '../source/index';
+import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
 
 describe('Backtrace client tests', () => {
   describe('Initialization tests', () => {

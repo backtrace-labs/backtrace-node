@@ -16,7 +16,7 @@
         "ts-node/register",
         "--project",
         "${workspaceFolder}/tsconfig.json",
-        "${workspaceFolder}/src/test/**/*.ts"
+        "${workspaceFolder}/test/**/*.ts"
       ],
       "console": "integratedTerminal",
       "sourceMaps": true,

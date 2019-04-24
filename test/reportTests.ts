@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
-import * as bt from '../index';
-import { BacktraceClientOptions } from '../model/backtraceClientOptions';
-import { BacktraceReport } from '../model/backtraceReport';
+import * as bt from '../source/index';
+import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
+import { BacktraceReport } from '../source/model/backtraceReport';
 
 describe('Backrace report tests', () => {
   describe('Initialization tests', () => {
