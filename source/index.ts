@@ -99,6 +99,6 @@ export function errorHandlerMiddleware(err: Error, req: any, resp: any, next: an
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
-  backtraceClient.reportSync(err, req);
+  backtraceClient.reportSync(err, { ...req, ...resp });
   next(err);
 }
