@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import nock from 'nock';
 import { BacktraceClient } from '../source';
-import * as bt from '../source/index';
 import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
 import { IBacktraceData } from '../source/model/backtraceData';
 import { BacktraceReport } from '../source/model/backtraceReport';
@@ -10,6 +9,8 @@ import { BacktraceResultStatus } from '../source/model/backtraceResult';
 describe('Emitter tests', () => {
   let client!: BacktraceClient;
   beforeEach(() => {
+    process.removeAllListeners('uncaughtException');
+    process.removeAllListeners('newListener');
     const basePath = 'https://submit.backtrace.io';
     const query = '/server/token/json';
     nock(basePath)
@@ -25,7 +26,6 @@ describe('Emitter tests', () => {
       endpoint: basePath + query,
     } as BacktraceClientOptions;
     client = new BacktraceClient(opts);
-    bt.initialize(opts);
   });
 
   it('before-send event', () => {

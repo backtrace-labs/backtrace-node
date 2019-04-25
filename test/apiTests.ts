@@ -6,9 +6,14 @@ import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
 import { BacktraceResultStatus } from '../source/model/backtraceResult';
 
 describe('Integration tests', () => {
+  beforeEach(() => {
+    process.removeAllListeners('uncaughtException');
+    process.removeAllListeners('newListener');
+  });
   describe('Correct send', () => {
     let client!: BacktraceClient;
     beforeEach(() => {
+     
       const basePath = 'https://submit.backtrace.io';
       const query = '/server/token/json';
       nock(basePath)
@@ -24,7 +29,7 @@ describe('Integration tests', () => {
         endpoint: basePath + query,
       } as BacktraceClientOptions;
       client = new BacktraceClient(opts);
-      bt.initialize(opts);
+      bt.use(client);
     });
 
     it('report exception', () => {

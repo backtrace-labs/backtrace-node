@@ -3,6 +3,10 @@ import * as bt from '../source/index';
 import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
 
 describe('Backtrace client tests', () => {
+  beforeEach(() => {
+    process.removeAllListeners('uncaughtException');
+    process.removeAllListeners('newListener');
+  });
   describe('Initialization tests', () => {
     it('Missing required endpoint', () => {
       expect(() => {

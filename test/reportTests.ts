@@ -155,6 +155,9 @@ describe('Backrace report tests', () => {
 
   describe('Report generation', () => {
     before(() => {
+      process.removeAllListeners('uncaughtException');
+      process.removeAllListeners('newListener');
+
       bt.initialize({
         endpoint: 'endpoint',
         token: 'token',

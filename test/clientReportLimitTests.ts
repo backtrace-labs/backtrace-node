@@ -9,6 +9,9 @@ import { BacktraceResultStatus } from '../source/model/backtraceResult';
 describe('Client report limit tests', () => {
   let client!: BacktraceClient;
   beforeEach(() => {
+    process.removeAllListeners('uncaughtException');
+    process.removeAllListeners('newListener');
+
     const basePath = 'https://submit.backtrace.io';
     const query = '/server/token/json';
     nock(basePath)
@@ -25,7 +28,6 @@ describe('Client report limit tests', () => {
       rateLimit: 1,
     } as BacktraceClientOptions;
     client = new BacktraceClient(opts);
-    bt.initialize(opts);
   });
 
   it('test correct send', async () => {

@@ -135,7 +135,7 @@ export class BacktraceStackTrace {
         }
 
         const parameter = {
-          startLine: Math.max(minLine - 1 - this.contextLineCount, 0),
+          startLine: Math.max(minLine - this.contextLineCount, 0),
           endLine: maxLine + this.contextLineCount,
           filePath: key,
         };

@@ -25,6 +25,9 @@ export function getBacktraceClient() {
   return backtraceClient;
 }
 
+export function use(client: BacktraceClient) {
+  backtraceClient = client;
+}
 /**
  * Send report asynchronously to Backtrace
  * @param arg report payload
