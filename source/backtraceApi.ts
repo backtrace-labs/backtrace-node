@@ -2,6 +2,7 @@ import axios from 'axios';
 import { EventEmitter } from 'events';
 import FormData from 'form-data';
 import * as fs from 'fs';
+import stringify from 'json-stringify-safe';
 import * as path from 'path';
 import { IBacktraceData } from './model/backtraceData';
 import { BacktraceReport } from './model/backtraceReport';
@@ -35,7 +36,7 @@ export class BacktraceApi extends EventEmitter {
 
   private async getFormData(report: BacktraceReport, data: IBacktraceData): Promise<FormData> {
     const formData = new FormData();
-    const json: string = JSON.stringify(data);
+    const json: string = stringify(data);
     formData.append('upload_file', json, 'upload_file.json');
 
     report.getAttachments().forEach((filePath) => {
