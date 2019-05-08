@@ -34,7 +34,7 @@ export function use(client: BacktraceClient) {
  * @param arg2 attributes
  * @param arg3 file attachments paths
  */
-export async function reportAsync(
+export async function report(
   arg: () => void | Error | string | object,
   arg2: object | undefined = {},
   arg3: string[] = [],
@@ -87,12 +87,12 @@ export function BacktraceReport(): btReport.BacktraceReport {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
   }
-  const report = backtraceClient.createReport('');
-  report.send = () => {
-    backtraceClient.sendReport(report);
+  const backtraceReport = backtraceClient.createReport('');
+  backtraceReport.send = () => {
+    backtraceClient.sendReport(backtraceReport);
   };
 
-  return report;
+  return backtraceReport;
 }
 
 export function errorHandlerMiddleware(err: Error, req: any, resp: any, next: any) {

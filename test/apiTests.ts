@@ -65,7 +65,7 @@ describe('Integration tests', () => {
         const opts = (undefined as unknown) as BacktraceClientOptions;
         const attr = opts.attributes;
       } catch (err) {
-        await bt.reportAsync(err);
+        await bt.report(err);
       }
     });
 
@@ -127,7 +127,7 @@ describe('Integration tests', () => {
         const opts = (undefined as unknown) as BacktraceClientOptions;
         const attr = opts.attributes;
       } catch (err) {
-        await bt.reportAsync(err);
+        await bt.report(err);
       }
     });
 
