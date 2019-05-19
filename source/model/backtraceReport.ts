@@ -4,7 +4,7 @@ import { pseudoRandomBytes } from 'crypto';
 import { machineIdSync } from 'node-machine-id';
 import * as os from 'os';
 import { readModule, readModuleDependencies } from '../helpers/moduleResolver';
-import { readProcessStatus } from '../helpers/processHelper';
+import { readMemoryInformation, readProcessStatus } from '../helpers/processHelper';
 import { IBacktraceData } from './backtraceData';
 import { BacktraceStackTrace } from './backtraceStackTrace';
 
@@ -174,6 +174,7 @@ export class BacktraceReport {
 
   private readBuiltInAttributes(): object {
     return {
+      ...readMemoryInformation(),
       ...readProcessStatus(),
       ...this.readAttributes(),
       ...this.readErrorAttributes(),
@@ -213,6 +214,7 @@ export class BacktraceReport {
 
   private readAttributes(): object {
     const mem = process.memoryUsage();
+    const { name, version, main, description, author } = this._callingModule as any;
     const result = {
       'process.age': Math.floor(process.uptime()),
       'uname.uptime': os.uptime(),
@@ -222,7 +224,12 @@ export class BacktraceReport {
       'vm.rss.size': mem.rss,
       'gc.heap.total': mem.heapTotal,
       'gc.heap.used': mem.heapUsed,
-      application: this._callingModule.name,
+      'node.env': process.env.NODE_ENV,
+      application: name,
+      version,
+      main,
+      describe,
+      author,
       guid: machineIdSync(true),
       hostname: os.hostname(),
     } as any;

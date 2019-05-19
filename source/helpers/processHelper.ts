@@ -1,8 +1,72 @@
 import * as fs from 'fs';
 import * as process from 'process';
 
+const sys = process.platform;
+
+const memInfoRe = /^(.+):\s+(\d+)\s*(.+)?$/;
+const memInfoToAttr: { [index: string]: any } = {
+  MemTotal: 'system.memory.total',
+  MemFree: 'system.memory.free',
+  MemAvailable: 'system.memory.available',
+  Buffers: 'system.memory.buffers',
+  Cached: 'system.memory.cached',
+  SwapCached: 'system.memory.swap.cached',
+  Active: 'system.memory.active',
+  Inactive: 'system.memory.inactive',
+  SwapTotal: 'system.memory.swap.total',
+  SwapFree: 'system.memory.swap.free',
+  Dirty: 'system.memory.dirty',
+  Writeback: 'system.memory.writeback',
+  Slab: 'system.memory.slab',
+  VmallocTotal: 'system.memory.vmalloc.total',
+  VmallocUsed: 'system.memory.vmalloc.used',
+  VmallocChunk: 'system.memory.vmalloc.chunk',
+};
+
+export function readMemoryInformation(): object {
+  if (sys === 'win32') {
+    return {};
+  }
+  const result: { [index: string]: any } = {};
+  let file = '';
+  try {
+    file = fs.readFileSync('/proc/meminfo', { encoding: 'utf8' });
+  } catch (err) {
+    return {};
+  }
+
+  const lines = file.split('\n');
+  for (const line of lines) {
+    if (!line) {
+      continue;
+    }
+    const match = line.match(memInfoRe);
+    if (!match) {
+      continue;
+    }
+    const name = match[1];
+    const attrName = memInfoToAttr[name];
+    if (!attrName) {
+      continue;
+    }
+
+    let number = parseInt(match[2], 10);
+    let units = match[3];
+    if (number === 0) {
+      units = 'B';
+    }
+    if (units === 'B' || units === 'bytes') {
+      number *= 1;
+    } else if (units === 'kB') {
+      number *= 1024;
+    } else {
+      continue;
+    }
+    result[attrName] = number;
+  }
+  return result;
+}
 export function readProcessStatus(): object {
-  const sys = process.platform;
   if (sys === 'win32') {
     return {};
   }

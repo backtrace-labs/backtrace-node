@@ -19,6 +19,11 @@ export function readModule(root: string, depth: number = 5): [NodeRequire, strin
   if (!root) {
     root = process.cwd();
   }
+  // solve problem when root module doesn't exists
+  if (!fs.existsSync(root)) {
+    return readParentDir(root, depth);
+  }
+
   const filePath = fs.lstatSync(root).isFile();
   if (filePath) {
     root = path.dirname(root);
