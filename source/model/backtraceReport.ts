@@ -225,10 +225,11 @@ export class BacktraceReport {
       'gc.heap.total': mem.heapTotal,
       'gc.heap.used': mem.heapUsed,
       'node.env': process.env.NODE_ENV,
+      'debug.port': process.debugPort,
       application: name,
       version,
       main,
-      describe,
+      description,
       author,
       guid: machineIdSync(true),
       hostname: os.hostname(),
@@ -246,6 +247,7 @@ export class BacktraceReport {
   private readAnnotation(): object {
     const result = {
       'Environment Variables': process.env,
+      'Exec Arguments': process.execArgv,
       Dependencies: readModuleDependencies(this._callingModulePath),
     } as any;
 
