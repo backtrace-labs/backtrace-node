@@ -214,7 +214,7 @@ export class BacktraceReport {
 
   private readAttributes(): object {
     const mem = process.memoryUsage();
-    const { name, version, main, description, author } = this._callingModule as any;
+    const { name, version, main, description, author } = (this._callingModule || {}) as any;
     const result = {
       'process.age': Math.floor(process.uptime()),
       'uname.uptime': os.uptime(),
