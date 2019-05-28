@@ -11,7 +11,7 @@ import * as fs from 'fs';
 
 const opts = {
   endpoint: 'submit.backtrace.io/universe/token/json',
-} as BacktraceClientOptions;
+};
 const client = new BacktraceClient(opts);
 
 /**

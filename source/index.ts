@@ -1,5 +1,5 @@
 import { BacktraceClient } from './backtraceClient';
-import { BacktraceClientOptions } from './model/backtraceClientOptions';
+import { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtraceClientOptions';
 import * as btReport from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
 export { IBacktraceData } from './model/backtraceData';
@@ -8,12 +8,12 @@ let backtraceClient: BacktraceClient;
 
 export { BacktraceClient } from './backtraceClient';
 export { BacktraceReport as BtReport } from './model/backtraceReport';
-export { BacktraceClientOptions } from './model/backtraceClientOptions';
+export { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtraceClientOptions';
 /**
  * Initalize Backtrace Client and Backtrace node integration
  * @param configuration Bcktrace configuration
  */
-export function initialize(configuration: BacktraceClientOptions): BacktraceClient {
+export function initialize(configuration: BacktraceClientOptions | IBacktraceClientOptions): BacktraceClient {
   backtraceClient = new BacktraceClient(configuration);
   return backtraceClient;
 }

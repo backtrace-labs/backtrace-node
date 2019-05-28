@@ -95,6 +95,9 @@ export class BacktraceReport {
     return this.detectReportType(this.err);
   }
 
+  public getPayload(): Error | string {
+    return this.err;
+  }
   /**
    * Set error or message in BacktraceReport object
    * @param err Current error

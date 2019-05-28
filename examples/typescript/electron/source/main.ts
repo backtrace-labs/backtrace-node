@@ -12,7 +12,7 @@ export class ElectronExample {
     this._backtraceClient = initialize({
       endpoint: endpoint + '/json',
       timeout: 20000,
-    } as BacktraceClientOptions);
+    });
 
     crashReporter.start({
       productName: 'Your product name',

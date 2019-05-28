@@ -2,7 +2,7 @@ import { ClientRateLimit } from './clientRateLimit';
 
 import { EventEmitter } from 'events';
 import { BacktraceApi } from './backtraceApi';
-import { BacktraceClientOptions } from './model/backtraceClientOptions';
+import { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtraceClientOptions';
 import { IBacktraceData } from './model/backtraceData';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
@@ -10,19 +10,20 @@ import { BacktraceResult } from './model/backtraceResult';
  * Backtrace client
  */
 export class BacktraceClient extends EventEmitter {
+  public options: BacktraceClientOptions;
   private _memorizedAttributes: object = {};
   private _backtraceApi: BacktraceApi;
   private _clientRateLimit: ClientRateLimit;
-  constructor(public options: BacktraceClientOptions) {
+
+  constructor(clientOptions: IBacktraceClientOptions | BacktraceClientOptions) {
     super();
-    if (!options.endpoint) {
-      // tslint:disable-next-line: quotemark
-      throw new Error("Backtrace: missing 'endpoint' option.");
+    if (!clientOptions.endpoint) {
+      throw new Error(`Backtrace: missing 'endpoint' option.`);
     }
     this.options = {
       ...new BacktraceClientOptions(),
-      ...options,
-    };
+      ...clientOptions,
+    } as BacktraceClientOptions;
     this._backtraceApi = new BacktraceApi(this.getSubmitUrl(), this.options.timeout);
     this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
