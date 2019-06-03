@@ -47,7 +47,10 @@ export class BacktraceStackTrace {
   /**
    * Get calling module path
    */
-  public getCallingModulePath(): string {
+  public getCallingModulePath(): string | undefined {
+    if(!this.stack || this.stack.length === 0){
+      return undefined;
+    }
     // handle a situation when every one stack frame is from node_modules
     if (!this.callingModulePath) {
       this.callingModulePath = this.stack[0].sourceCode;

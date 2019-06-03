@@ -4,7 +4,10 @@ import * as path from 'path';
 /**
  * Read module dependencies
  */
-export function readModuleDependencies(modulePath: string): object {
+export function readModuleDependencies(modulePath: string): object | undefined {
+  if(!modulePath){
+    return undefined;
+  }
   const packageJson = require(modulePath);
   return {
     requestedVersions: packageJson.dependencies || packageJson.peerDependencies || packageJson.devDependencies,
@@ -12,7 +15,7 @@ export function readModuleDependencies(modulePath: string): object {
   };
 }
 
-export function readModule(root: string, depth: number = 5): [NodeRequire, string] {
+export function readModule(root: string | undefined, depth: number = 5): [NodeRequire, string] {
   if (depth < 0) {
     return readLibModule();
   }
