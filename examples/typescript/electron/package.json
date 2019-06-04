@@ -1,0 +1,32 @@
+{
+  "name": "backtrace-ts-electron-sample",
+  "version": "1.0.0",
+  "description": "Backtrace sample Electron application with TypeScript support",
+  "main": "index.js",
+  "scripts": {
+    "build": "node_modules/.bin/tsc && cp ./source/renderer/index.html ./dist/renderer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/backtrace-labs/backtrace-node.git"
+  },
+  "keywords": [
+    "Backtrace",
+    "Error",
+    "reporting",
+    "exception"
+  ],
+  "author": "kdysput@backtrace.io",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/backtrace-labs/backtrace-node/issues"
+  },
+  "homepage": "https://github.com/backtrace-labs/backtrace-node#readme",
+  "devDependencies": {
+    "electron": "^4.1.4",
+    "typescript": "^3.4.3"
+  },
+  "dependencies": {
+    "backtrace-node": "file:../../.."
+  }
+}

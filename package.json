@@ -1,24 +1,54 @@
 {
   "name": "backtrace-node",
-  "version": "0.8.2",
+  "version": "1.0.0",
   "description": "Backtrace error reporting tool",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "/source",
+    "/lib"
+  ],
   "author": "Backtrace <team@backtrace.io>",
+  "keywords": [
+    "Error",
+    "Reporting",
+    "Diagnostic",
+    "Tool",
+    "Bug",
+    "Bugs",
+    "StackTrace"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git@github.com:backtrace-labs/backtrace-node.git"
   },
-  "dependencies": {
-    "pend": "~1.2.0",
-    "source-scan": "~1.0.1",
-    "streamsink": "~1.2.0"
-  },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json test/**/*.ts",
+    "lint": "tslint -p ./tsconfig.json",
+    "format": "prettier --write \"source/**/*.ts\" \"source/**/*.js\"",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "form-data": "^2.3.3",
+    "json-stringify-safe": "^5.0.1",
+    "node-machine-id": "^1.1.10",
+    "source-scan": "~1.0.1"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/expect": "^1.20.4",
+    "@types/form-data": "^2.2.1",
+    "@types/json-stringify-safe": "^5.0.0",
+    "@types/mocha": "^5.2.6",
+    "@types/nock": "^9.3.1",
+    "@types/node": "^11.11.4",
     "chai": "~4.2.0",
-    "mocha": "~5.2.0"
+    "mocha": "^5.2.0",
+    "nock": "^10.0.6",
+    "ts-node": "^8.0.3",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.4000"
   }
 }
