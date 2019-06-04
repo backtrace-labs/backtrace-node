@@ -1,6 +1,6 @@
 {
   "name": "backtrace-node",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0",
   "description": "Backtrace error reporting tool",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
