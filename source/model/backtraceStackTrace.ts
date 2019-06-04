@@ -91,7 +91,7 @@ export class BacktraceStackTrace {
       if (!match || match.length < 4) {
         return;
       }
-      const backtraceLibStackFrame = match[4].indexOf('node_modules/backtrace-node') !== -1;
+      const backtraceLibStackFrame = match[2].indexOf('node_modules/backtrace-node') !== -1;
       if (backtraceLibStackFrame) {
         return;
       }
