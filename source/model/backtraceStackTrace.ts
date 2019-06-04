@@ -48,7 +48,7 @@ export class BacktraceStackTrace {
    * Get calling module path
    */
   public getCallingModulePath(): string | undefined {
-    if(!this.stack || this.stack.length === 0){
+    if (!this.stack || this.stack.length === 0) {
       return undefined;
     }
     // handle a situation when every one stack frame is from node_modules
@@ -88,7 +88,11 @@ export class BacktraceStackTrace {
     const lines = stackTrace.split('\n').slice(1);
     lines.forEach((line) => {
       const match = line.match(this.stackLineRe);
-      if (!match) {
+      if (!match || match.length < 4) {
+        return;
+      }
+      const backtraceLibStackFrame = match[4].indexOf('node_modules/backtrace-node') !== -1;
+      if (backtraceLibStackFrame) {
         return;
       }
 
