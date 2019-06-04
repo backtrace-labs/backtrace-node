@@ -1,6 +1,6 @@
 # Backtrace Node Release Notes
 
-## Version 1.0.0@alpha - 18.04.2019
+## Version 1.0.0 04.06.2019
 
 * `Backtrace-node` now supports TypeScript. We care about your applications that using Backtrace-Node library so we prepared compatible API for you. If you still want to use modern API please use `BacktraceClient` instead.
 * `Backtrace-node` options now support sampling and client rate limiting.
