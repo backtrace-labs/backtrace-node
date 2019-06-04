@@ -41,7 +41,7 @@ Sets the HTTP/HTTPS endpoint that error reports will be sent to.
 
 ##### `token`
 
-Required.
+Required if you're not using integration via submit.backtrace.io.
 
 Example: `51cc8e69c5b62fa8c72dc963e730f1e8eacbd243aeafc35d08d05ded9a024121`.
 
@@ -110,6 +110,18 @@ Defaults to `8`. If there are any hard tabs in the source code, it is unclear
 how many spaces they should be indented to correctly display the source code.
 Therefore the error report can override this number to specify how many spaces
 a hard tab should be represented by when viewing source code.
+
+#### `sampling`
+
+Now, Backtrace-node supports sampling attribute. By using this argument, you can prevent sending reports to the server. You can define sampling value in the BacktraceClientOptions.Sampling option which accepts values from 0 to 1, where 1 means sampling algorithm will skill all reports. If you want to know when Backtrace-node skips a report, please check BacktraceResult object, or use 'sampling-hit' event.
+
+#### `rateLimit`
+
+Backtrace-node supports client rate limiting! You can define how many reports per one minute you want to send to Backtrace by adding the additional option to the BacktraceClientOptions object. Now, when you reach the defined limit, the client will skip the current report. You can still learn which report won’t be available on the server by using event-emitter and ‘rate-limit’ events or by checking BacktraceResult – object that will return the reportSync/reportAsync method.
+
+### bt.getBacktraceClient()
+
+Returns a new `BacktraceClient` instance that you can use to send data to Backtrace. You can create new `BacktraceClient` manually and then replace existing default `BacktraceClient` with yours by using `use` method.
 
 ### bt.report([error], [attributes], [callback])
 
@@ -266,7 +278,7 @@ such as the error message and stack trace and send this information along with
 the report.
 
 #### report.trace()
-
+[Deprecated]
 This function captures a stack trace at the current location. Due to the event
 loop, errors in Node.js sometimes are missing part of the stack trace.
 
@@ -281,6 +293,7 @@ trace is automatically called when you call createReport and when you call
 setError.
 
 #### report.log(...)
+[Deprecated]
 
 Adds a timestamped log message to the report. Log output is available when you
 view a report. The arguments to report.log are the same as the arguments to

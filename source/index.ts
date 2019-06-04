@@ -91,6 +91,9 @@ export function BacktraceReport(): btReport.BacktraceReport {
   backtraceReport.send = () => {
     backtraceClient.sendReport(backtraceReport);
   };
+  backtraceReport.sendSync = () => {
+    backtraceClient.sendReport(backtraceReport);
+  }
 
   return backtraceReport;
 }
