@@ -88,13 +88,12 @@ export function BacktraceReport(): btReport.BacktraceReport {
     throw new Error('Must call initialize method first');
   }
   const backtraceReport = backtraceClient.createReport('');
-  backtraceReport.send =  (callback: () => void) => {
-    backtraceClient.sendReport(backtraceReport);
-    callback();
+  backtraceReport.send =  async () => {
+    return await backtraceClient.sendAsync(backtraceReport);
   };
-  backtraceReport.sendSync = () => {
-    backtraceClient.sendReport(backtraceReport);
-  }
+  backtraceReport.sendSync = (callback: (err?: Error) => void) => {
+    backtraceClient.sendReport(backtraceReport, callback);
+  };
 
   return backtraceReport;
 }
