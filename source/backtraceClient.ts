@@ -101,17 +101,33 @@ export class BacktraceClient extends EventEmitter {
     return this.sendReport(report);
   }
 
-  public sendReport(report: BacktraceReport): BacktraceResult {
+  public sendReport(report: BacktraceReport, callback?: (err?: Error) => void): BacktraceResult {
     this.emit('before-send', report);
     const limitResult = this.testClientLimits(report);
     if (limitResult) {
       return limitResult;
     }
     this._backtraceApi.send(report).then((result) => {
+      if (callback) {
+        callback(undefined);
+      }
       this.emit('after-send', report, result);
+    }).catch(err => {
+      if (callback) {
+        callback(err);
+      }
     });
 
     return BacktraceResult.Processing(report);
+  }
+
+  public async sendAsync(report: BacktraceReport): Promise<BacktraceResult> {
+    this.emit('before-send', report);
+    const limitResult = this.testClientLimits(report);
+    if (limitResult) {
+      return limitResult;
+    }
+    return await this._backtraceApi.send(report)
   }
 
   private testClientLimits(report: BacktraceReport): BacktraceResult | undefined {
