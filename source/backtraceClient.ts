@@ -59,6 +59,7 @@ export class BacktraceClient extends EventEmitter {
     reportAttributes: object | undefined = {},
     fileAttachments: string[] = [],
   ): BacktraceReport {
+    this.emit('new-report', payload, reportAttributes);
     const attributes = this.combineClientAttributes(reportAttributes);
     const report = new BacktraceReport(payload, attributes, fileAttachments);
     report.setSourceCodeOptions(this.options.tabWidth, this.options.contextLineCount);
@@ -107,16 +108,19 @@ export class BacktraceClient extends EventEmitter {
     if (limitResult) {
       return limitResult;
     }
-    this._backtraceApi.send(report).then((result) => {
-      if (callback) {
-        callback(undefined);
-      }
-      this.emit('after-send', report, result);
-    }).catch(err => {
-      if (callback) {
-        callback(err);
-      }
-    });
+    this._backtraceApi
+      .send(report)
+      .then((result) => {
+        if (callback) {
+          callback(undefined);
+        }
+        this.emit('after-send', report, result);
+      })
+      .catch((err) => {
+        if (callback) {
+          callback(err);
+        }
+      });
 
     return BacktraceResult.Processing(report);
   }
@@ -127,7 +131,7 @@ export class BacktraceClient extends EventEmitter {
     if (limitResult) {
       return limitResult;
     }
-    return await this._backtraceApi.send(report)
+    return await this._backtraceApi.send(report);
   }
 
   private testClientLimits(report: BacktraceReport): BacktraceResult | undefined {
@@ -193,6 +197,7 @@ export class BacktraceClient extends EventEmitter {
   private registerPromiseHandler(): void {
     // workaround for existing issue in TypeScript
     (process as NodeJS.EventEmitter).on('unhandledRejection', (err: Error) => {
+      this.emit('unhandledRejection', err);
       this.reportAsync(err, undefined);
     });
   }
@@ -205,6 +210,7 @@ export class BacktraceClient extends EventEmitter {
     }
 
     process.on('uncaughtException', (e: Error) => {
+      this.emit('uncaughtException', e);
       this.reportSync(e);
       throw e;
     });
