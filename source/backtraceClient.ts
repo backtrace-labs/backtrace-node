@@ -112,7 +112,7 @@ export class BacktraceClient extends EventEmitter {
       .send(report)
       .then((result) => {
         if (callback) {
-          callback(undefined);
+          callback(result.Error);
         }
         this.emit('after-send', report, result);
       })
