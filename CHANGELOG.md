@@ -1,5 +1,15 @@
 # Backtrace Node Release Notes
 
+## Version 1.0.3 06.06.2019
+* Added new events to event emitter: `new-report`, `unhandledRejection`, `uncaughtException`. `uncaughtException` and `unhandledRejection` events will be emited by library when library catch unhandled exception or unhandler promise rejection. `new-report` event will be emited when library create new `backtraceReport` object.
+
+## Version 1.0.2 05.06.2019
+* Fixed arguments in callback function in report `send` method.
+
+## Version 1.0.1 05.06.2019
+
+* Added type definition for report `send` method
+
 ## Version 1.0.0 04.06.2019
 
 * `Backtrace-node` now supports TypeScript. We care about your applications that using Backtrace-Node library so we prepared compatible API for you. If you still want to use modern API please use `BacktraceClient` instead.
