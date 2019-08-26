@@ -38,16 +38,17 @@ export class BacktraceApi extends EventEmitter {
     const formData = new FormData();
     const json: string = stringify(data);
     formData.append('upload_file', json, 'upload_file.json');
-
-    report.getAttachments().forEach((filePath) => {
-      const result = fs.existsSync(filePath);
-      if (!result) {
-        return;
-      }
-      const name = path.basename(filePath);
-      formData.append(`attachment_${name}`, fs.createReadStream(filePath), name);
-    });
-
+    const attachments = report.getAttachments();
+    if (attachments instanceof Array) {
+      attachments.forEach((filePath) => {
+        const result = fs.existsSync(filePath);
+        if (!result) {
+          return;
+        }
+        const name = path.basename(filePath);
+        formData.append(`attachment_${name}`, fs.createReadStream(filePath), name);
+      });
+    }
     return formData;
   }
 }

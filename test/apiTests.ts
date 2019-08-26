@@ -13,7 +13,6 @@ describe('Integration tests', () => {
   describe('Correct send', () => {
     let client!: BacktraceClient;
     beforeEach(() => {
-     
       const basePath = 'https://submit.backtrace.io';
       const query = '/server/token/json';
       nock(basePath)
@@ -76,7 +75,11 @@ describe('Integration tests', () => {
       } catch (err) {
         const report = bt.createReport();
         report.setError(err);
-        report.send();
+        if (report.send) {
+          report.send((innerError) => {
+            console.log(innerError);
+          });
+        }
       }
     });
   });
@@ -137,8 +140,11 @@ describe('Integration tests', () => {
         const attr = opts.attributes;
       } catch (err) {
         const report = bt.createReport();
-        report.setError(err);
-        report.send();
+        if (report.send) {
+          report.send((innerError) => {
+            console.log(innerError);
+          });
+        }
       }
     });
   });

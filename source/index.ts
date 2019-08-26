@@ -37,7 +37,9 @@ export function use(client: BacktraceClient) {
 export async function report(
   arg: () => void | Error | string | object,
   arg2: object | undefined = {},
-  arg3: string[] = [],
+  // tslint:disable-next-line: ban-types
+  arg3: string[] | ((data?: Error) => void) = [],
+  arg4: string[] = [],
 ): Promise<BacktraceResult> {
   if (!backtraceClient) {
     throw new Error('Must call initialize method first');
@@ -49,9 +51,11 @@ export async function report(
   if (typeof arg === 'object' && arg2 === {}) {
     arg2 = arg;
   }
-  const result = await backtraceClient.reportAsync(data, arg2, arg3);
-  if (arg instanceof Function) {
-    arg();
+  const attachments = arg3 instanceof Function ? arg4 : arg3;
+  const callback = arg instanceof Function ? arg : arg3;
+  const result = await backtraceClient.reportAsync(data, arg2, attachments);
+  if (callback && callback instanceof Function) {
+    callback(result.Error);
   }
   return result;
 }
@@ -88,7 +92,7 @@ export function BacktraceReport(): btReport.BacktraceReport {
     throw new Error('Must call initialize method first');
   }
   const backtraceReport = backtraceClient.createReport('');
-  backtraceReport.send =  (callback: (err?: Error) => void) => {
+  backtraceReport.send = (callback: (err?: Error) => void) => {
     backtraceClient.sendReport(backtraceReport, callback);
   };
   backtraceReport.sendSync = (callback: (err?: Error) => void) => {

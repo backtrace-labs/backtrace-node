@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { join } from 'path';
 import { scanFile } from 'source-scan';
 import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 
@@ -30,14 +31,7 @@ export class BacktraceStackTrace {
   private tabWidth: number = 8;
   private contextLineCount: number = 200;
 
-  private error: Error;
-  constructor(err: Error | string) {
-    // handle reports with message
-    if (!(err instanceof Error)) {
-      err = new Error();
-    }
-    this.error = err;
-  }
+  constructor(private readonly error: Error) {}
 
   public setSourceCodeOptions(tabWidth: number, contextLineCount: number) {
     this.tabWidth = tabWidth;
@@ -86,12 +80,13 @@ export class BacktraceStackTrace {
     }
     // get exception lines and remove first line of descrtiption
     const lines = stackTrace.split('\n').slice(1);
+    const backtracePath = join('node_modules', 'backtrace-node');
     lines.forEach((line) => {
       const match = line.match(this.stackLineRe);
       if (!match || match.length < 4) {
         return;
       }
-      const backtraceLibStackFrame = match[2].indexOf('node_modules/backtrace-node') !== -1;
+      const backtraceLibStackFrame = match[2].indexOf(backtracePath) !== -1;
       if (backtraceLibStackFrame) {
         return;
       }

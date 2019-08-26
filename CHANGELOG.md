@@ -1,5 +1,10 @@
 # Backtrace Node Release Notes
 
+## Version 1.0.4 26.08.2019
+* Added attachments checks,
+* Added callback funciton to third parameter of send method,
+* Removed Backtrace stack frames from message error,
+
 ## Version 1.0.3 06.06.2019
 * Added new events to event emitter: `new-report`, `unhandledRejection`, `uncaughtException`. `uncaughtException` and `unhandledRejection` events will be emited by library when library catch unhandled exception or unhandler promise rejection. `new-report` event will be emited when library create new `backtraceReport` object.
 
