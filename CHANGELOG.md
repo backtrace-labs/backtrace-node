@@ -1,5 +1,10 @@
 # Backtrace Node Release Notes
 
+## Version 1.0.6 30.10.2019
+* Added sourcemap support to Backtrace-node
+* Fixed type attributes for report function
+* Changed a unit test result - removed console.log and check data instead.
+
 ## Version 1.0.5 28.08.2019
 * Fixed invalid source code line number
 

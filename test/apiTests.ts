@@ -77,7 +77,7 @@ describe('Integration tests', () => {
         report.setError(err);
         if (report.send) {
           report.send((innerError) => {
-            console.log(innerError);
+            // console.log(innerError);
           });
         }
       }
@@ -142,7 +142,7 @@ describe('Integration tests', () => {
         const report = bt.createReport();
         if (report.send) {
           report.send((innerError) => {
-            console.log(innerError);
+            assert.isDefined(innerError);
           });
         }
       }

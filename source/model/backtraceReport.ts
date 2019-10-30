@@ -168,7 +168,7 @@ export class BacktraceReport {
     // not in constructor, but in additional method.
     await this.collectReportInformation();
 
-    return {
+    const result = {
       uuid: this.uuid,
       timestamp: this.timestamp,
       lang: this.lang,
@@ -181,7 +181,12 @@ export class BacktraceReport {
       annotations: this.annotations,
       attributes: this.attributes,
       sourceCode: this.stackTrace.getSourceCode(),
-    };
+    } as IBacktraceData;
+
+    if (this.attributes['symbolication_id']) {
+      result.symbolication = 'sourcemap';
+    }
+    return result;
   }
 
   public setSourceCodeOptions(tabWidth: number, contextLineCount: number) {

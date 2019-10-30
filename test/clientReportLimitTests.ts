@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import nock from 'nock';
 import { BacktraceClient } from '../source';
-import * as bt from '../source/index';
 import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
 import { BacktraceReport } from '../source/model/backtraceReport';
 import { BacktraceResultStatus } from '../source/model/backtraceResult';

@@ -35,7 +35,7 @@ export function use(client: BacktraceClient) {
  * @param arg3 file attachments paths
  */
 export async function report(
-  arg: () => void | Error | string | object,
+  arg: Error | string | object | ((data?: Error) => void),
   arg2: object | undefined = {},
   // tslint:disable-next-line: ban-types
   arg3: string[] | ((data?: Error) => void) = [],

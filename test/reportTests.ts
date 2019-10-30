@@ -28,6 +28,23 @@ describe('Backrace report tests', () => {
       expect(report.getAttachments()).to.eql(attachments);
     });
 
+    it('Initialize report with source map support', async () => {
+      const symbolicationId = 'symbolication_id';
+      const report = new BacktraceReport('', { symbolication_id: symbolicationId });
+      assert.isNotEmpty(report);
+      const backtraceData = await report.toJson();
+      expect(backtraceData.symbolication).to.eq('sourcemap');
+      expect(backtraceData.attributes[`symbolication_id`]).to.eq(symbolicationId);
+    });
+
+    it(`Initialize report without source map support shouldn't add sourcemap property`, async () => {
+      const report = new BacktraceReport('', {});
+      assert.isNotEmpty(report);
+      const backtraceData = await report.toJson();
+      assert.isUndefined(backtraceData.symbolication);
+      assert.isUndefined(backtraceData.attributes[`symbolication_id`]);
+    });
+
     it('Initialize report with attributes and attachments', async () => {
       const attributes = { foo: 'foo', bar: 'bar' };
       const attachments = ['path', 'to', 'attachments'];

@@ -5,6 +5,7 @@ export interface IBacktraceData {
   timestamp: number;
   lang: string;
   langVersion: string;
+  symbolication?: 'sourcemap';
   agent: string;
   agentVersion: string;
   mainThread: string;
