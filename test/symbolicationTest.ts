@@ -2,7 +2,6 @@ import { assert, expect } from 'chai';
 import * as bt from '../source/index';
 import { BacktraceClientOptions } from '../source/model/backtraceClientOptions';
 import { BacktraceReport } from '../source/model/backtraceReport';
-// import { BacktraceReport } from '../source/model/backtraceReport';
 
 describe('Backrace symbolication tests', () => {
   beforeEach(() => {
