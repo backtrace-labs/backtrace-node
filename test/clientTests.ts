@@ -127,7 +127,6 @@ describe('Backtrace client tests', () => {
 
     it('Create new report', () => {
       const report = client.createReport('');
-      assert.isEmpty({});
       assert.isNotEmpty(report);
     });
 

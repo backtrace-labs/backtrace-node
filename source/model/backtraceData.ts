@@ -14,4 +14,5 @@ export interface IBacktraceData {
   threads: object;
   classifiers: string[];
   sourceCode: { [index: string]: ISourceCode };
+  symbolication_maps?: Array<{ file: string; uuid: string }>;
 }

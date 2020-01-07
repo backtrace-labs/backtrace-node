@@ -1,6 +1,8 @@
+import { createHash } from 'crypto';
 import * as fs from 'fs';
 import { join } from 'path';
 import { scanFile } from 'source-scan';
+import { promisify } from 'util';
 import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 
 /**
@@ -24,6 +26,9 @@ export class BacktraceStackTrace {
   public stack: IBacktraceStackFrame[] = [];
 
   public sourceCodeInformation: { [index: string]: ISourceCode } = {};
+
+  public symbolicationMaps?: Array<{ file: string; uuid: string }>;
+  private symbolicationPaths = new Set<string>();
   private callingModulePath = '';
   private readonly stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
   private requestedSourceCode: { [index: string]: ISourceLocation[] } = {};
@@ -73,7 +78,7 @@ export class BacktraceStackTrace {
   /**
    * Start parsing stack frames
    */
-  public async parseStackFrames(): Promise<void> {
+  public async parseStackFrames(includeSymbolication: boolean): Promise<void> {
     const stackTrace = this.error.stack;
     if (!stackTrace) {
       return;
@@ -99,7 +104,15 @@ export class BacktraceStackTrace {
         column: parseInt(match[4], 10),
       };
 
-      this.addSourceRequest(stackFrame);
+      // ignore not existing stack frames
+      if (fs.existsSync(stackFrame.sourceCode)) {
+        this.addSourceRequest(stackFrame);
+        // extend root object with symbolication information
+        if (includeSymbolication) {
+          this.symbolicationPaths.add(stackFrame.sourceCode);
+        }
+      }
+
       if (this.isCallingModule(stackFrame)) {
         this.callingModulePath = stackFrame.sourceCode;
       }
@@ -108,13 +121,43 @@ export class BacktraceStackTrace {
 
     // read source code information after reading all existing stack frames from stack trace
     await this.readSourceCode();
+    if (includeSymbolication) {
+      this.generateSymbolicationMap();
+    }
+  }
+  private generateSymbolicationMap(): void {
+    if (this.symbolicationPaths.size === 0) {
+      return;
+    }
+    this.symbolicationMaps = [];
+    this.symbolicationPaths.forEach(async (symbolicationPath) => {
+      const file = fs.readFileSync(symbolicationPath, 'utf8');
+      const hash = createHash('md5')
+        .update(file)
+        .digest('hex');
+
+      this.symbolicationMaps?.push({
+        file: symbolicationPath,
+        uuid: this.convertHexToUuid(hash),
+      });
+    });
+  }
+
+  private convertHexToUuid(hex: string): string {
+    return (
+      hex.slice(0, 8) +
+      '-' +
+      hex.slice(8, 12) +
+      '-' +
+      hex.slice(12, 16) +
+      '-' +
+      hex.slice(16, 20) +
+      '-' +
+      hex.slice(20, 32)
+    );
   }
 
   private addSourceRequest(stackFrame: IBacktraceStackFrame): void {
-    // ignore not existing stack frames
-    if (!fs.existsSync(stackFrame.sourceCode)) {
-      return;
-    }
     // add source code to existing list. Otherwise create empty array
     this.requestedSourceCode[stackFrame.sourceCode] = this.requestedSourceCode[stackFrame.sourceCode] || [];
     this.requestedSourceCode[stackFrame.sourceCode].push({

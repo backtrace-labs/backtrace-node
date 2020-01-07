@@ -19,6 +19,7 @@
         "${workspaceFolder}/test/**/*.ts"
       ],
       "console": "integratedTerminal",
+      "skipFiles": ["${workspaceRoot}/node_modules/**/*.js", "<node_internals>/**/*.js"],
       "sourceMaps": true,
       "preLaunchTask": "tsc-watch",
       "internalConsoleOptions": "neverOpen"

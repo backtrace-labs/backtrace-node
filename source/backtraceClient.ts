@@ -14,6 +14,8 @@ export class BacktraceClient extends EventEmitter {
   private _memorizedAttributes: object = {};
   private _backtraceApi: BacktraceApi;
   private _clientRateLimit: ClientRateLimit;
+  private _symbolication = false;
+  private _symbolicationMap?: Array<{ file: string; uuid: string }>;
 
   constructor(clientOptions: IBacktraceClientOptions | BacktraceClientOptions) {
     super();
@@ -41,6 +43,33 @@ export class BacktraceClient extends EventEmitter {
   }
 
   /**
+   * Set symbolication info
+   */
+  public setSymbolication() {
+    this._symbolication = true;
+  }
+
+  /**
+   * Add symbolication map to each report.
+   * @param symbolicationMap
+   */
+  public setSymbolicationMap(symbolicationMap: Array<{ file: string; uuid: string }>) {
+    if (!symbolicationMap) {
+      throw new Error('Symbolication map is undefined');
+    }
+
+    if (!Array.isArray(symbolicationMap)) {
+      throw new TypeError('Invalid type of symbolication map');
+    }
+    const invalidValues = symbolicationMap.some((n) => !n.file || !n.uuid);
+    if (invalidValues) {
+      throw new TypeError('Symbolication map contains invalid values - missing file or uuid value');
+    }
+
+    this._symbolicationMap = symbolicationMap;
+  }
+
+  /**
    * Clear all saved attributes
    */
   public clearMemorizedAttributes(): void {
@@ -62,6 +91,10 @@ export class BacktraceClient extends EventEmitter {
     this.emit('new-report', payload, reportAttributes);
     const attributes = this.combineClientAttributes(reportAttributes);
     const report = new BacktraceReport(payload, attributes, fileAttachments);
+    report.symbolication = this._symbolication;
+    if (this._symbolicationMap) {
+      report.symbolicationMap = this._symbolicationMap;
+    }
     report.setSourceCodeOptions(this.options.tabWidth, this.options.contextLineCount);
     return report;
   }
