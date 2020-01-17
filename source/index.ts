@@ -61,6 +61,100 @@ export async function report(
 }
 
 /**
+ * Send report asynchronously to Backtrace
+ * @param payload report payload
+ * @param reportAttributes attributes
+ * @param fileAttachments file attachments paths
+ */
+export async function reportAsync(
+  payload: Error | string,
+  reportAttributes: object | undefined = {},
+  fileAttachments: string[] = [],
+): Promise<BacktraceResult> {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+  return await backtraceClient.reportAsync(payload, reportAttributes, fileAttachments);
+}
+
+/**
+ * Send Backtrace report to Backtrace asynchronously.
+ * @param data Backtrace report
+ */
+export async function sendAsync(data: btReport.BacktraceReport): Promise<BacktraceResult> {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+  return await backtraceClient.sendAsync(data);
+}
+
+/**
+ * Memorize selected values from application.
+ * Memorized attributes will be available in your next Backtrace report.
+ * Memorized attributes will be only available for one report.
+ * @param key attribute key
+ * @param value attribute value
+ */
+export function memorize(key: string, value: any): void {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+
+  backtraceClient.memorize(key, value);
+}
+
+/**
+ * Clear all saved attributes
+ */
+export function clearMemorizedAttributes(): void {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+  backtraceClient.clearMemorizedAttributes();
+}
+
+/**
+ * Returns all memorized attributes without clearing them.
+ */
+export function checkMemorizedAttributes(): object {
+  return backtraceClient?.checkMemorizedAttributes();
+}
+
+/**
+ * Set symbolication info
+ */
+export function setSymbolication() {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+
+  backtraceClient.setSymbolication();
+}
+
+/**
+ * Add symbolication map to each report.
+ * @param symbolicationMap
+ */
+export function setSymbolicationMap(symbolicationMap: Array<{ file: string; uuid: string }>) {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+
+  backtraceClient.setSymbolicationMap(symbolicationMap);
+}
+
+/**
+ * Send backtrace report to Backtrace
+ */
+export function sendReport(data: btReport.BacktraceReport, callback?: (err?: Error) => void): BacktraceResult {
+  if (!backtraceClient) {
+    throw new Error('Must call initialize method first');
+  }
+
+  return backtraceClient.sendReport(data, callback);
+}
+
+/**
  * Send report synchronosuly to Backtrace
  * @param error report payload
  * @param reportAttributes attributes
