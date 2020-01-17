@@ -15,7 +15,7 @@ export function readModuleDependencies(modulePath: string): object | undefined {
   };
 }
 
-export function readModule(root: string | undefined, depth: number = 5): [NodeRequire, string] {
+export function readModule(root: string | undefined, depth: number = 10): [NodeRequire, string] {
   if (depth < 0) {
     return readLibModule();
   }
