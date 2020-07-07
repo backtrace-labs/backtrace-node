@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/backtrace-labs/backtrace-node#readme",
   "devDependencies": {
-    "electron": "^4.1.4"
+    "electron": "^9.1.0"
   },
   "dependencies": {
     "backtrace-node": "file:../../.."
