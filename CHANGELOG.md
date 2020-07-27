@@ -1,5 +1,9 @@
 # Backtrace Node Release Notes
 
+## Version 1.0.7
+- Full source map support,
+- readme updates
+
 ## Version 1.0.6 30.10.2019
 * Added sourcemap support to Backtrace-node
 * Fixed type attributes for report function
