@@ -22,7 +22,7 @@ For more advanced usage, see `BacktraceReport` API below.
 
 ## Documentation
 
-### bt.initialize([options])
+### bt.initialize(options)
 
 This is intended to be one of the first things your application does during
 initialization. It registers a handler for `uncaughtException` which will
@@ -77,7 +77,7 @@ Example:
 
 ##### `timeout`
 
-Defaults to `1000`. Maximum amount of milliseconds to wait for child process
+Defaults to `15000`. Maximum amount of milliseconds to wait for child process
 to process error report and schedule sending the report to Backtrace.
 
 ##### `debugBacktrace`
@@ -123,7 +123,7 @@ Backtrace-node supports client rate limiting! You can define how many reports pe
 
 Returns a new `BacktraceClient` instance that you can use to send data to Backtrace. You can create new `BacktraceClient` manually and then replace existing default `BacktraceClient` with yours by using `use` method.
 
-### bt.report([error], [attributes], [callback])
+### bt.report([error], [attributes], [callback], [attachments])
 
 Sends an error report to the endpoint specified in `initialize`.
 
@@ -133,6 +133,7 @@ Sends an error report to the endpoint specified in `initialize`.
  * `attributes` - optional. An object which contains key-value pairs to add
    to the report.
  * `callback(err)` - optional. Called when the report is finished sending.
+ * `attachments` - optional. String array with paths to report attachments.
 
 Calling this function is the same as doing:
 
@@ -149,7 +150,7 @@ and send the error report, use `reportSync` as specified below. Note that
 unlike `report`, the `reportSync` function is also safe to use for
 `uncaughtException` handlers.
 
-### bt.reportSync([error], [attributes])
+### bt.reportSync([error], [attributes], [attachments])
 
 Same as `bt.report`, but blocks until finished.
 
