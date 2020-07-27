@@ -12,6 +12,25 @@ import { BacktraceStackTrace } from './backtraceStackTrace';
  * BacktraceReport describe current exception/message payload message to Backtrace
  */
 export class BacktraceReport {
+  public set symbolication(symbolication: boolean) {
+    this._symbolication = symbolication;
+  }
+
+  public set symbolicationMap(symbolMap: Array<{ file: string; uuid: string }>) {
+    if (!symbolMap) {
+      throw new Error('Symbolication map is undefined');
+    }
+
+    if (!Array.isArray(symbolMap)) {
+      throw new TypeError('Invalid type of symbolication map');
+    }
+    const invalidValues = symbolMap.some((n) => !n.file || !n.uuid);
+    if (invalidValues) {
+      throw new TypeError('Symbolication map contains invalid values - missing file or uuid value');
+    }
+    this._symbolicationMap = symbolMap;
+  }
+
   // reprot id
   public readonly uuid: string = this.generateUuid();
   // timestamp
@@ -49,6 +68,10 @@ export class BacktraceReport {
    * Thread information about current application
    */
   public stackTrace!: BacktraceStackTrace;
+
+  private _symbolicationMap?: Array<{ file: string; uuid: string }>;
+
+  private _symbolication = false;
 
   /**
    * Current report attributes
@@ -181,9 +204,13 @@ export class BacktraceReport {
       annotations: this.annotations,
       attributes: this.attributes,
       sourceCode: this.stackTrace.getSourceCode(),
+      symbolication_maps: this._symbolicationMap || this.stackTrace.symbolicationMaps,
     } as IBacktraceData;
 
-    if (this.attributes['symbolication_id']) {
+    // when symbolication information exists, set symbolication to sourcemap.
+    // we should check symbolicationMap and _symbolication boolean value and symbolication id from attributes
+    // if any value exists, we should extend report object with 'sourcemap' property.
+    if (this._symbolication || this.attributes['symbolication_id'] || this._symbolicationMap) {
       result.symbolication = 'sourcemap';
     }
     return result;
@@ -194,11 +221,18 @@ export class BacktraceReport {
     this.contextLineCount = contextLineCount;
   }
 
+  /**
+   * Include symbolication information based on stack trace analysis
+   */
+  private includeSymbolication(): boolean {
+    return this._symbolication && !this.attributes['symbolication_id'] && !this._symbolicationMap;
+  }
+
   private async collectReportInformation(): Promise<void> {
     // get stack trace to retrieve calling module information
     this.stackTrace = new BacktraceStackTrace(this.err as Error);
     this.stackTrace.setSourceCodeOptions(this.tabWidth, this.contextLineCount);
-    await this.stackTrace.parseStackFrames();
+    await this.stackTrace.parseStackFrames(this.includeSymbolication());
     // retrieve calling module object
     [this._callingModule, this._callingModulePath] = readModule(this.stackTrace.getCallingModulePath());
 

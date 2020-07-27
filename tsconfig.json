@@ -8,7 +8,9 @@
     "strict": true,
     "declaration": true,
     "typeRoots": ["./node_modules/@types", "./source/types"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "moduleResolution": "Node"
   },
   "exclude": ["lib", "./test", "./examples"]
 }
