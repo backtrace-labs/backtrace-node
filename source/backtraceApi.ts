@@ -9,12 +9,16 @@ import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
 
 export class BacktraceApi extends EventEmitter {
+  private _sourceCodeSupport = true;
+  public setSourceCodeSupport(enable: boolean) {
+    this._sourceCodeSupport = enable === true;
+  }
   constructor(private backtraceUri: string, private timeout: number) {
     super();
   }
 
   public async send(report: BacktraceReport): Promise<BacktraceResult> {
-    const data = await report.toJson();
+    const data = await report.toJson(this._sourceCodeSupport);
     this.emit('before-data-send', report, data);
     const formData = await this.getFormData(report, data);
     try {

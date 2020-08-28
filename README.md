@@ -119,6 +119,10 @@ Now, Backtrace-node supports sampling attribute. By using this argument, you can
 
 Backtrace-node supports client rate limiting! You can define how many reports per one minute you want to send to Backtrace by adding the additional option to the BacktraceClientOptions object. Now, when you reach the defined limit, the client will skip the current report. You can still learn which report won’t be available on the server by using event-emitter and ‘rate-limit’ events or by checking BacktraceResult – object that will return the reportSync/reportAsync method.
 
+#### `sourceCode` 
+
+If this option is enabled, then BacktraceReport will include your JavaScript source code with BacktraceReport for better debugging experience. Otherwise backtrace-node won't read your source code. By default this option is enabled.
+
 ### bt.getBacktraceClient()
 
 Returns a new `BacktraceClient` instance that you can use to send data to Backtrace. You can create new `BacktraceClient` manually and then replace existing default `BacktraceClient` with yours by using `use` method.

@@ -27,6 +27,7 @@ export class BacktraceClient extends EventEmitter {
       ...clientOptions,
     } as BacktraceClientOptions;
     this._backtraceApi = new BacktraceApi(this.getSubmitUrl(), this.options.timeout);
+    this._backtraceApi.setSourceCodeSupport(this.options.sourceCode);
     this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
   }

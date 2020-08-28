@@ -1,5 +1,11 @@
 # Backtrace Node Release Notes
 
+## Version 1.0.9 
+- Backtrace client allows to disable sourceCode integration. Backtrace-node initialization options allows you to pass sourceCode flag. If flag is equal to true, then your javascript code will be available in the report. If you set it to false, then report won't generate source code. By default this option is enabled.
+
+## Version 1.0.8
+- dependency updates
+
 ## Version 1.0.7
 - Full source map support,
 - readme updates

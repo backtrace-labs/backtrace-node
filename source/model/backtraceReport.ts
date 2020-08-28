@@ -185,7 +185,7 @@ export class BacktraceReport {
     return this.attachments;
   }
 
-  public async toJson(): Promise<IBacktraceData> {
+  public async toJson(includeSourceCode: boolean = true): Promise<IBacktraceData> {
     // why library should wait to retrieve source code data?
     // architecture decision require to pass additional parameters
     // not in constructor, but in additional method.
@@ -203,7 +203,7 @@ export class BacktraceReport {
       agentVersion: this.agentVersion,
       annotations: this.annotations,
       attributes: this.attributes,
-      sourceCode: this.stackTrace.getSourceCode(),
+      sourceCode: includeSourceCode ? this.stackTrace.getSourceCode() : undefined,
       symbolication_maps: this._symbolicationMap || this.stackTrace.symbolicationMaps,
     } as IBacktraceData;
 

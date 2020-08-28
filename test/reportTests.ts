@@ -190,4 +190,18 @@ describe('Backrace report tests', () => {
       assert.isNotEmpty(report);
     });
   });
+
+  describe('Source code support', () => {
+    it('Should generate source code object by default', async () => {
+      const report = bt.BacktraceReport();
+      const data = await report.toJson();
+      assert.isDefined(data.sourceCode);
+    });
+
+    it(`Shouldn't generate source code when source code is disabled`, async () => {
+      const report = bt.BacktraceReport();
+      const data = await report.toJson(false);
+      assert.isUndefined(data.sourceCode);
+    });
+  });
 });
