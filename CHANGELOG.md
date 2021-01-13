@@ -1,5 +1,11 @@
 # Backtrace Node Release Notes
 
+## Version 1.0.9
+- axios client update
+
+## Version 1.0.8
+- dependency updates
+
 ## Version 1.0.7
 - Full source map support,
 - readme updates
