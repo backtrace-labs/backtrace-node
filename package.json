@@ -1,6 +1,6 @@
 {
   "name": "backtrace-node",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Backtrace error reporting tool",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -43,11 +43,11 @@
     "@types/form-data": "^2.2.1",
     "@types/json-stringify-safe": "^5.0.0",
     "@types/mocha": "^5.2.6",
-    "@types/nock": "^9.3.1",
+    "@types/nock": "^11.1.0",
     "@types/node": "^11.11.4",
     "chai": "~4.2.0",
-    "mocha": "^5.2.0",
-    "nock": "^10.0.6",
+    "mocha": "^8.4.0",
+    "nock": "^13.1.0",
     "ts-node": "^8.0.3",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.4"

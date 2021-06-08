@@ -12,6 +12,8 @@ import { BacktraceStackTrace } from './backtraceStackTrace';
  * BacktraceReport describe current exception/message payload message to Backtrace
  */
 export class BacktraceReport {
+  private static machineId = machineIdSync(true);
+
   public set symbolication(symbolication: boolean) {
     this._symbolication = symbolication;
   }
@@ -300,11 +302,12 @@ export class BacktraceReport {
       'node.env': process.env.NODE_ENV,
       'debug.port': process.debugPort,
       application: name,
-      version,
+      'application.version': version,
+      'backtrace.version': this.agentVersion,
       main,
       description,
-      author,
-      guid: machineIdSync(true),
+      author: typeof author === 'object' && author.name ? author.name : author,
+      guid: BacktraceReport.machineId,
       hostname: os.hostname(),
     } as any;
 

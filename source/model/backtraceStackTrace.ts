@@ -1,8 +1,7 @@
 import { createHash } from 'crypto';
 import * as fs from 'fs';
-import { join } from 'path';
+import { join, relative } from 'path';
 import { scanFile } from 'source-scan';
-import { promisify } from 'util';
 import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 
 /**
@@ -83,6 +82,7 @@ export class BacktraceStackTrace {
     if (!stackTrace) {
       return;
     }
+    const appPath = process.cwd();
     // get exception lines and remove first line of descrtiption
     const lines = stackTrace.split('\n').slice(1);
     const backtracePath = join('node_modules', 'backtrace-node');
@@ -91,31 +91,36 @@ export class BacktraceStackTrace {
       if (!match || match.length < 4) {
         return;
       }
-      const backtraceLibStackFrame = match[2].indexOf(backtracePath) !== -1;
+      const fullSourceCodePath = match[2];
+      const backtraceLibStackFrame = fullSourceCodePath.indexOf(backtracePath) !== -1;
       if (backtraceLibStackFrame) {
         return;
       }
 
+      let sourcePath = fullSourceCodePath;
+      if (sourcePath) {
+        sourcePath = relative(appPath, sourcePath);
+      }
+
       const stackFrame = {
         funcName: match[1],
-        sourceCode: match[2],
-        library: match[2],
+        sourceCode: fullSourceCodePath,
+        library: sourcePath,
         line: parseInt(match[3], 10),
         column: parseInt(match[4], 10),
       };
-
       // ignore not existing stack frames
-      if (fs.existsSync(stackFrame.sourceCode)) {
+      if (fs.existsSync(fullSourceCodePath)) {
         this.addSourceRequest(stackFrame);
         // extend root object with symbolication information
         if (includeSymbolication) {
-          this.symbolicationPaths.add(stackFrame.sourceCode);
+          this.symbolicationPaths.add(fullSourceCodePath);
+        }
+        if (this.isCallingModule(fullSourceCodePath)) {
+          this.callingModulePath = fullSourceCodePath;
         }
       }
 
-      if (this.isCallingModule(stackFrame)) {
-        this.callingModulePath = stackFrame.sourceCode;
-      }
       this.stack.push(stackFrame);
     });
 
@@ -132,9 +137,7 @@ export class BacktraceStackTrace {
     this.symbolicationMaps = [];
     this.symbolicationPaths.forEach(async (symbolicationPath) => {
       const file = fs.readFileSync(symbolicationPath, 'utf8');
-      const hash = createHash('md5')
-        .update(file)
-        .digest('hex');
+      const hash = createHash('md5').update(file).digest('hex');
 
       this.symbolicationMaps?.push({
         file: symbolicationPath,
@@ -208,9 +211,7 @@ export class BacktraceStackTrace {
     });
   }
 
-  private isCallingModule(stackFrame: IBacktraceStackFrame): boolean {
-    return (
-      !this.callingModulePath && fs.existsSync(stackFrame.sourceCode) && !stackFrame.sourceCode.includes('node_modules')
-    );
+  private isCallingModule(sourcePath: string): boolean {
+    return !!sourcePath && !this.callingModulePath && !sourcePath.includes('node_modules');
   }
 }
