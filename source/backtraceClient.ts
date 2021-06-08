@@ -1,16 +1,19 @@
-import { ClientRateLimit } from './clientRateLimit';
-
 import { EventEmitter } from 'events';
+import fs from 'fs';
+import path from 'path';
 import { BacktraceApi } from './backtraceApi';
+import { ClientRateLimit } from './clientRateLimit';
 import { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtraceClientOptions';
 import { IBacktraceData } from './model/backtraceData';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
+
 /**
  * Backtrace client
  */
 export class BacktraceClient extends EventEmitter {
   public options: BacktraceClientOptions;
+  private _scopedAttributes: object = {};
   private _memorizedAttributes: object = {};
   private _backtraceApi: BacktraceApi;
   private _clientRateLimit: ClientRateLimit;
@@ -29,6 +32,7 @@ export class BacktraceClient extends EventEmitter {
     this._backtraceApi = new BacktraceApi(this.getSubmitUrl(), this.options.timeout);
     this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
+    this.setupScopedAttributes();
   }
 
   /**
@@ -205,6 +209,7 @@ export class BacktraceClient extends EventEmitter {
       ...attributes,
       ...this.options.attributes,
       ...this.getMemorizedAttributes(),
+      ...this._scopedAttributes,
     };
   }
 
@@ -233,6 +238,20 @@ export class BacktraceClient extends EventEmitter {
       this.emit('unhandledRejection', err);
       this.reportAsync(err, undefined);
     });
+  }
+  private setupScopedAttributes() {
+    const applicationPackageJsonPath = path.join(process.cwd(), 'package.json');
+    if (!fs.existsSync(applicationPackageJsonPath)) {
+      return;
+    }
+    const json = JSON.parse(fs.readFileSync(applicationPackageJsonPath, 'utf8'));
+    this._scopedAttributes = {
+      'application.version': json.version,
+      application: json.name,
+      main: json.main,
+      description: json.description,
+      author: typeof json.author === 'object' && json.author.name ? json.author.name : json.author,
+    };
   }
 
   private registerGlobalHandler(multipleExceptionListener: boolean): void {

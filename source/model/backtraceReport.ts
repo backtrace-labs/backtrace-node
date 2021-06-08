@@ -1,9 +1,7 @@
-// tslint:disable-next-line: no-var-requires
-const packageJson = require('./../../package.json');
 import { pseudoRandomBytes } from 'crypto';
 import { machineIdSync } from 'node-machine-id';
 import * as os from 'os';
-import { readModule, readModuleDependencies } from '../helpers/moduleResolver';
+import { readModule } from '../helpers/moduleResolver';
 import { readMemoryInformation, readProcessStatus } from '../helpers/processHelper';
 import { IBacktraceData } from './backtraceData';
 import { BacktraceStackTrace } from './backtraceStackTrace';
@@ -42,9 +40,9 @@ export class BacktraceReport {
   // environment version
   public readonly langVersion = process.version;
   // Backtrace-ndoe name
-  public readonly agent = packageJson.name;
+  public readonly agent = 'backtrace-node';
   // Backtrace-node  version
-  public readonly agentVersion = packageJson.version;
+  public readonly agentVersion = '1.1.0';
   // main thread name
   public readonly mainThread = 'main';
 
@@ -236,7 +234,9 @@ export class BacktraceReport {
     this.stackTrace.setSourceCodeOptions(this.tabWidth, this.contextLineCount);
     await this.stackTrace.parseStackFrames(this.includeSymbolication());
     // retrieve calling module object
-    [this._callingModule, this._callingModulePath] = readModule(this.stackTrace.getCallingModulePath());
+    if (!this.attributes.hasOwnProperty('application')) {
+      [this._callingModule, this._callingModulePath] = readModule(this.stackTrace.getCallingModulePath());
+    }
 
     // combine attributes
     this.attributes = {
@@ -289,7 +289,6 @@ export class BacktraceReport {
 
   private readAttributes(): object {
     const mem = process.memoryUsage();
-    const { name, version, main, description, author } = (this._callingModule || {}) as any;
     const result = {
       'process.age': Math.floor(process.uptime()),
       'uname.uptime': os.uptime(),
@@ -301,17 +300,20 @@ export class BacktraceReport {
       'gc.heap.used': mem.heapUsed,
       'node.env': process.env.NODE_ENV,
       'debug.port': process.debugPort,
-      application: name,
-      'application.version': version,
       'backtrace.version': this.agentVersion,
-      main,
-      description,
-      author: typeof author === 'object' && author.name ? author.name : author,
       guid: BacktraceReport.machineId,
       hostname: os.hostname(),
     } as any;
 
     const cpus = os.cpus();
+    if (this._callingModule) {
+      const { name, version, main, description, author } = (this._callingModule || {}) as any;
+      result['name'] = name;
+      result['version'] = version;
+      result['main'] = main;
+      result['description'] = description;
+      result['author'] = typeof author === 'object' && author.name ? author.name : author;
+    }
 
     if (cpus && cpus.length > 0) {
       result['cpu.count'] = cpus.length;
@@ -324,7 +326,6 @@ export class BacktraceReport {
     const result = {
       'Environment Variables': process.env,
       'Exec Arguments': process.execArgv,
-      Dependencies: readModuleDependencies(this._callingModulePath),
     } as any;
 
     if (this.detectReportType(this.err)) {

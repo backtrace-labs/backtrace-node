@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import * as fs from 'fs';
-import { join, relative } from 'path';
+import * as path from 'path';
 import { scanFile } from 'source-scan';
 import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 
@@ -10,7 +10,7 @@ import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 interface IBacktraceStackFrame {
   funcName: string;
   sourceCode: string;
-  library: string;
+  path: string;
   line: number;
   column: number;
 }
@@ -85,7 +85,7 @@ export class BacktraceStackTrace {
     const appPath = process.cwd();
     // get exception lines and remove first line of descrtiption
     const lines = stackTrace.split('\n').slice(1);
-    const backtracePath = join('node_modules', 'backtrace-node');
+    const backtracePath = path.join('node_modules', 'backtrace-node');
     lines.forEach((line) => {
       const match = line.match(this.stackLineRe);
       if (!match || match.length < 4) {
@@ -99,13 +99,13 @@ export class BacktraceStackTrace {
 
       let sourcePath = fullSourceCodePath;
       if (sourcePath) {
-        sourcePath = relative(appPath, sourcePath);
+        sourcePath = path.relative(appPath, sourcePath);
       }
 
       const stackFrame = {
         funcName: match[1],
         sourceCode: fullSourceCodePath,
-        library: sourcePath,
+        path: sourcePath,
         line: parseInt(match[3], 10),
         column: parseInt(match[4], 10),
       };
