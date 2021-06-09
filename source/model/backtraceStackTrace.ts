@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { scanFile } from 'source-scan';
@@ -9,7 +9,7 @@ import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
  */
 interface IBacktraceStackFrame {
   funcName: string;
-  sourceCode: string;
+  sourceCode: string | undefined;
   path: string;
   line: number;
   column: number;
@@ -30,7 +30,7 @@ export class BacktraceStackTrace {
   private symbolicationPaths = new Set<string>();
   private callingModulePath = '';
   private readonly stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
-  private requestedSourceCode: { [index: string]: ISourceLocation[] } = {};
+  private requestedSourceCode: { [path: string]: { id: string; data: ISourceLocation[] } } = {};
 
   private tabWidth: number = 8;
   private contextLineCount: number = 200;
@@ -51,7 +51,17 @@ export class BacktraceStackTrace {
     }
     // handle a situation when every one stack frame is from node_modules
     if (!this.callingModulePath) {
-      this.callingModulePath = this.stack[0].sourceCode;
+      const sourceCode = this.stack.find((n) => !!n.sourceCode);
+      if (!sourceCode) {
+        return undefined;
+      }
+      for (const key in this.requestedSourceCode) {
+        if (this.requestedSourceCode.hasOwnProperty(key)) {
+          if (this.requestedSourceCode[key].id === sourceCode.sourceCode) {
+            this.callingModulePath = key;
+          }
+        }
+      }
     }
     return this.callingModulePath;
   }
@@ -104,14 +114,14 @@ export class BacktraceStackTrace {
 
       const stackFrame = {
         funcName: match[1],
-        sourceCode: fullSourceCodePath,
         path: sourcePath,
         line: parseInt(match[3], 10),
         column: parseInt(match[4], 10),
-      };
+      } as IBacktraceStackFrame;
+
       // ignore not existing stack frames
       if (fs.existsSync(fullSourceCodePath)) {
-        this.addSourceRequest(stackFrame);
+        stackFrame.sourceCode = this.addSourceRequest(stackFrame, fullSourceCodePath);
         // extend root object with symbolication information
         if (includeSymbolication) {
           this.symbolicationPaths.add(fullSourceCodePath);
@@ -160,13 +170,19 @@ export class BacktraceStackTrace {
     );
   }
 
-  private addSourceRequest(stackFrame: IBacktraceStackFrame): void {
+  private addSourceRequest(stackFrame: IBacktraceStackFrame, fullPath: string): string {
     // add source code to existing list. Otherwise create empty array
-    this.requestedSourceCode[stackFrame.sourceCode] = this.requestedSourceCode[stackFrame.sourceCode] || [];
-    this.requestedSourceCode[stackFrame.sourceCode].push({
+    if (!this.requestedSourceCode[fullPath]) {
+      this.requestedSourceCode[fullPath] = {
+        data: [],
+        id: randomBytes(20).toString('hex'),
+      };
+    }
+    this.requestedSourceCode[fullPath].data.push({
       line: stackFrame.line,
       column: stackFrame.column,
     });
+    return this.requestedSourceCode[fullPath].id;
   }
 
   private async readSourceCode(): Promise<void> {
@@ -174,10 +190,10 @@ export class BacktraceStackTrace {
       if (this.requestedSourceCode.hasOwnProperty(key)) {
         const element = this.requestedSourceCode[key];
 
-        let minLine = element[0].line;
+        let minLine = element.data[0].line;
         let maxLine = minLine;
-        for (let i = 1; i < element.length; i += 1) {
-          const item = element[i];
+        for (let i = 1; i < element.data.length; i += 1) {
+          const item = element.data[i];
           minLine = Math.min(minLine, item.line);
           maxLine = Math.max(maxLine, item.line);
         }
@@ -188,7 +204,7 @@ export class BacktraceStackTrace {
           filePath: key,
         };
         const res = await this.getSourceCodeInformation(parameter);
-        this.sourceCodeInformation[key] = res;
+        this.sourceCodeInformation[element.id] = res;
       }
     }
   }
@@ -201,7 +217,6 @@ export class BacktraceStackTrace {
           return;
         }
         res({
-          path: parameter.filePath,
           startLine: parameter.startLine + 1,
           startColumn: 1,
           text: buff.toString('utf8'),
