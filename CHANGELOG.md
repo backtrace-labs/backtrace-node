@@ -3,7 +3,8 @@
 ## Version 1.1.0
 
 - improved deduplication: the relative library path is used instead of absolute path for purposes of deduplication.
-- updated source-code integration - Backtrace will now include the relative path in stack trace.
+- updated backtrace-node attributes - Backtrace will capture application, application.name, and main attributes based on
+  the application package.json - not the faulting library package.json file.
 
 ## Version 1.0.9
 
