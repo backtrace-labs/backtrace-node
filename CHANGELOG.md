@@ -2,9 +2,9 @@
 
 ## Version 1.1.0
 
-- updated backtrace-node attributes - now we will show application, application.name, main attributes based on the
-  application package.json - not faulting library package.json file,
-- updated source-code integration - right now we will include relative path in stack trace, instead of absolute path.
+- updated backtrace-node attributes - Backtrace will capture application, application.name, and main attributes based on the
+  application package.json - not the faulting library package.json file.
+- updated source-code integration - Backtrace will now include the relative path in stack trace.
 
 ## Version 1.0.9
 
