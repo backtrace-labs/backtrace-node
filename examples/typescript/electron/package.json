@@ -2,8 +2,9 @@
   "name": "backtrace-ts-electron-sample",
   "version": "1.0.0",
   "description": "Backtrace sample Electron application with TypeScript support",
-  "main": "index.js",
+  "main": "./dist/main.js",
   "scripts": {
+    "start": "electron ./dist/main.js",
     "build": "node_modules/.bin/tsc && cp ./source/renderer/index.html ./dist/renderer"
   },
   "repository": {
@@ -23,10 +24,12 @@
   },
   "homepage": "https://github.com/backtrace-labs/backtrace-node#readme",
   "devDependencies": {
-    "electron": "^9.1.0",
+    "electron": "^13.1.0",
+    "electron-packager": "^15.2.0",
     "typescript": "^3.4.3"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "backtrace-node": "file:../../.."
   }
 }

@@ -1,5 +1,4 @@
 export interface ISourceCode {
-  path: string;
   startLine: number;
   startColumn: number;
   text: string;

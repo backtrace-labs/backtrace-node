@@ -1,8 +1,7 @@
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import * as fs from 'fs';
-import { join } from 'path';
+import * as path from 'path';
 import { scanFile } from 'source-scan';
-import { promisify } from 'util';
 import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
 
 /**
@@ -10,8 +9,8 @@ import { ISourceCode, ISourceLocation, ISourceScan } from './sourceCode';
  */
 interface IBacktraceStackFrame {
   funcName: string;
-  sourceCode: string;
-  library: string;
+  sourceCode: string | undefined;
+  path: string;
   line: number;
   column: number;
 }
@@ -31,7 +30,7 @@ export class BacktraceStackTrace {
   private symbolicationPaths = new Set<string>();
   private callingModulePath = '';
   private readonly stackLineRe = /\s+at (.+) \((.+):(\d+):(\d+)\)/;
-  private requestedSourceCode: { [index: string]: ISourceLocation[] } = {};
+  private requestedSourceCode: { [path: string]: { id: string; data: ISourceLocation[] } } = {};
 
   private tabWidth: number = 8;
   private contextLineCount: number = 200;
@@ -52,7 +51,17 @@ export class BacktraceStackTrace {
     }
     // handle a situation when every one stack frame is from node_modules
     if (!this.callingModulePath) {
-      this.callingModulePath = this.stack[0].sourceCode;
+      const sourceCode = this.stack.find((n) => !!n.sourceCode);
+      if (!sourceCode) {
+        return undefined;
+      }
+      for (const key in this.requestedSourceCode) {
+        if (this.requestedSourceCode.hasOwnProperty(key)) {
+          if (this.requestedSourceCode[key].id === sourceCode.sourceCode) {
+            this.callingModulePath = key;
+          }
+        }
+      }
     }
     return this.callingModulePath;
   }
@@ -83,39 +92,45 @@ export class BacktraceStackTrace {
     if (!stackTrace) {
       return;
     }
+    const appPath = process.cwd();
     // get exception lines and remove first line of descrtiption
     const lines = stackTrace.split('\n').slice(1);
-    const backtracePath = join('node_modules', 'backtrace-node');
+    const backtracePath = path.join('node_modules', 'backtrace-node');
     lines.forEach((line) => {
       const match = line.match(this.stackLineRe);
       if (!match || match.length < 4) {
         return;
       }
-      const backtraceLibStackFrame = match[2].indexOf(backtracePath) !== -1;
+      const fullSourceCodePath = match[2];
+      const backtraceLibStackFrame = fullSourceCodePath.indexOf(backtracePath) !== -1;
       if (backtraceLibStackFrame) {
         return;
       }
 
+      let sourcePath = fullSourceCodePath;
+      if (sourcePath) {
+        sourcePath = path.relative(appPath, sourcePath);
+      }
+
       const stackFrame = {
         funcName: match[1],
-        sourceCode: match[2],
-        library: match[2],
+        path: sourcePath,
         line: parseInt(match[3], 10),
         column: parseInt(match[4], 10),
-      };
+      } as IBacktraceStackFrame;
 
       // ignore not existing stack frames
-      if (fs.existsSync(stackFrame.sourceCode)) {
-        this.addSourceRequest(stackFrame);
+      if (fs.existsSync(fullSourceCodePath)) {
+        stackFrame.sourceCode = this.addSourceRequest(stackFrame, fullSourceCodePath);
         // extend root object with symbolication information
         if (includeSymbolication) {
-          this.symbolicationPaths.add(stackFrame.sourceCode);
+          this.symbolicationPaths.add(fullSourceCodePath);
+        }
+        if (this.isCallingModule(fullSourceCodePath)) {
+          this.callingModulePath = fullSourceCodePath;
         }
       }
 
-      if (this.isCallingModule(stackFrame)) {
-        this.callingModulePath = stackFrame.sourceCode;
-      }
       this.stack.push(stackFrame);
     });
 
@@ -132,9 +147,7 @@ export class BacktraceStackTrace {
     this.symbolicationMaps = [];
     this.symbolicationPaths.forEach(async (symbolicationPath) => {
       const file = fs.readFileSync(symbolicationPath, 'utf8');
-      const hash = createHash('md5')
-        .update(file)
-        .digest('hex');
+      const hash = createHash('md5').update(file).digest('hex');
 
       this.symbolicationMaps?.push({
         file: symbolicationPath,
@@ -157,13 +170,19 @@ export class BacktraceStackTrace {
     );
   }
 
-  private addSourceRequest(stackFrame: IBacktraceStackFrame): void {
+  private addSourceRequest(stackFrame: IBacktraceStackFrame, fullPath: string): string {
     // add source code to existing list. Otherwise create empty array
-    this.requestedSourceCode[stackFrame.sourceCode] = this.requestedSourceCode[stackFrame.sourceCode] || [];
-    this.requestedSourceCode[stackFrame.sourceCode].push({
+    if (!this.requestedSourceCode[fullPath]) {
+      this.requestedSourceCode[fullPath] = {
+        data: [],
+        id: randomBytes(20).toString('hex'),
+      };
+    }
+    this.requestedSourceCode[fullPath].data.push({
       line: stackFrame.line,
       column: stackFrame.column,
     });
+    return this.requestedSourceCode[fullPath].id;
   }
 
   private async readSourceCode(): Promise<void> {
@@ -171,10 +190,10 @@ export class BacktraceStackTrace {
       if (this.requestedSourceCode.hasOwnProperty(key)) {
         const element = this.requestedSourceCode[key];
 
-        let minLine = element[0].line;
+        let minLine = element.data[0].line;
         let maxLine = minLine;
-        for (let i = 1; i < element.length; i += 1) {
-          const item = element[i];
+        for (let i = 1; i < element.data.length; i += 1) {
+          const item = element.data[i];
           minLine = Math.min(minLine, item.line);
           maxLine = Math.max(maxLine, item.line);
         }
@@ -185,7 +204,7 @@ export class BacktraceStackTrace {
           filePath: key,
         };
         const res = await this.getSourceCodeInformation(parameter);
-        this.sourceCodeInformation[key] = res;
+        this.sourceCodeInformation[element.id] = res;
       }
     }
   }
@@ -198,7 +217,6 @@ export class BacktraceStackTrace {
           return;
         }
         res({
-          path: parameter.filePath,
           startLine: parameter.startLine + 1,
           startColumn: 1,
           text: buff.toString('utf8'),
@@ -208,9 +226,7 @@ export class BacktraceStackTrace {
     });
   }
 
-  private isCallingModule(stackFrame: IBacktraceStackFrame): boolean {
-    return (
-      !this.callingModulePath && fs.existsSync(stackFrame.sourceCode) && !stackFrame.sourceCode.includes('node_modules')
-    );
+  private isCallingModule(sourcePath: string): boolean {
+    return !!sourcePath && !this.callingModulePath && !sourcePath.includes('node_modules');
   }
 }
