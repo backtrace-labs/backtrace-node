@@ -33,7 +33,7 @@
     "axios": "^0.21.1",
     "form-data": "^2.3.3",
     "json-stringify-safe": "^5.0.1",
-    "node-machine-id": "^1.1.10",
+    "native-reg": "^0.3.5",
     "source-scan": "~1.0.1",
     "tslib": "^1.10.0"
   },

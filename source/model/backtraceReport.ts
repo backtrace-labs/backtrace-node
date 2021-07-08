@@ -1,5 +1,5 @@
 import { pseudoRandomBytes } from 'crypto';
-import { machineIdSync } from 'node-machine-id';
+import { machineIdSync } from '../helpers/machineId';
 import * as os from 'os';
 import { readModule } from '../helpers/moduleResolver';
 import { readMemoryInformation, readProcessStatus } from '../helpers/processHelper';
