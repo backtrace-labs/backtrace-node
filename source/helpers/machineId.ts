@@ -62,7 +62,6 @@ function expose(result: string): string {
     case 'win32':
       return result
         .toString()
-        .split('REG_SZ')[1]
         .replace(/\r+|\n+|\s+/gi, '')
         .toLowerCase();
     case 'linux':
