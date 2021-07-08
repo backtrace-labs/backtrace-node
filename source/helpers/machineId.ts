@@ -107,7 +107,8 @@ export function machineId(original: boolean = false): Promise<string> {
     (resolve: Function, reject: Function): Object => {
       if (platform === 'win32') {
         try {
-          return resolve(windowsMachineId());
+          const id = expose(windowsMachineId());
+          return resolve(original ? id : hash(id));
         } catch (error) {
           return reject(error);
         }
