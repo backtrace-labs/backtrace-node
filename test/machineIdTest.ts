@@ -25,7 +25,7 @@
 /* Based on source: https://github.com/Nokel81/node-machine-id/commit/ee2d03efca9e9ccb363e850093a2e6654137275c */
 
 import { assert } from 'chai';
-import { machineId, machineIdSync, getPlatform } from '../source/helpers/machineId';
+import { machineIdSync, getPlatform } from '../source/helpers/machineId';
 
 let platform = getPlatform(),
   originalPattern = {
@@ -36,24 +36,14 @@ let platform = getPlatform(),
   },
   hashPattern = /^[0-9,A-z]{64}$/;
 
+// these tests need to be run on each of the platforms above to test this in a comprehensive way
 describe('Machine ID tests', () => {
-  describe('Async call: machineId({original: true})', function () {
-    it('should return original unique id', async () => {
-      let id = await machineId(true);
-      assert.match(id, originalPattern[platform]);
-    });
-  });
-
-  describe('Sync call: machineIdSync({original: true})', function () {
+  describe('Sync call (original=true): machineIdSync(true)', function () {
     it('should return original unique id', () => {
+      if (platform === null) {
+        throw 'null platform exception';
+      }
       assert.match(machineIdSync(true), originalPattern[platform]);
-    });
-  });
-
-  describe('Async call: machineId()', function () {
-    it('should return unique sha256-hash', async () => {
-      let id = await machineId();
-      assert.match(id, hashPattern);
     });
   });
 

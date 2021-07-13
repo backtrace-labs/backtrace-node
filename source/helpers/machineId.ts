@@ -27,6 +27,7 @@
 import { exec, execSync } from 'child_process';
 import { createHash } from 'crypto';
 import * as reg from 'native-reg';
+import { pseudoRandomBytes } from 'crypto';
 
 type SupportedPlatforms = 'darwin' | 'linux' | 'freebsd' | 'win32';
 const supportedPlatforms = ['darwin', 'linux', 'freebsd', 'win32'];
@@ -34,24 +35,24 @@ const supportedPlatforms = ['darwin', 'linux', 'freebsd', 'win32'];
 export function getPlatform() {
   const platform: SupportedPlatforms = process.platform as SupportedPlatforms;
   if (supportedPlatforms.indexOf(platform) === -1) {
-    throw new Error(`Unsupported platform: ${process.platform}`);
+    return null;
   }
   return platform;
 }
 
-const platform: SupportedPlatforms = getPlatform();
+const platform: SupportedPlatforms | null = getPlatform();
 
-const guid = {
+const guid: { [index: string]: string } = {
   darwin: 'ioreg -rd1 -c IOPlatformExpertDevice',
   linux: '( cat /var/lib/dbus/machine-id /etc/machine-id 2> /dev/null || hostname ) | head -n 1 || :',
   freebsd: 'kenv -q smbios.system.uuid || sysctl -n kern.hostuuid',
 };
 
-function hash(guid: string): string {
-  return createHash('sha256').update(guid).digest('hex');
+function hash(str: string): string {
+  return createHash('sha256').update(str).digest('hex');
 }
 
-function expose(result: string): string {
+function expose(result: string): string | null {
   switch (platform) {
     case 'darwin':
       return result
@@ -75,13 +76,44 @@ function expose(result: string): string {
         .replace(/\r+|\n+|\s+/gi, '')
         .toLowerCase();
     default:
-      throw new Error(`Unsupported platform: ${process.platform}`);
+      return null;
   }
 }
 
-function windowsMachineId(): string {
-  const regVal = reg.getValue(reg.HKEY.LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Cryptography', 'MachineGuid') || 'null';
-  return regVal.toString();
+function windowsMachineId(): string | null {
+  const regVal = reg.getValue(reg.HKEY.LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Cryptography', 'MachineGuid');
+  if (regVal) {
+    return expose(regVal.toString());
+  } else {
+    return null;
+  }
+}
+
+function nonWindowsMachineId(): string | null {
+  try {
+    if (platform !== null && guid[platform]) {
+      return expose(execSync(guid[platform]).toString());
+    } else {
+      return null;
+    }
+  } catch (_e) {
+    return null;
+  }
+}
+
+function generateUuid(): string {
+  const bytes = pseudoRandomBytes(16);
+  return (
+    bytes.slice(0, 4).toString('hex') +
+    '-' +
+    bytes.slice(4, 6).toString('hex') +
+    '-' +
+    bytes.slice(6, 8).toString('hex') +
+    '-' +
+    bytes.slice(8, 10).toString('hex') +
+    '-' +
+    bytes.slice(10, 16).toString('hex')
+  );
 }
 
 /**
@@ -89,39 +121,15 @@ function windowsMachineId(): string {
  * @param {boolean} [original=false] If true return original value of machine id, otherwise return hashed value (sha - 256)
  */
 export function machineIdSync(original: boolean = false): string {
-  const id = platform === 'win32' ? windowsMachineId() : expose(execSync(guid[platform]).toString());
+  let id: string | null = null;
+  if (platform === 'win32') {
+    id = windowsMachineId();
+  } else if (platform !== null) {
+    id = nonWindowsMachineId();
+  }
+  if (id === null) {
+    id = generateUuid();
+  }
 
   return original ? id : hash(id);
-}
-
-/**
- * This function gets the OS native UUID/GUID asynchronously (recommended), hashed by default.
- *
- * Note: on windows this is still synchronous
- * @param {boolean} [original=false] If true return original value of machine id, otherwise return hashed value (sha - 256)
- *
- */
-export function machineId(original: boolean = false): Promise<string> {
-  return new Promise(
-    (resolve: Function, reject: Function): Object => {
-      if (platform === 'win32') {
-        try {
-          const id = expose(windowsMachineId());
-          return resolve(original ? id : hash(id));
-        } catch (error) {
-          return reject(error);
-        }
-      }
-
-      return exec(guid[platform], {}, (err: any, stdout: any, _stderr: any) => {
-        if (err) {
-          return reject(new Error(`Error while obtaining machine id: ${err.stack}`));
-        }
-
-        const id = expose(stdout.toString());
-
-        return resolve(original ? id : hash(id));
-      });
-    },
-  );
 }
