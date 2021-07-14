@@ -25,7 +25,7 @@
 /* Based on source: https://github.com/Nokel81/node-machine-id/commit/ee2d03efca9e9ccb363e850093a2e6654137275c */
 
 import { execSync } from 'child_process';
-import { createHash } from 'crypto';
+import { createHash, pseudoRandomBytes } from 'crypto';
 import * as reg from 'native-reg';
 import { hostname } from 'os';
 
@@ -106,17 +106,19 @@ export function generateUuid(name: string = hostname()): string {
   if (!name) {
     name = '';
   }
-  const bytes4 = Buffer.concat([Buffer.from(name, 'utf8'), Buffer.alloc(defaultSize)], defaultSize);
+  const bytes = name
+    ? Buffer.concat([Buffer.from(name, 'utf8'), Buffer.alloc(defaultSize)], defaultSize)
+    : pseudoRandomBytes(16);
   return (
-    bytes4.slice(0, 4).toString('hex') +
+    bytes.slice(0, 4).toString('hex') +
     '-' +
-    bytes4.slice(4, 6).toString('hex') +
+    bytes.slice(4, 6).toString('hex') +
     '-' +
-    bytes4.slice(6, 8).toString('hex') +
+    bytes.slice(6, 8).toString('hex') +
     '-' +
-    bytes4.slice(8, 10).toString('hex') +
+    bytes.slice(8, 10).toString('hex') +
     '-' +
-    bytes4.slice(10, 16).toString('hex')
+    bytes.slice(10, 16).toString('hex')
   );
 }
 

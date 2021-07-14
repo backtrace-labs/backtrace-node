@@ -77,7 +77,7 @@ describe('Machine ID tests', () => {
 
       const generatedUuid = generateUuid(testOsName);
 
-      assert.isDefined(generateUuid);
+      assert.isDefined(generatedUuid);
     });
 
     it('should generate the same uuid over different user sessions', () => {
