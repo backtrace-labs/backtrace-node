@@ -24,10 +24,10 @@
 
 /* Based on source: https://github.com/Nokel81/node-machine-id/commit/ee2d03efca9e9ccb363e850093a2e6654137275c */
 
-import { exec, execSync } from 'child_process';
+import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import * as reg from 'native-reg';
-import { pseudoRandomBytes } from 'crypto';
+import { hostname } from 'os';
 
 type SupportedPlatforms = 'darwin' | 'linux' | 'freebsd' | 'win32';
 const supportedPlatforms = ['darwin', 'linux', 'freebsd', 'win32'];
@@ -101,18 +101,22 @@ function nonWindowsMachineId(): string | null {
   }
 }
 
-function generateUuid(): string {
-  const bytes = pseudoRandomBytes(16);
+export function generateUuid(name: string = hostname()): string {
+  const defaultSize = 16;
+  if (!name) {
+    name = '';
+  }
+  const bytes4 = Buffer.concat([Buffer.from(name, 'utf8'), Buffer.alloc(defaultSize)], defaultSize);
   return (
-    bytes.slice(0, 4).toString('hex') +
+    bytes4.slice(0, 4).toString('hex') +
     '-' +
-    bytes.slice(4, 6).toString('hex') +
+    bytes4.slice(4, 6).toString('hex') +
     '-' +
-    bytes.slice(6, 8).toString('hex') +
+    bytes4.slice(6, 8).toString('hex') +
     '-' +
-    bytes.slice(8, 10).toString('hex') +
+    bytes4.slice(8, 10).toString('hex') +
     '-' +
-    bytes.slice(10, 16).toString('hex')
+    bytes4.slice(10, 16).toString('hex')
   );
 }
 
