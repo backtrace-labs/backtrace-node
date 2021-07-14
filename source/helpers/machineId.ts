@@ -102,13 +102,10 @@ function nonWindowsMachineId(): string | null {
 }
 
 export function generateUuid(name: string = hostname()): string {
-  const defaultSize = 16;
-  if (!name) {
-    name = '';
-  }
+  const uuidSize = 16;
   const bytes = name
-    ? Buffer.concat([Buffer.from(name, 'utf8'), Buffer.alloc(defaultSize)], defaultSize)
-    : pseudoRandomBytes(16);
+    ? Buffer.concat([Buffer.from(name, 'utf8'), Buffer.alloc(uuidSize)], uuidSize)
+    : pseudoRandomBytes(uuidSize);
   return (
     bytes.slice(0, 4).toString('hex') +
     '-' +
