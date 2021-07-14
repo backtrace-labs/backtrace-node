@@ -1,6 +1,6 @@
 import { pseudoRandomBytes } from 'crypto';
-import { machineIdSync } from '../helpers/machineId';
 import * as os from 'os';
+import { machineIdSync } from '../helpers/machineId';
 import { readModule } from '../helpers/moduleResolver';
 import { readMemoryInformation, readProcessStatus } from '../helpers/processHelper';
 import { IBacktraceData } from './backtraceData';
@@ -42,7 +42,7 @@ export class BacktraceReport {
   // Backtrace-ndoe name
   public readonly agent = 'backtrace-node';
   // Backtrace-node  version
-  public readonly agentVersion = '1.1.0';
+  public readonly agentVersion = '1.1.1';
   // main thread name
   public readonly mainThread = 'main';
 

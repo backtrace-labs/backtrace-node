@@ -25,7 +25,7 @@
 /* Based on source: https://github.com/Nokel81/node-machine-id/commit/ee2d03efca9e9ccb363e850093a2e6654137275c */
 
 import { assert } from 'chai';
-import { machineIdSync, getPlatform } from '../source/helpers/machineId';
+import { generateUuid, getPlatform, machineIdSync } from '../source/helpers/machineId';
 
 let platform = getPlatform(),
   originalPattern = {
@@ -50,6 +50,43 @@ describe('Machine ID tests', () => {
   describe('Sync call: machineIdSync()', function () {
     it('should return unique sha256-hash', () => {
       assert.match(machineIdSync(), hashPattern);
+    });
+  });
+
+  describe('Uuid generation tests - based on the host name', () => {
+    it('should generate correctly uuid based on the host name that has less than 16 bytes', () => {
+      const testOsName = 'foo';
+      const expectedUuid = `${Buffer.from(testOsName, 'utf8').toString('hex')}00-0000-0000-0000-000000000000`;
+
+      const generatedUuid = generateUuid(testOsName);
+
+      assert.equal(generatedUuid, expectedUuid);
+    });
+
+    it('should generate correctly uuid based on the host name that has more than 16 bytes', () => {
+      const testOsName = 'abcdabcdabcdabcdabcd123124nuabgyiagbygvba';
+      const expectedUuid = '61626364-6162-6364-6162-636461626364';
+
+      const generatedUuid = generateUuid(testOsName);
+
+      assert.equal(generatedUuid, expectedUuid);
+    });
+
+    it('should generate correctly uuid based on the host name that is undefined', () => {
+      const testOsName = undefined;
+
+      const generatedUuid = generateUuid(testOsName);
+
+      assert.isDefined(generatedUuid);
+    });
+
+    it('should generate the same uuid over different user sessions', () => {
+      const testOsName = 'abcd';
+
+      const firstSessionUuid = generateUuid(testOsName);
+      const secondSessionUuid = generateUuid(testOsName);
+
+      assert.equal(firstSessionUuid, secondSessionUuid);
     });
   });
 });

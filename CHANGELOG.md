@@ -1,5 +1,9 @@
 # Backtrace Node Release Notes
 
+## Version 1.1.1
+
+- fixed an issue with node machine id (https://github.com/backtrace-labs/backtrace-node/issues/34)
+
 ## Version 1.1.0
 
 - improved deduplication: the relative library path is used instead of absolute path for purposes of deduplication.

@@ -24,10 +24,10 @@
 
 /* Based on source: https://github.com/Nokel81/node-machine-id/commit/ee2d03efca9e9ccb363e850093a2e6654137275c */
 
-import { exec, execSync } from 'child_process';
-import { createHash } from 'crypto';
+import { execSync } from 'child_process';
+import { createHash, pseudoRandomBytes } from 'crypto';
 import * as reg from 'native-reg';
-import { pseudoRandomBytes } from 'crypto';
+import { hostname } from 'os';
 
 type SupportedPlatforms = 'darwin' | 'linux' | 'freebsd' | 'win32';
 const supportedPlatforms = ['darwin', 'linux', 'freebsd', 'win32'];
@@ -101,8 +101,11 @@ function nonWindowsMachineId(): string | null {
   }
 }
 
-function generateUuid(): string {
-  const bytes = pseudoRandomBytes(16);
+export function generateUuid(name: string = hostname()): string {
+  const uuidSize = 16;
+  const bytes = name
+    ? Buffer.concat([Buffer.from(name, 'utf8'), Buffer.alloc(uuidSize)], uuidSize)
+    : pseudoRandomBytes(uuidSize);
   return (
     bytes.slice(0, 4).toString('hex') +
     '-' +
