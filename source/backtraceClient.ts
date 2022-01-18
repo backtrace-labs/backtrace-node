@@ -7,6 +7,9 @@ import { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtra
 import { IBacktraceData } from './model/backtraceData';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
+import { BacktraceMetrics } from './model/backtraceMetrics';
+import { VERSION } from './consts/application';
+import { readSystemAttributes } from './helpers/moduleResolver';
 
 /**
  * Backtrace client
@@ -19,6 +22,8 @@ export class BacktraceClient extends EventEmitter {
   private _clientRateLimit: ClientRateLimit;
   private _symbolication = false;
   private _symbolicationMap?: Array<{ file: string; uuid: string }>;
+  private attributes: object = {};
+  private _backtraceMetrics: BacktraceMetrics | undefined;
 
   constructor(clientOptions: IBacktraceClientOptions | BacktraceClientOptions) {
     super();
@@ -33,6 +38,20 @@ export class BacktraceClient extends EventEmitter {
     this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
     this.setupScopedAttributes();
+
+    this.attributes = this.getClientAttributes();
+    if (this.options.enableMetricsSupport) {
+      this._backtraceMetrics = new BacktraceMetrics((clientOptions as BacktraceClientOptions), () => {
+        return this.getClientAttributes();
+      });
+    }
+  }
+
+  private getClientAttributes() {
+    return {
+      ...readSystemAttributes(),
+      ...this.options.attributes,
+    };
   }
 
   /**
@@ -207,6 +226,7 @@ export class BacktraceClient extends EventEmitter {
     }
     return {
       ...attributes,
+      ...this.attributes,
       ...this.options.attributes,
       ...this.getMemorizedAttributes(),
       ...this._scopedAttributes,

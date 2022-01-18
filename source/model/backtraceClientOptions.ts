@@ -14,6 +14,9 @@ export class BacktraceClientOptions implements IBacktraceClientOptions {
   public sampling: number | undefined = undefined;
   public rateLimit: number = 0;
   public debugBacktrace: boolean = false;
+
+  public enableMetricsSupport: boolean = true;
+  public metricsSubmissionUrl?: string;
 }
 
 export interface IBacktraceClientOptions {

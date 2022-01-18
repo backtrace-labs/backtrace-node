@@ -1,8 +1,9 @@
 import { pseudoRandomBytes } from 'crypto';
-import * as os from 'os';
+import { APP_NAME, LANG, THREAD, VERSION } from '../consts/application';
 import { machineIdSync } from '../helpers/machineId';
-import { readModule } from '../helpers/moduleResolver';
+import { readModule, readSystemAttributes } from '../helpers/moduleResolver';
 import { readMemoryInformation, readProcessStatus } from '../helpers/processHelper';
+import { currentTimestamp } from '../utils';
 import { IBacktraceData } from './backtraceData';
 import { BacktraceStackTrace } from './backtraceStackTrace';
 
@@ -10,7 +11,7 @@ import { BacktraceStackTrace } from './backtraceStackTrace';
  * BacktraceReport describe current exception/message payload message to Backtrace
  */
 export class BacktraceReport {
-  private static machineId = machineIdSync(true);
+  public static machineId = machineIdSync(true);
 
   public set symbolication(symbolication: boolean) {
     this._symbolication = symbolication;
@@ -34,17 +35,17 @@ export class BacktraceReport {
   // reprot id
   public readonly uuid: string = this.generateUuid();
   // timestamp
-  public readonly timestamp: number = Math.floor(new Date().getTime() / 1000);
+  public readonly timestamp: number = currentTimestamp();
   // lang
-  public readonly lang = 'nodejs';
+  public readonly lang = LANG;
   // environment version
   public readonly langVersion = process.version;
   // Backtrace-ndoe name
-  public readonly agent = 'backtrace-node';
+  public readonly agent = APP_NAME;
   // Backtrace-node  version
-  public readonly agentVersion = '1.1.1';
+  public readonly agentVersion= VERSION;
   // main thread name
-  public readonly mainThread = 'main';
+  public readonly mainThread = THREAD;
 
   public classifiers: string[] = [];
 
@@ -288,24 +289,8 @@ export class BacktraceReport {
   }
 
   private readAttributes(): object {
-    const mem = process.memoryUsage();
-    const result = {
-      'process.age': Math.floor(process.uptime()),
-      'uname.uptime': os.uptime(),
-      'uname.machine': process.arch,
-      'uname.version': os.release(),
-      'uname.sysname': process.platform,
-      'vm.rss.size': mem.rss,
-      'gc.heap.total': mem.heapTotal,
-      'gc.heap.used': mem.heapUsed,
-      'node.env': process.env.NODE_ENV,
-      'debug.port': process.debugPort,
-      'backtrace.version': this.agentVersion,
-      guid: BacktraceReport.machineId,
-      hostname: os.hostname(),
-    } as any;
+    const result = readSystemAttributes();
 
-    const cpus = os.cpus();
     if (this._callingModule) {
       const { name, version, main, description, author } = (this._callingModule || {}) as any;
       result['name'] = name;
@@ -313,11 +298,6 @@ export class BacktraceReport {
       result['main'] = main;
       result['description'] = description;
       result['author'] = typeof author === 'object' && author.name ? author.name : author;
-    }
-
-    if (cpus && cpus.length > 0) {
-      result['cpu.count'] = cpus.length;
-      result['cpu.brand'] = cpus[0].model;
     }
     return result;
   }
