@@ -11,7 +11,7 @@ describe('Backrace symbolication tests', () => {
   describe('Backtrace client tests', () => {
     const clientOptions = new BacktraceClientOptions();
     before(() => {
-      clientOptions.endpoint = 'submit.backtrace.io/blah';
+      clientOptions.endpoint = 'submit.backtrace.io/universe/3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564/json';
     });
 
     describe('Backtrace client symbolication property tests', () => {

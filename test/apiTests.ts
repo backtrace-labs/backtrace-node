@@ -14,7 +14,7 @@ describe('Integration tests', () => {
     let client!: BacktraceClient;
     beforeEach(() => {
       const basePath = 'https://submit.backtrace.io';
-      const query = '/server/token/json';
+      const query = '/server/3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564/json';
       nock(basePath)
         .post(query)
         .reply(200, {
@@ -88,7 +88,7 @@ describe('Integration tests', () => {
     let client!: BacktraceClient;
     beforeEach(() => {
       const basePath = 'https://submit.backtrace.io';
-      const query = '/server/token/json';
+      const query = '/server/3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564/json';
       nock(basePath)
         .post(query)
         .reply(500, {});

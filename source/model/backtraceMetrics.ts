@@ -11,19 +11,13 @@ export class BacktraceMetrics {
   private readonly token: string;
   private readonly hostname: string;
 
-  private readonly persistenceInterval: number = 1800000; // Thirty minutes in milliseconds.
-  private readonly heartbeatInterval: number = 60000; // One minutes in milliseconds.
-
-  private readonly timestamp = currentTimestamp();
   private readonly applicationName = APP_NAME;
   private readonly applicationVersion = VERSION;
 
   private summedEndpoint: string;
   private uniqueEndpoint: string;
 
-  private sessionId: string | undefined;
-  private sessionStart: number | undefined;
-  private lastActive: number | undefined;
+  private sessionId: string = uuid();
 
   constructor(
     configuration: BacktraceClientOptions,
@@ -63,39 +57,16 @@ export class BacktraceMetrics {
     this.summedEndpoint = `${this.hostname}/api/summed-events/submit?universe=${this.universe}&token=${this.token}`;
     this.uniqueEndpoint = `${this.hostname}/api/unique-events/submit?universe=${this.universe}&token=${this.token}`;
 
-    this.persistSession(); // Create/persist session on construction.
-
-    // Persist session every heartbeat interval.
-    const intervalId: ReturnType<typeof setInterval> | undefined = setInterval(
-      () => this.persistSession(),
-      this.heartbeatInterval,
-    );
+    this.handleSession();
   }
 
   /**
-   * Handle persisting of session. When called, will create or manage current session.
-   * when appropriate.
+   * Handle persisting of session. When called, will create a new session.
    */
-  private persistSession(): void {
-    console.log("session persisted.")
+  private handleSession(): void {
     // If sessionId is not set, create new session. Send unique and app launch events.
-    if (!this.sessionId) {
-      this.createNewSession();
-      this.sendUniqueEvent();
-      // An "application launch" loosely / temporarily means first session creation.
-      this.sendSummedEvent('Application Launches');
-
-      // If sessionId is set and lastActive is over persistenceInterval, create new session and send unique event.
-      // if lastActive is not defined, the page was just launched; use current timestamp as lastActive.
-    } else if (
-      (this.lastActive || this.timestamp) <
-      this.timestamp - this.persistenceInterval / SEC_TO_MILLIS
-    ) {
-      this.createNewSession();
-      this.sendUniqueEvent();
-    }
-
-    this.lastActive = this.timestamp;
+    this.sendUniqueEvent();
+    this.sendSummedEvent('Application Launches');
   }
 
   /**
@@ -146,7 +117,9 @@ export class BacktraceMetrics {
     const clientAttributes = this.attributeProvider() as {
       [index: string]: any;
     };
-    const result: { [index: string]: string } = {};
+    const result: { [index: string]: string } = {
+      'application.session': this.sessionId,
+    };
 
     for (const attributeName in clientAttributes) {
       if (
@@ -168,16 +141,5 @@ export class BacktraceMetrics {
       }
     }
     return result;
-  }
-
-  /**
-   * Create new sessionId and set sessionId, lastActive, and sessionStart.
-   */
-  private createNewSession(): string {
-    const newSessionId = uuid();
-    this.sessionId = newSessionId;
-    this.lastActive = this.timestamp;
-    this.sessionStart = this.timestamp;
-    return newSessionId;
   }
 }
