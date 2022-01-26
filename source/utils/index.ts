@@ -1,5 +1,5 @@
+import axios from 'axios';
 import crypto from 'crypto';
-import https from 'https';
 
 /**
  * Generate a UUID
@@ -110,46 +110,24 @@ export function getEndpointParams(
 export async function post(
   url: string,
   data: Record<string, unknown>,
-  options?: { timeout?: number },
+  options?: { timeout?: number, headers?: any },
 ): Promise<void> {
   const DEFAULT_TIMEOUT = 15000; // Fifteen seconds in ms
 
   try {
-      const dataString = JSON.stringify(data)
-
-      const options = {
-        method: 'POST',
+      const defaultOptions = {
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': dataString.length,
         },
         timeout: DEFAULT_TIMEOUT,
       }
-    
-      return new Promise((resolve, reject) => {
-        const req = https.request(url, options, (res) => {
-          if (res.statusCode && (res.statusCode < 200 || res.statusCode > 299)) {
-            return reject(new Error(`HTTP status code ${res.statusCode}`));
-          }
-    
-          const body: any[] = [];
-          // res.on('data', (chunk) => body.push(chunk));
-          res.on('end', () => {
-            // const resString = Buffer.concat(body).toString(); // reponse data is not returned.
-            resolve();
-          })
-        })
-        req.on('error', (err) => {
-          reject(`Invalid attempt to submit metric to Backtrace. Error: ${err.name}. ${err.message}`);
-        })
-        req.on('timeout', () => {
-          req.destroy();
-          reject(new Error('Request timed out.'));
-        });
-        req.write(dataString);
-        req.end();
-      });
+
+      const res = await axios.post(url, data, {...defaultOptions, ...options})
+      if (res.status !== 200) {
+        return Promise.reject(new Error(`Invalid attempt to submit error to Backtrace. Result: ${res}`));
+      }
+      return
   } catch (err) {
-    console.error(err);
+    return Promise.reject(err);
   }
 }

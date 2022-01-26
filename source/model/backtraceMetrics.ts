@@ -88,7 +88,7 @@ export class BacktraceMetrics {
       ],
     };
 
-    await post(this.uniqueEndpoint, payload);
+    await post(this.uniqueEndpoint, payload).catch((e) => console.error(`Encountered error sending unique event: ${e}`));
   }
 
   /**
@@ -110,7 +110,7 @@ export class BacktraceMetrics {
       ],
     };
 
-    await post(this.summedEndpoint, payload);
+    await post(this.summedEndpoint, payload).catch((e) => console.error(`Encountered error sending summed event: ${e}`));
   }
 
   private getEventAttributes(): { [index: string]: any } {
