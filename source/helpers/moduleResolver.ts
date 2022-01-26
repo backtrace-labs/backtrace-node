@@ -73,7 +73,7 @@ export function readSystemAttributes(): {[index: string]: any} {
     'gc.heap.used': mem.heapUsed,
     'node.env': process.env.NODE_ENV,
     'debug.port': process.debugPort,
-    'application.version': VERSION,
+    'backtrace.version': VERSION,
     guid: BacktraceReport.machineId,
     hostname: os.hostname(),
   } as any;

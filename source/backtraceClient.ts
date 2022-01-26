@@ -50,6 +50,7 @@ export class BacktraceClient extends EventEmitter {
   private getClientAttributes() {
     return {
       ...readSystemAttributes(),
+      ...this._scopedAttributes,
       ...this.options.attributes,
     };
   }
