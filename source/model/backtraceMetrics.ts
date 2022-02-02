@@ -9,9 +9,6 @@ export class BacktraceMetrics {
   private readonly token: string;
   private readonly hostname: string;
 
-  private readonly applicationName: string = '';
-  private readonly applicationVersion: string = '';
-
   private summedEndpoint: string;
   private uniqueEndpoint: string;
 
@@ -55,9 +52,6 @@ export class BacktraceMetrics {
     this.summedEndpoint = `${this.hostname}/api/summed-events/submit?universe=${this.universe}&token=${this.token}`;
     this.uniqueEndpoint = `${this.hostname}/api/unique-events/submit?universe=${this.universe}&token=${this.token}`;
 
-    // Get user application name and version from attributes
-    this.applicationName = this.getEventAttributes()?.['application'] || ''
-    this.applicationVersion = this.getEventAttributes()?.['application.version'] || ''
     this.handleSession();
   }
 
@@ -74,9 +68,10 @@ export class BacktraceMetrics {
    * Send POST to unique-events API endpoint
    */
   public async sendUniqueEvent(): Promise<void> {
+    const attributes = this.getEventAttributes();
     const payload = {
-      application: this.applicationName,
-      appversion: this.applicationVersion,
+      application: attributes.application || '',
+      appversion: attributes['application.version'] || '',
       metadata: {
         dropped_events: 0,
       },
@@ -96,9 +91,11 @@ export class BacktraceMetrics {
    * Send POST to summed-events API endpoint
    */
   public async sendSummedEvent(metricGroup: string): Promise<void> {
+    const attributes = this.getEventAttributes();
+
     const payload = {
-      application: this.applicationName,
-      appversion: this.applicationVersion,
+      application: attributes.application || '',
+      appversion: attributes['application.version'] || '',
       metadata: {
         dropped_events: 0,
       },
