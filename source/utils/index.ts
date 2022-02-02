@@ -114,8 +114,6 @@ export async function post(
 ): Promise<void> {
   const DEFAULT_TIMEOUT = 15000; // Fifteen seconds in ms
 
-  console.log(url)
-  console.log(JSON.stringify(data))
   try {
       const defaultOptions = {
         headers: {

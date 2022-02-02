@@ -94,8 +94,8 @@ export class BacktraceMetrics {
     const attributes = this.getEventAttributes();
 
     const payload = {
-      application: attributes.application || '',
-      appversion: attributes['application.version'] || '',
+      application: attributes.application || 'unknown',
+      appversion: attributes['application.version'] || 'unknown',
       metadata: {
         dropped_events: 0,
       },
