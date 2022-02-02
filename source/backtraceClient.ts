@@ -8,7 +8,6 @@ import { IBacktraceData } from './model/backtraceData';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
 import { BacktraceMetrics } from './model/backtraceMetrics';
-import { VERSION } from './const/application';
 import { readSystemAttributes } from './helpers/moduleResolver';
 
 /**
@@ -267,8 +266,9 @@ export class BacktraceClient extends EventEmitter {
     }
     const json = JSON.parse(fs.readFileSync(applicationPackageJsonPath, 'utf8'));
     this._scopedAttributes = {
-      'application.version': json.version,
-      application: json.name,
+      // a value for application name and version are required. If none are found, use unknown string.
+      'application.version': json.version || 'unknown',
+      application: json.name || 'unknown',
       main: json.main,
       description: json.description,
       author: typeof json.author === 'object' && json.author.name ? json.author.name : json.author,

@@ -70,8 +70,8 @@ export class BacktraceMetrics {
   public async sendUniqueEvent(): Promise<void> {
     const attributes = this.getEventAttributes();
     const payload = {
-      application: attributes.application || '',
-      appversion: attributes['application.version'] || '',
+      application: attributes.application,
+      appversion: attributes['application.version'],
       metadata: {
         dropped_events: 0,
       },
@@ -94,8 +94,8 @@ export class BacktraceMetrics {
     const attributes = this.getEventAttributes();
 
     const payload = {
-      application: attributes.application || 'unknown',
-      appversion: attributes['application.version'] || 'unknown',
+      application: attributes.application,
+      appversion: attributes['application.version'],
       metadata: {
         dropped_events: 0,
       },
