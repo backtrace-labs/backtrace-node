@@ -1,5 +1,5 @@
 import { pseudoRandomBytes } from 'crypto';
-import { APP_NAME, LANG, THREAD, VERSION } from '../consts/application';
+import { APP_NAME, LANG, THREAD, VERSION } from '../const/application';
 import { machineIdSync } from '../helpers/machineId';
 import { readModule, readSystemAttributes } from '../helpers/moduleResolver';
 import { readMemoryInformation, readProcessStatus } from '../helpers/processHelper';

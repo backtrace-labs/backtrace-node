@@ -1,6 +1,4 @@
 import { BacktraceClientOptions } from '..';
-import { SEC_TO_MILLIS } from '../consts';
-import { APP_NAME, VERSION } from '../consts/application';
 import { currentTimestamp, getEndpointParams, post, uuid } from '../utils';
 
 /**
@@ -11,8 +9,8 @@ export class BacktraceMetrics {
   private readonly token: string;
   private readonly hostname: string;
 
-  private readonly applicationName = APP_NAME;
-  private readonly applicationVersion = VERSION;
+  private readonly applicationName: string = '';
+  private readonly applicationVersion: string = '';
 
   private summedEndpoint: string;
   private uniqueEndpoint: string;
@@ -57,6 +55,9 @@ export class BacktraceMetrics {
     this.summedEndpoint = `${this.hostname}/api/summed-events/submit?universe=${this.universe}&token=${this.token}`;
     this.uniqueEndpoint = `${this.hostname}/api/unique-events/submit?universe=${this.universe}&token=${this.token}`;
 
+    // Get user application name and version from attributes
+    this.applicationName = this.getEventAttributes()?.['application'] || ''
+    this.applicationVersion = this.getEventAttributes()?.['application.version'] || ''
     this.handleSession();
   }
 

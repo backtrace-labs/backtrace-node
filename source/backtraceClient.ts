@@ -8,7 +8,7 @@ import { IBacktraceData } from './model/backtraceData';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
 import { BacktraceMetrics } from './model/backtraceMetrics';
-import { VERSION } from './consts/application';
+import { VERSION } from './const/application';
 import { readSystemAttributes } from './helpers/moduleResolver';
 
 /**
@@ -215,7 +215,7 @@ export class BacktraceClient extends EventEmitter {
       return url;
     }
     if (!this.options.token) {
-      throw new Error('Token is required if Backtrace-node have to build url to Backtrace');
+      throw new Error('Token option is required if endpoint is not provided in `https://submit.backtrace.io/<universe>/<token>/json` format.');
     }
     const uriSeparator = url.endsWith('/') ? '' : '/';
     return `${this.options.endpoint}${uriSeparator}post?format=json&token=${this.options.token}`;

@@ -30,7 +30,7 @@ export class BacktraceApi extends EventEmitter {
       }
       return BacktraceResult.Ok(report, result.data);
     } catch (err) {
-      return BacktraceResult.OnError(report, err);
+      return BacktraceResult.OnError(report, err as Error);
     }
   }
 

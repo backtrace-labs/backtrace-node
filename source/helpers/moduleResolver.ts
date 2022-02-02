@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { BacktraceReport } from '../model/backtraceReport';
-import { VERSION } from '../consts/application';
+import { VERSION } from '../const/application';
 
 /**
  * Read module dependencies
