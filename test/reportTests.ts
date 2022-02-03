@@ -176,7 +176,7 @@ describe('Backrace report tests', () => {
       process.removeAllListeners('newListener');
 
       bt.initialize({
-        endpoint: 'endpoint',
+        endpoint: 'https://endpoint.io',
         token: 'token',
       } as BacktraceClientOptions);
     });

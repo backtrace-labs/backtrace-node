@@ -3,8 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { BacktraceApi } from './backtraceApi';
 import { ClientRateLimit } from './clientRateLimit';
+import { readSystemAttributes } from './helpers/moduleResolver';
 import { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtraceClientOptions';
 import { IBacktraceData } from './model/backtraceData';
+import { BacktraceMetrics } from './model/backtraceMetrics';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
 
@@ -19,6 +21,8 @@ export class BacktraceClient extends EventEmitter {
   private _clientRateLimit: ClientRateLimit;
   private _symbolication = false;
   private _symbolicationMap?: Array<{ file: string; uuid: string }>;
+  private attributes: object = {};
+  private readonly _backtraceMetrics: BacktraceMetrics | undefined;
 
   constructor(clientOptions: IBacktraceClientOptions | BacktraceClientOptions) {
     super();
@@ -33,6 +37,25 @@ export class BacktraceClient extends EventEmitter {
     this._clientRateLimit = new ClientRateLimit(this.options.rateLimit);
     this.registerHandlers();
     this.setupScopedAttributes();
+
+    this.attributes = this.getClientAttributes();
+    if (this.options.enableMetricsSupport) {
+      this._backtraceMetrics = new BacktraceMetrics(
+        clientOptions as BacktraceClientOptions,
+        () => {
+          return this.getClientAttributes();
+        },
+        process.env.NODE_ENV === 'test' ? undefined : console,
+      );
+    }
+  }
+
+  private getClientAttributes() {
+    return {
+      ...readSystemAttributes(),
+      ...this._scopedAttributes,
+      ...this.options.attributes,
+    };
   }
 
   /**
@@ -194,8 +217,15 @@ export class BacktraceClient extends EventEmitter {
     if (url.includes('submit.backtrace.io')) {
       return url;
     }
+    // allow user to define full URL to Backtrace without defining a token if the token is already available
+    // in the backtrace endpoint.
+    if (url.includes('token=')) {
+      return url;
+    }
     if (!this.options.token) {
-      throw new Error('Token is required if Backtrace-node have to build url to Backtrace');
+      throw new Error(
+        'Token option is required if endpoint is not provided in `https://submit.backtrace.io/<universe>/<token>/json` format.',
+      );
     }
     const uriSeparator = url.endsWith('/') ? '' : '/';
     return `${this.options.endpoint}${uriSeparator}post?format=json&token=${this.options.token}`;
@@ -207,6 +237,7 @@ export class BacktraceClient extends EventEmitter {
     }
     return {
       ...attributes,
+      ...this.attributes,
       ...this.options.attributes,
       ...this.getMemorizedAttributes(),
       ...this._scopedAttributes,
@@ -246,8 +277,9 @@ export class BacktraceClient extends EventEmitter {
     }
     const json = JSON.parse(fs.readFileSync(applicationPackageJsonPath, 'utf8'));
     this._scopedAttributes = {
-      'application.version': json.version,
-      application: json.name,
+      // a value for application name and version are required. If none are found, use unknown string.
+      'application.version': json.version || 'unknown',
+      application: json.name || 'unknown',
       main: json.main,
       description: json.description,
       author: typeof json.author === 'object' && json.author.name ? json.author.name : json.author,

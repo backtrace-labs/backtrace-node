@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
+import { BacktraceReport } from '../model/backtraceReport';
+import { VERSION } from '../const/application';
 
 /**
  * Read module dependencies
@@ -54,4 +57,31 @@ function readLibModule() {
 function readParentDir(root: string, depth: number) {
   const parent = path.join(root, '..');
   return readModule(parent, --depth);
+}
+
+
+export function readSystemAttributes(): {[index: string]: any} {
+  const mem = process.memoryUsage();
+  const result = {
+    'process.age': Math.floor(process.uptime()),
+    'uname.uptime': os.uptime(),
+    'uname.machine': process.arch,
+    'uname.version': os.release(),
+    'uname.sysname': process.platform,
+    'vm.rss.size': mem.rss,
+    'gc.heap.total': mem.heapTotal,
+    'gc.heap.used': mem.heapUsed,
+    'node.env': process.env.NODE_ENV,
+    'debug.port': process.debugPort,
+    'backtrace.version': VERSION,
+    guid: BacktraceReport.machineId,
+    hostname: os.hostname(),
+  } as any;
+
+  const cpus = os.cpus();
+  if (cpus && cpus.length > 0) {
+    result['cpu.count'] = cpus.length;
+    result['cpu.brand'] = cpus[0].model;
+  }
+  return result;
 }

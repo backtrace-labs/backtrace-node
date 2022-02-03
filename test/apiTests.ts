@@ -14,12 +14,12 @@ describe('Integration tests', () => {
     let client!: BacktraceClient;
     beforeEach(() => {
       const basePath = 'https://submit.backtrace.io';
-      const query = '/server/token/json';
+      const query = '/server/twixj0z0ifdonjhn1osoldrzvlwfg78cvrj8wqyqlhlci0bf7wg5mpmu2lqhfnyl/json';
       nock(basePath)
         .post(query)
         .reply(200, {
           _rxid: '00000000-78ab-5702-0000-000000000000',
-          fingerprint: '3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564',
+          fingerprint: 'twixj0z0ifdonjhn1osoldrzvlwfg78cvrj8wqyqlhlci0bf7wg5mpmu2lqhfnyl',
           response: 'ok',
           unique: false,
         });
@@ -88,7 +88,7 @@ describe('Integration tests', () => {
     let client!: BacktraceClient;
     beforeEach(() => {
       const basePath = 'https://submit.backtrace.io';
-      const query = '/server/token/json';
+      const query = '/server/twixj0z0ifdonjhn1osoldrzvlwfg78cvrj8wqyqlhlci0bf7wg5mpmu2lqhfnyl/json';
       nock(basePath)
         .post(query)
         .reply(500, {});
