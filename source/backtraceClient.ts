@@ -3,12 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { BacktraceApi } from './backtraceApi';
 import { ClientRateLimit } from './clientRateLimit';
+import { readSystemAttributes } from './helpers/moduleResolver';
 import { BacktraceClientOptions, IBacktraceClientOptions } from './model/backtraceClientOptions';
 import { IBacktraceData } from './model/backtraceData';
+import { BacktraceMetrics } from './model/backtraceMetrics';
 import { BacktraceReport } from './model/backtraceReport';
 import { BacktraceResult } from './model/backtraceResult';
-import { BacktraceMetrics } from './model/backtraceMetrics';
-import { readSystemAttributes } from './helpers/moduleResolver';
 
 /**
  * Backtrace client
@@ -22,7 +22,7 @@ export class BacktraceClient extends EventEmitter {
   private _symbolication = false;
   private _symbolicationMap?: Array<{ file: string; uuid: string }>;
   private attributes: object = {};
-  private _backtraceMetrics: BacktraceMetrics | undefined;
+  private readonly _backtraceMetrics: BacktraceMetrics | undefined;
 
   constructor(clientOptions: IBacktraceClientOptions | BacktraceClientOptions) {
     super();
@@ -40,7 +40,7 @@ export class BacktraceClient extends EventEmitter {
 
     this.attributes = this.getClientAttributes();
     if (this.options.enableMetricsSupport) {
-      this._backtraceMetrics = new BacktraceMetrics((clientOptions as BacktraceClientOptions), () => {
+      this._backtraceMetrics = new BacktraceMetrics(clientOptions as BacktraceClientOptions, () => {
         return this.getClientAttributes();
       });
     }
@@ -213,8 +213,15 @@ export class BacktraceClient extends EventEmitter {
     if (url.includes('submit.backtrace.io')) {
       return url;
     }
+    // allow user to define full URL to Backtrace without defining a token if the token is already available
+    // in the backtrace endpoint.
+    if (url.includes('token=')) {
+      return url;
+    }
     if (!this.options.token) {
-      throw new Error('Token option is required if endpoint is not provided in `https://submit.backtrace.io/<universe>/<token>/json` format.');
+      throw new Error(
+        'Token option is required if endpoint is not provided in `https://submit.backtrace.io/<universe>/<token>/json` format.',
+      );
     }
     const uriSeparator = url.endsWith('/') ? '' : '/';
     return `${this.options.endpoint}${uriSeparator}post?format=json&token=${this.options.token}`;

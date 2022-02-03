@@ -14,40 +14,27 @@ export class BacktraceMetrics {
 
   private sessionId: string = uuid();
 
-  constructor(
-    configuration: BacktraceClientOptions,
-    private readonly attributeProvider: () => object,
-  ) {
+  constructor(configuration: BacktraceClientOptions, private readonly attributeProvider: () => object) {
     if (!configuration.endpoint) {
       throw new Error(`Backtrace: missing 'endpoint' option.`);
     }
-    const endpointParameters = getEndpointParams(
-      configuration.endpoint,
-      configuration.token,
-    );
+    const endpointParameters = getEndpointParams(configuration.endpoint, configuration.token);
     if (!endpointParameters) {
-      throw new Error(
-        `Invalid Backtrace submission parameters. Cannot create a submission URL to metrics support`,
-      );
+      throw new Error(`Invalid Backtrace submission parameters. Cannot create a submission URL to metrics support`);
     }
     const { universe, token } = endpointParameters;
 
     if (!universe) {
-      throw new Error(
-        `Backtrace: 'universe' could not be parsed from the endpoint.`,
-      );
+      throw new Error(`Backtrace: 'universe' could not be parsed from the endpoint.`);
     }
 
     if (!token) {
-      throw new Error(
-        `Backtrace: missing 'token' option or it could not be parsed from the endpoint.`,
-      );
+      throw new Error(`Backtrace: missing 'token' option or it could not be parsed from the endpoint.`);
     }
 
     this.universe = universe;
     this.token = token;
-    this.hostname =
-      configuration.metricsSubmissionUrl ?? 'https://events.backtrace.io';
+    this.hostname = configuration.metricsSubmissionUrl ?? 'https://events.backtrace.io';
 
     this.summedEndpoint = `${this.hostname}/api/summed-events/submit?universe=${this.universe}&token=${this.token}`;
     this.uniqueEndpoint = `${this.hostname}/api/unique-events/submit?universe=${this.universe}&token=${this.token}`;
@@ -84,7 +71,11 @@ export class BacktraceMetrics {
       ],
     };
 
-    await post(this.uniqueEndpoint, payload).catch((e) => console.error(`Encountered error sending unique event: ${e}`));
+    try {
+      await post(this.uniqueEndpoint, payload);
+    } catch (e) {
+      console.error(`Encountered error sending unique event: ${e}`);
+    }
   }
 
   /**
@@ -108,7 +99,11 @@ export class BacktraceMetrics {
       ],
     };
 
-    await post(this.summedEndpoint, payload).catch((e) => console.error(`Encountered error sending summed event: ${e}`));
+    try {
+      await post(this.summedEndpoint, payload);
+    } catch (e) {
+      console.error(`Encountered error sending summed event: ${e}`);
+    }
   }
 
   private getEventAttributes(): { [index: string]: any } {
@@ -120,17 +115,11 @@ export class BacktraceMetrics {
     };
 
     for (const attributeName in clientAttributes) {
-      if (
-        Object.prototype.hasOwnProperty.call(clientAttributes, attributeName)
-      ) {
+      if (Object.prototype.hasOwnProperty.call(clientAttributes, attributeName)) {
         const element = clientAttributes[attributeName];
         const elementType = typeof element;
 
-        if (
-          elementType === 'string' ||
-          elementType === 'boolean' ||
-          elementType === 'number'
-        ) {
+        if (elementType === 'string' || elementType === 'boolean' || elementType === 'number') {
           const attributeValue = element.toString();
           if (attributeValue) {
             result[attributeName] = attributeValue;
