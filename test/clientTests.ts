@@ -23,7 +23,7 @@ describe('Backtrace client tests', () => {
 
   it('Client options assignment', () => {
     const clientOptions = new BacktraceClientOptions();
-    clientOptions.endpoint = 'submit.backtrace.io/universe/3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564/json';
+    clientOptions.endpoint = 'submit.backtrace.io/universe/twixj0z0ifdonjhn1osoldrzvlwfg78cvrj8wqyqlhlci0bf7wg5mpmu2lqhfnyl/json';
     const client = new bt.BacktraceClient(clientOptions);
 
     assert.equal(
@@ -56,7 +56,7 @@ describe('Backtrace client tests', () => {
     let client!: bt.BacktraceClient;
     before(() => {
       client = new bt.BacktraceClient({
-        endpoint: 'submit.backtrace.io/universe/3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564/json',
+        endpoint: 'submit.backtrace.io/universe/twixj0z0ifdonjhn1osoldrzvlwfg78cvrj8wqyqlhlci0bf7wg5mpmu2lqhfnyl/json',
       } as BacktraceClientOptions);
     });
 
@@ -119,7 +119,7 @@ describe('Backtrace client tests', () => {
 
     before(() => {
       const credentials = ({
-        endpoint: 'submit.backtrace.io/universe/3b71b789c054876f1c57f3e6f77e8606b6bb4a03828be386a6713d957a7de564/json',
+        endpoint: 'submit.backtrace.io/universe/twixj0z0ifdonjhn1osoldrzvlwfg78cvrj8wqyqlhlci0bf7wg5mpmu2lqhfnyl/json',
         attributes: clientAttributes,
       } as unknown) as BacktraceClientOptions;
       client = new bt.BacktraceClient(credentials);
