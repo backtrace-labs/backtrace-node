@@ -14,7 +14,11 @@ export class BacktraceMetrics {
 
   private sessionId: string = uuid();
 
-  constructor(configuration: BacktraceClientOptions, private readonly attributeProvider: () => object) {
+  constructor(
+    configuration: BacktraceClientOptions,
+    private readonly attributeProvider: () => object,
+    private readonly _logger: { error(...data: any[]): void } | undefined,
+  ) {
     if (!configuration.endpoint) {
       throw new Error(`Backtrace: missing 'endpoint' option.`);
     }
@@ -74,7 +78,7 @@ export class BacktraceMetrics {
     try {
       await post(this.uniqueEndpoint, payload);
     } catch (e) {
-      console.error(`Encountered error sending unique event: ${e}`);
+      this._logger?.error(`Encountered error sending unique event: ${e?.message}`);
     }
   }
 
@@ -102,7 +106,7 @@ export class BacktraceMetrics {
     try {
       await post(this.summedEndpoint, payload);
     } catch (e) {
-      console.error(`Encountered error sending summed event: ${e}`);
+      this._logger?.error(`Encountered error sending summed event: ${e?.message}`);
     }
   }
 

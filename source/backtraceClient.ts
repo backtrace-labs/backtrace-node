@@ -40,9 +40,13 @@ export class BacktraceClient extends EventEmitter {
 
     this.attributes = this.getClientAttributes();
     if (this.options.enableMetricsSupport) {
-      this._backtraceMetrics = new BacktraceMetrics(clientOptions as BacktraceClientOptions, () => {
-        return this.getClientAttributes();
-      });
+      this._backtraceMetrics = new BacktraceMetrics(
+        clientOptions as BacktraceClientOptions,
+        () => {
+          return this.getClientAttributes();
+        },
+        process.env.NODE_ENV === 'test' ? undefined : console,
+      );
     }
   }
 

@@ -24,7 +24,7 @@
     "url": "git@github.com:backtrace-labs/backtrace-node.git"
   },
   "scripts": {
-    "test": "mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json test/**/*.ts",
+    "test": "NODE_ENV=test mocha --require ts-node/register -r ./tsconfig.json --project tsconfig.json test/**/*.ts",
     "lint": "tslint -p ./tsconfig.json",
     "format": "prettier --write \"source/**/*.ts\" \"source/**/*.js\"",
     "build": "tsc"
