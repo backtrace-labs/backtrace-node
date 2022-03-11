@@ -17,7 +17,9 @@ export class BacktraceMetrics {
   constructor(
     configuration: BacktraceClientOptions,
     private readonly attributeProvider: () => object,
-    private readonly _logger: { error(...data: any[]): void } | undefined,
+    private readonly _logger: { warn(...data: any[]): void, error(...data: any[]): void } | undefined,
+
+    private readonly eventsErrorWarning = 'Could not submit metrics. Are stability metrics enabled on your instance? Enable metrics ingenstion or disable this feature by providing `{ enableMetricsSupport: false}` in options.'
   ) {
     if (!configuration.endpoint) {
       throw new Error(`Backtrace: missing 'endpoint' option.`);
@@ -78,7 +80,8 @@ export class BacktraceMetrics {
     try {
       await post(this.uniqueEndpoint, payload);
     } catch (e) {
-      this._logger?.error(`Encountered error sending unique event: ${e?.message}`);
+      this._logger?.error(`Encountered error sending unique event: ${(e as Error).message}`);
+      this._logger?.warn(this.eventsErrorWarning)
     }
   }
 
@@ -106,7 +109,8 @@ export class BacktraceMetrics {
     try {
       await post(this.summedEndpoint, payload);
     } catch (e) {
-      this._logger?.error(`Encountered error sending summed event: ${e?.message}`);
+      this._logger?.error(`Encountered error sending summed event: ${(e as Error).message}`);
+      this._logger?.warn(this.eventsErrorWarning)
     }
   }
 
