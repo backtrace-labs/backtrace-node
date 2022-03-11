@@ -49,18 +49,14 @@ type EndpointParameters = {
 /**
  * Get universe and token from the endpoint.
  */
-export function getEndpointParams(
-  endpoint: string,
-  token?: string,
-): EndpointParameters | undefined {
+export function getEndpointParams(endpoint: string, token?: string): EndpointParameters | undefined {
   if (!endpoint) {
     return undefined;
   }
 
   if (endpoint.indexOf('submit.backtrace.io') !== -1) {
     const positionFilter = 'backtrace.io/';
-    const startPosition =
-      endpoint.indexOf('backtrace.io/') + positionFilter.length;
+    const startPosition = endpoint.indexOf('backtrace.io/') + positionFilter.length;
     if (startPosition === -1) {
       return undefined;
     }
@@ -68,20 +64,14 @@ export function getEndpointParams(
     if (indexOfTheEndOfTheUniverseName === -1) {
       return undefined;
     }
-    const universeName = endpoint.substring(
-      startPosition,
-      indexOfTheEndOfTheUniverseName,
-    );
+    const universeName = endpoint.substring(startPosition, indexOfTheEndOfTheUniverseName);
 
     if (!token) {
       const lastSeparatorIndex = endpoint.lastIndexOf('/');
       if (lastSeparatorIndex === indexOfTheEndOfTheUniverseName) {
         return undefined;
       }
-      token = endpoint.substring(
-        indexOfTheEndOfTheUniverseName + 1,
-        lastSeparatorIndex,
-      );
+      token = endpoint.substring(indexOfTheEndOfTheUniverseName + 1, lastSeparatorIndex);
       if (!token || token.length !== 64) {
         return undefined;
       }
@@ -110,23 +100,23 @@ export function getEndpointParams(
 export async function post(
   url: string,
   data: Record<string, unknown>,
-  options?: { timeout?: number, headers?: any },
+  options?: { timeout?: number; headers?: any },
 ): Promise<void> {
   const DEFAULT_TIMEOUT = 15000; // Fifteen seconds in ms
 
   try {
-      const defaultOptions = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: DEFAULT_TIMEOUT,
-      }
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: DEFAULT_TIMEOUT,
+    };
 
-      const res = await axios.post(url, data, {...defaultOptions, ...options})
-      if (res.status !== 200) {
-        return Promise.reject(new Error(`Invalid attempt to submit error to Backtrace. Result: ${res}`));
-      }
-      return
+    const res = await axios.post(url, data, { ...defaultOptions, ...options });
+    if (res.status !== 200) {
+      return Promise.reject(new Error(`Invalid attempt to submit error to Backtrace. Result: ${res}`));
+    }
+    return;
   } catch (err) {
     return Promise.reject(err);
   }

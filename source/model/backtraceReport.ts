@@ -43,7 +43,7 @@ export class BacktraceReport {
   // Backtrace-ndoe name
   public readonly agent = APP_NAME;
   // Backtrace-node  version
-  public readonly agentVersion= VERSION;
+  public readonly agentVersion = VERSION;
   // main thread name
   public readonly mainThread = THREAD;
 

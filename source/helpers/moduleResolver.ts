@@ -59,8 +59,7 @@ function readParentDir(root: string, depth: number) {
   return readModule(parent, --depth);
 }
 
-
-export function readSystemAttributes(): {[index: string]: any} {
+export function readSystemAttributes(): { [index: string]: any } {
   const mem = process.memoryUsage();
   const result = {
     'process.age': Math.floor(process.uptime()),
