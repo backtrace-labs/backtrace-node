@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/backtrace-labs/backtrace-node#readme",
   "devDependencies": {
-    "electron": "^13.1.0",
+    "electron": "^18.3.7",
     "electron-packager": "^15.2.0",
     "typescript": "^3.4.3"
   },
