@@ -46,7 +46,7 @@
     "@types/nock": "^11.1.0",
     "@types/node": "^11.11.4",
     "chai": "~4.2.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "nock": "^13.1.0",
     "ts-node": "^8.0.3",
     "tslint-config-prettier": "^1.18.0",
